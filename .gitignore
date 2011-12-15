@@ -1,0 +1,10 @@
+*dataflow.svg
+*hierarchy.svg
+orocos.log
+results
+log
+\#*#
+data/cmae_data
+*~
+*.swp
+*.swo

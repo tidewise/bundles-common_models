@@ -1,0 +1,11 @@
+<package>
+    <description brief="Root bundle for Rock software">
+    </description>
+    <author>Sylvain Joyeux/sylvain.joyeux@dfki.de</author>
+    <copyright>
+        DFKI/robotik@dfki.de
+    </copyright>
+    <license>LGPL v2 or later</license>
+
+</package>
+
