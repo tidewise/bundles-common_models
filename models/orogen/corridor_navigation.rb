@@ -1,5 +1,4 @@
 using_task_library 'trajectory_follower'
-using_task_library 'dynamixel'
 
 class CorridorNavigation::ServoingTask
     argument :initial_heading
