@@ -1,0 +1,5 @@
+log:
+    # levels: 
+    #     orocos/roby_plugin/system_model: DEBUG
+
+    # filter_backtraces: false
