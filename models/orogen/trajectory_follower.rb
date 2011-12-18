@@ -34,9 +34,9 @@ class TrajectoryFollower::Task
     end
 end
 
-Cmp::ControlLoop.specialize 'controller' => TrajectoryFollower::Task do
+Cmp::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Srv::Motion2DControlledSystem do
     add Srv::Pose, :as => 'pose'
-    export command.trajectory
+    export controller.trajectory
     autoconnect
 end
 

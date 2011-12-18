@@ -16,7 +16,8 @@ end
 composition 'CorridorServoing' do
     add Srv::LaserRangeFinder
     add Srv::RelativePose, :as => 'pose'
-    add(Compositions::ControlLoop, :as => 'control').use(pose, 'command' => TrajectoryFollower::Task)
+    add(Compositions::ControlLoop, :as => 'control').
+        use(pose, 'controller' => TrajectoryFollower::Task)
     add_main_task(CorridorNavigation::ServoingTask, :as => 'servoing')
     connect pose.pose_samples => servoing.odometry_samples
     autoconnect
@@ -24,7 +25,8 @@ end
 
 composition 'CorridorFollowing' do
     add Srv::Pose, :as => 'pose'
-    add(Compositions::ControlLoop, :as => 'control').use(pose, 'command' => TrajectoryFollower::Task)
+    add(Compositions::ControlLoop, :as => 'control').
+        use(pose, 'controller' => TrajectoryFollower::Task)
     add_main_task(CorridorNavigation::FollowingTask, :as => 'follower')
     connect follower.trajectory => control.trajectory
     autoconnect
