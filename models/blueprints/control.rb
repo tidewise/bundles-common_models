@@ -16,9 +16,27 @@ composition 'ControlLoop' do
 
     add_specialization_constraint do |spec0, spec1|
         %w{controller controlled_system}.all? do |child_name|
-            if !(spec0.has_specialization?(child_name, Srv::Controller) && spec1.has_specialization?(child_name, Srv::Controller))
-                !(spec0.has_specialization?(child_name, Srv::ControlledSystem) && spec1.has_specialization?(child_name, Srv::ControlledSystem))
+            controller0 = spec0.find_specialization(child_name, Srv::Controller)
+            controller1 = spec1.find_specialization(child_name, Srv::Controller)
+            if controller0 && controller1
+                m0 = controller0.first
+                m1 = controller1.first
+                if !m0.fullfills?(m1) && !m1.fullfills?(m0)
+                    next(false)
+                end
             end
+
+            controlled0 = spec0.find_specialization(child_name, Srv::ControlledSystem)
+            controlled1 = spec1.find_specialization(child_name, Srv::ControlledSystem)
+            if controlled0 && controlled1
+                m0 = controlled0.first
+                m1 = controlled1.first
+                if !m0.fullfills?(m1) && !m1.fullfills?(m0)
+                    next(false)
+                end
+            end
+
+            true
         end
     end
 
@@ -65,3 +83,13 @@ composition 'ControlLoop' do
         end
     end
 end
+
+# This declares an ActuatorController and ActuatorControlledSystem data service
+# types, and the necessary specializations on Cmp::ControlLoop
+Cmp::ControlLoop.declare "Actuator", 'base/actuators/Command',
+    :feedback_type => 'base/actuators/Status'
+
+# This declares an Motion2DController and Motion2DControlledSystem data service
+# types, and the necessary specializations on Cmp::ControlLoop
+Cmp::ControlLoop.declare "Motion2D", 'base/MotionCommand2D'
+
