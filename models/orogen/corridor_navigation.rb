@@ -1,3 +1,5 @@
+load_system_model 'blueprints/sensors'
+load_system_model 'blueprints/pose'
 using_task_library 'trajectory_follower'
 
 class CorridorNavigation::ServoingTask

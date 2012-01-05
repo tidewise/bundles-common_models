@@ -1,4 +1,4 @@
-using_task_library 'dynamixel'
+load_system_model 'blueprints/pose'
 
 class Icp::Task
     find_output_port('pose_samples').
@@ -14,14 +14,12 @@ end
 composition 'IcpRelocalization' do
     add Srv::RelativePose, :as => 'relative_pose'
     add Srv::LaserRangeFinder, :as => 'laser_range_finder'
-    add(Dynamixel::Task, :as => 'dynamixel')
 
     event :triggered
     event :done
     add(Icp::Task, :as => 'icp').
         use_conf('default', 'relocalization')
 
-    connect dynamixel.lowerDynamixel2UpperDynamixel => icp.dynamic_transformations
     connect relative_pose.pose_samples => icp.odometry_samples
     connect laser_range_finder.scans   => icp.scan_samples
 end
