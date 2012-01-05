@@ -27,6 +27,12 @@ module Srv::Timestamper
     end
 end
 
+timestamper_device.extend_device_configuration do
+    def timestamper_for(*device_names)
+        Srv::Timestamper.add_provider(self.full_name, *device_names)
+    end
+end
+
 Engine.register_instanciation_postprocessing do |engine, plan|
     providers_to_input = Hash.new { |h, k| h[k] = Array.new }
 
