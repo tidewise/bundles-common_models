@@ -2,8 +2,23 @@ load_system_model 'blueprints/sensors'
 load_system_model 'blueprints/pose'
 using_task_library 'trajectory_follower'
 
+class CorridorNavigation::FollowingTask
+    # Additional information for the transformer's automatic configuration
+    transformer do
+        transform_input "pose_samples", "body" => "world"
+        associate_frame_to_ports "world", "trajectory"
+    end
+end
+
 class CorridorNavigation::ServoingTask
     argument :initial_heading
+
+    # Additional information for the transformer's automatic configuration
+    transformer do
+        associate_frame_to_ports 'laser', 'scan_samples'
+        associate_frame_to_ports 'odometry', 'trajectory'
+        transform_input 'odometry_samples', 'body' => 'odometry'
+    end
 
     on :start do |event|
         if initial_heading

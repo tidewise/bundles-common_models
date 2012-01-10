@@ -26,6 +26,12 @@ class TrajectoryFollower::Task
 
     argument :trajectory, :default => nil
 
+    # Add some more information for the transformer integration
+    transformer do
+        associate_frame_to_ports "world", "trajectory"
+        transform_input "pose", "body" => "world"
+    end
+
     on :start do |event|
         if trajectory
             @trajectory_writer = data_writer 'trajectory'

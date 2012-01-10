@@ -4,6 +4,26 @@ class PoseEstimator::Task
     orogen_spec.find_output_port('pose_samples').
         triggered_on('odometry_delta_samples')
 
+    transformer do
+        # The IMU is NOT imu => world. The pose estimator is meant to correct a
+        # yaw bias due to local magnetic disturbance, so the orientation coming
+        # from the IMU and the orientation output by the pose estimator do not
+        # match
+        transform_input "orientation_samples", "imu" => "magnetic_world"
+
+        # Now declare some other global estimators
+        transform_input "position_samples",    "gps" => "world"
+        transform_input "icp_pose_samples",    "icp" => "world"
+
+        # The odometry is used as incremental values. They must give us the
+        # change of pose of the body frame, so declare that
+        associate_frame_to_ports "body", "odometry_delta_samples"
+
+        # And declare the output frame
+        transform_output "pose_samples", "body" => "world"
+    end
+
+
     on :start do |event|
         if State.pose?
             yaw_bias = 0

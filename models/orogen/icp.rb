@@ -5,6 +5,14 @@ class Icp::Task
         triggered_once_per_update
     worstcase_processing_time 1
 
+    # Additional configuration for the transformer's automatic configuration
+    transformer do
+        transform_input "initial_pose_estimate", "body" => "world"
+        transform_input "odometry_samples", "body" => "odometry"
+        transform_output "pose_samples", "body" => "world"
+        associate_frame_to_ports "laser", "scan_samples"
+    end
+
     def configure
         super
         orogen_task.environment_path = Conf.pointcloud_map_path
