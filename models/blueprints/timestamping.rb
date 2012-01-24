@@ -50,7 +50,7 @@ Engine.register_instanciation_postprocessing do |engine, plan|
     providers_to_input.each do |provider, services|
         task = engine.add_instance(provider)
         services.each do |srv|
-            task.connect_ports(srv, ['timestamps', 'timestamps'] => Hash.new)
+            task.as(Srv::Timestamper).connect_ports(srv, ['timestamps', 'timestamps'] => Hash.new)
             srv.task.influenced_by(task)
         end
     end
