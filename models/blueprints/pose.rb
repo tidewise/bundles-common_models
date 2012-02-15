@@ -14,6 +14,10 @@ data_service_type 'Pose' do
     provides Srv::Orientation, 'orientation_samples' => 'pose_samples'
 end
 
+data_service_type 'Transformation' do
+    provides Srv::Pose
+end
+
 # This data service can be used to represent estimators that provide a pose that
 # is a best estimate of the global pose of the system. Because it is a best
 # estimate, it can actually jump
