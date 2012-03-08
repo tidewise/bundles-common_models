@@ -3,6 +3,7 @@ class Skid4Control::SimpleController
     provides Srv::Motion2DControlledSystem, :as => 'controlled_system'
 end
 
+using_task_library 'controldev'
 class Skid4Control::FourWheelController
     provides Srv::ActuatorController, :as => 'controller'
     provides Srv::FourWheelControlledSystem, :as => 'controlled_system'
