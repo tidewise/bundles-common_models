@@ -44,14 +44,43 @@ composition 'ControlLoop' do
     #
     # Given a name of ControlLoopType, it declares:
     #
-    #  * two data services named ControlLoopTypeController and
-    #    ControlLoopTypeControlledSystem. The first one is the
-    #    Srv::Controller and the second one the Srv::ControlledSystem
+    #  * two data services named #{name}Controller and #{name}ControlledSystem.
+    #    The first one is providing Srv::Controller and the second one is
+    #    providing Srv::ControlledSystem
     #  * it declares the relevant specializations on Cmp::ControlLoop
     #
     # Optionally, if a :feedback_type option is given, a feedback channel is
     # created between the controller and the controlled system, of the provided
     # type
+    #
+    # If you expand what this method does for
+    #
+    #   Cmp::ControlLoop.declare "Actuator", 'base/actuators/Command',
+    #       :feedback_type => 'base/actuators/Status'
+    #
+    # it is
+    #
+    #   data_service_type "ActuatorController" do
+    #       provides Srv::Controller
+    #       output_port 'command_out'
+    #       input_port 'status_in'
+    #   end
+    #   data_service_type "ControlledSystem" do
+    #       provides Srv::ControlledSystem
+    #       input_port 'command_in'
+    #       output_port 'status_out'
+    #   end
+    #   ControlLooop.specialize Srv::ControlledSystem do
+    #       export controller.command_in
+    #       if feedback_type
+    #           export controller.status_out
+    #       end
+    #       provides controlled_system_model
+    #       autoconnect
+    #   end
+    #   ControlLooop.specialize Srv::Controller do
+    #   end
+    #
     def self.declare(name, control_type, options = Hash.new)
         options = Kernel.validate_options options, :feedback_type
         feedback_type = options[:feedback_type]
@@ -88,6 +117,7 @@ end
 # types, and the necessary specializations on Cmp::ControlLoop
 Cmp::ControlLoop.declare "Actuator", 'base/actuators/Command',
     :feedback_type => 'base/actuators/Status'
+
 
 # This declares an Motion2DController and Motion2DControlledSystem data service
 # types, and the necessary specializations on Cmp::ControlLoop
