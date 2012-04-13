@@ -18,6 +18,10 @@ data_service_type 'StereoPairProvider' do
     output_port 'images', ro_ptr('/base/samples/frame/FramePair')
 end
 
+data_service_type 'DistanceImageProvider' do
+    output_port 'distance_images', 'base/samples/DistanceImage'
+end
+
 data_service_type 'LaserRangeFinder' do
     output_port 'scans', '/base/samples/LaserScan'
 end
