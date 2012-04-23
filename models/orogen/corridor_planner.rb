@@ -10,7 +10,9 @@ class CorridorPlanner::Task
 
     def configure
         super
-        orogen_task.map             = Conf.traversability_map_file
+        if Conf.traversability_map_file?
+            orogen_task.map_path = Conf.traversability_map_file
+        end
         orogen_task.terrain_classes = Conf.traversability_classes_file
         orogen_task.strong_edge_filter do |p|
             p.env_path = Conf.environment_map_path
