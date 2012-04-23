@@ -10,8 +10,18 @@ class CorridorNavigation::FollowingTask
     end
 end
 
+# The task representing the corridor servoing computation
+#
+# It can be used in two modes:
+#
+# * if an initial heading is set (and target point is set to nil), the servoing
+#   will follow that heading
+# * if a target point is given (and initial_heading is set to nil), the servoing
+#   will try to reach that position by continuously trying to get towards that
+#   point. It uses State.pose.position for its current position.
 class CorridorNavigation::ServoingTask
     argument :initial_heading
+    argument :target_point
 
     # Additional information for the transformer's automatic configuration
     transformer do
@@ -21,10 +31,18 @@ class CorridorNavigation::ServoingTask
     end
 
     on :start do |event|
+        @direction_writer = data_writer 'heading'
         if initial_heading
-            direction_writer = data_writer 'heading'
-            direction_writer.write(@initial_heading || self.initial_heading)
+            @direction_writer.write(self.initial_heading)
             Robot.info "corridor_servoing: initial heading=#{initial_heading * 180 / Math::PI}deg"
+        end
+    end
+
+    poll do
+        if target_point && State.pose.position?
+            direction = (target_point - State.pose.position)
+            heading = Eigen::Vector3.UnitY.angle_to(direction) 
+            @direction_writer.write(heading)
         end
     end
 end
