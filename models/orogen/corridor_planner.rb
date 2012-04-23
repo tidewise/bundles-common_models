@@ -47,21 +47,11 @@ end
 
 class CorridorPlanner::Traversability
     event :start do |context|
-        @result_reader = data_reader 'traversability_map'
+        if !orogen_task.env_save_path.empty?
+            # Make sure that the directory exists
+            FileUtils.mkdir_p(File.expand_path(orogen_task.env_save_path, Roby.app.log_dir))
+        end
 
         super(context)
-    end
-
-    on :success do |context|
-        # Forcefully read the result, as the data reader will get disconnected
-        # when the task stops
-        result
-    end
-    
-    # Returns the resulting plan, if there is one
-    def result
-        if @result_reader
-            @result ||= @result_reader.read_new
-        end
     end
 end
