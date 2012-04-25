@@ -43,8 +43,17 @@ class CorridorNavigation::ServoingTask
             direction = (target_point - State.pose.position)
             heading = Eigen::Vector3.UnitY.angle_to(direction) 
             @direction_writer.write(heading)
+	    
+	    #ignore z
+	    direction.z = 0
+	    #we are finished if we are within 20 cm to the goal
+	    if(direction.norm() < 0.2)
+		emit :target_reached
+	    end
         end
     end
+    
+    event :target_reached
 end
 
 composition 'CorridorServoing' do
