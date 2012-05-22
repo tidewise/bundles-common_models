@@ -12,6 +12,10 @@ composition 'StereoProcessing' do
     
     add Srv::ImageProvider, :as => 'left'
     add Srv::ImageProvider, :as => 'right'
+    
+    connect left.frame => stereotask.left_frame
+    connect right.frame => stereotask.right_frame
+    
     autoconnect
     
     export stereotask.distance_frame
