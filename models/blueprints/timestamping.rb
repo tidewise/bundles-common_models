@@ -38,7 +38,7 @@ Engine.register_instanciation_postprocessing do |engine, plan|
 
     # Avoid instanciating too many things by grouping providers together if they
     # provide timestamps for multiple outputs
-    plan.find_tasks(Srv::TimestampInput).each do |task|
+    plan.find_local_tasks(Srv::TimestampInput).each do |task|
         task.each_device_name do |srv, name|
             if provider = Srv::Timestamper.providers[name]
                 srv = task.model.find_service_from_type(Srv::TimestampInput)
