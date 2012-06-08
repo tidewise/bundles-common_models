@@ -29,31 +29,6 @@ class CorridorNavigation::ServoingTask
         associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
         transform_input 'odometry_samples', 'body' => 'odometry'
     end
-
-    on :start do |event|
-        @direction_writer = data_writer 'heading'
-        if initial_heading
-            @direction_writer.write(self.initial_heading)
-            Robot.info "corridor_servoing: initial heading=#{initial_heading * 180 / Math::PI}deg"
-        end
-    end
-
-    poll do
-        if target_point && State.pose.position?
-            direction = (target_point - State.pose.position)
-            heading = Eigen::Vector3.UnitY.angle_to(direction) 
-            @direction_writer.write(heading)
-	    
-	    #ignore z
-	    direction.z = 0
-	    #we are finished if we are within 20 cm to the goal
-	    if(direction.norm() < 0.2)
-		emit :target_reached
-	    end
-        end
-    end
-    
-    event :target_reached
 end
 
 composition 'CorridorServoing' do
@@ -65,6 +40,50 @@ composition 'CorridorServoing' do
     connect pose.pose_samples => servoing.odometry_samples
     connect laser => servoing
     connect servoing => control
+
+    
+    on :start do |event|
+        @direction_writer = servoing_child.data_writer 'heading'
+	@pose_reader = pose_child.data_reader 'pose_samples'
+        if servoing_child.initial_heading
+            @direction_writer.write(servoing_child.initial_heading)
+            Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
+        end
+    end
+
+    poll do
+	target_point = servoing_child.target_point
+        if target_point && State.pose.position?
+            direction = (target_point - State.pose.position)
+            heading = Eigen::Vector3.UnitY.angle_to(direction)
+	    
+	    #convert global heading to odometry heading
+            heading_world = Eigen::Vector3.UnitY.angle_to(State.pose.orientation * Eigen::Vector3.UnitY)
+	    odo_sample = @pose_reader.read
+	    heading_odometry = Eigen::Vector3.UnitY.angle_to(odo_sample.orientation * Eigen::Vector3.UnitY)
+
+	    final_heading = heading - (heading_world - heading_odometry)
+	
+	    if(final_heading < 0)
+		final_heading += 2* Math::PI
+	    end
+
+	    if(final_heading > 2* Math::PI)
+		final_heading -= 2* Math::PI
+	    end
+
+            @direction_writer.write(final_heading)
+	    
+	    #ignore z
+	    direction.z = 0
+	    #we are finished if we are within 20 cm to the goal
+	    if(direction.norm() < 0.2)
+		emit :target_reached
+	    end
+        end
+    end
+    event :target_reached
+    
 end
 
 composition 'CorridorFollowing' do
