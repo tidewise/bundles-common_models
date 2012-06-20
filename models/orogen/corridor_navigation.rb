@@ -78,6 +78,7 @@ composition 'CorridorServoing' do
 	    direction.z = 0
 	    #we are finished if we are within 20 cm to the goal
 	    if(direction.norm() < 0.2)
+		@direction_writer.disconnect()
 		emit :target_reached
 	    end
         end
