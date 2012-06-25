@@ -32,6 +32,8 @@ class CorridorNavigation::ServoingTask
 end
 
 composition 'CorridorServoing' do
+    add Srv::Pose, :as => 'mapper'
+
     add Srv::LaserRangeFinder, :as => 'laser'
     add Srv::RelativePose, :as => 'pose'
     add(Compositions::ControlLoop, :as => 'control').
