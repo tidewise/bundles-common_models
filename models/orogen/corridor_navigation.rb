@@ -62,26 +62,29 @@ composition 'CorridorServoing' do
 	    #convert global heading to odometry heading
             heading_world = Eigen::Vector3.UnitY.angle_to(State.pose.orientation * Eigen::Vector3.UnitY)
 	    odo_sample = @pose_reader.read
-	    heading_odometry = Eigen::Vector3.UnitY.angle_to(odo_sample.orientation * Eigen::Vector3.UnitY)
+	    if(odo_sample)
+		heading_odometry = Eigen::Vector3.UnitY.angle_to(odo_sample.orientation * Eigen::Vector3.UnitY)
 
-	    final_heading = heading - (heading_world - heading_odometry)
-	
-	    if(final_heading < 0)
-		final_heading += 2* Math::PI
-	    end
-
-	    if(final_heading > 2* Math::PI)
-		final_heading -= 2* Math::PI
-	    end
-
-            @direction_writer.write(final_heading)
+		final_heading = heading - (heading_world - heading_odometry)
 	    
-	    #ignore z
-	    direction.z = 0
-	    #we are finished if we are within 20 cm to the goal
-	    if(direction.norm() < 0.2)
-		@direction_writer.disconnect()
-		emit :target_reached
+		if(final_heading < 0)
+		    final_heading += 2* Math::PI
+		end
+
+		if(final_heading > 2* Math::PI)
+		    final_heading -= 2* Math::PI
+		end
+
+		@direction_writer.write(final_heading)
+		
+		#ignore z
+		direction.z = 0
+		#we are finished if we are within 20 cm to the goal
+		if(direction.norm() < 0.2)
+		    puts("CS :Goal reached \n")
+		    @direction_writer.disconnect()
+		    emit :target_reached
+		end
 	    end
         end
     end
