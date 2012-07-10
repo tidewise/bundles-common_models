@@ -74,6 +74,11 @@ composition 'CorridorServoing' do
             heading_world = Eigen::Vector3.UnitY.angle_to(State.pose.orientation * Eigen::Vector3.UnitY)
 	    odo_sample = @pose_reader.read
 	    if(odo_sample)
+		
+		if((State.pose.time - odo_sample.time).to_f.abs > 0.4)
+		    puts("Warning, global and odometry times are diverged ")
+		end
+		
 		heading_odometry = Eigen::Vector3.UnitY.angle_to(odo_sample.orientation * Eigen::Vector3.UnitY)
 
 		final_heading = heading - (heading_world - heading_odometry)
