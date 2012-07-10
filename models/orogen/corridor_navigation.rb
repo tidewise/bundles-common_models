@@ -54,7 +54,18 @@ composition 'CorridorServoing' do
     end
 
     poll do
-	target_point = servoing_child.target_point
+	target_point = nil
+	if(parent_task && parent_task.corridor && State.pose.position?)
+	    median_curve = parent_task.corridor.median_curve
+	    curve_pos = median_curve.find_one_closest_point(State.pose.position, median_curve.start_param, 0.01)
+	    geom_res = (median_curve.end_param - median_curve.start_param) / median_curve.curve_length
+	    #4 meter lock ahead
+	    curve_pos = [curve_pos + geom_res * 4.0, median_curve.end_param].min
+	    target_point = median_curve.get(curve_pos)
+	else
+	    target_point = servoing_child.target_point
+	end
+
         if target_point && State.pose.position?
             direction = (target_point - State.pose.position)
             heading = Eigen::Vector3.UnitY.angle_to(direction)
