@@ -47,6 +47,7 @@ composition 'CorridorServoing' do
     on :start do |event|
         @direction_writer = servoing_child.data_writer 'heading'
 	@pose_reader = pose_child.data_reader 'pose_samples'
+	@map_pose_reader = mapper_child.data_reader 'pose_samples'
         if servoing_child.initial_heading
             @direction_writer.write(servoing_child.initial_heading)
             Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
@@ -55,9 +56,10 @@ composition 'CorridorServoing' do
 
     poll do
 	target_point = nil
-	if(parent_task && parent_task.corridor && State.pose.position?)
+	cur_pose = @map_pose_reader.read
+	if(parent_task && parent_task.corridor && cur_pose)
 	    median_curve = parent_task.corridor.median_curve
-	    curve_pos = median_curve.find_one_closest_point(State.pose.position, median_curve.start_param, 0.01)
+	    curve_pos = median_curve.find_one_closest_point(cur_pose.position, median_curve.start_param, 0.01)
 	    geom_res = (median_curve.end_param - median_curve.start_param) / median_curve.curve_length
 	    #4 meter lock ahead
 	    curve_pos = [curve_pos + geom_res * 4.0, median_curve.end_param].min
@@ -66,16 +68,16 @@ composition 'CorridorServoing' do
 	    target_point = servoing_child.target_point
 	end
 
-        if target_point && State.pose.position?
-            direction = (target_point - State.pose.position)
+        if target_point && cur_pose
+            direction = (target_point - cur_pose.position)
             heading = Eigen::Vector3.UnitY.angle_to(direction)
 	    
 	    #convert global heading to odometry heading
-            heading_world = Eigen::Vector3.UnitY.angle_to(State.pose.orientation * Eigen::Vector3.UnitY)
+            heading_world = Eigen::Vector3.UnitY.angle_to(cur_pose.orientation * Eigen::Vector3.UnitY)
 	    odo_sample = @pose_reader.read
 	    if(odo_sample)
 		
-		if((State.pose.time - odo_sample.time).to_f.abs > 0.4)
+		if((cur_pose.time - odo_sample.time).to_f.abs > 0.4)
 		    puts("Warning, global and odometry times are diverged ")
 		end
 		
