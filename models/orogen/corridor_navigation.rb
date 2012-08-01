@@ -33,6 +33,7 @@ end
 
 composition 'CorridorServoing' do
     add Srv::Pose, :as => 'mapper'
+    add Srv::Pose, :as => 'localizer'
 
     add Srv::LaserRangeFinder, :as => 'laser'
     add Srv::RelativePose, :as => 'pose'
@@ -45,20 +46,79 @@ composition 'CorridorServoing' do
 
     
     on :start do |event|
-        @direction_writer = servoing_child.data_writer 'heading'
-	@pose_reader = pose_child.data_reader 'pose_samples'
-	@map_pose_reader = mapper_child.data_reader 'pose_samples'
+	Robot.info("Starting Corridor Servoing")
+
+	@direction_writer = servoing_child.data_writer 'heading'
+	@odometry_pose_reader = pose_child.data_reader 'pose_samples'
+	@localizer_pose_reader = localizer_child.data_reader 'pose_samples'
         if servoing_child.initial_heading
             @direction_writer.write(servoing_child.initial_heading)
             Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
         end
+
+	@corridor = nil
+	if(parent_task)
+	    @corridor = parent_task.corridor
+	end
+
+	# Make sure that the corridor servoing is not started before we wrote
+        # the current map
+        child_from_role('servoing').should_start_after inital_map_written_event
+
+	#finish if the target is reached
+	target_reached_event.forward_to success_event
+
+	servoing_child.exception_event.forward_to servoing_error_event
+
+	script do
+	    #make shure corridor servoing is stopped
+	    #the set map operation will fail if CS is not stopped
+	    poll do
+		state = servoing_child.read_current_state()
+		if(state == :STOPPED)
+		    transition!
+		end
+	    end
+
+	    
+	    #be shure control and servoing are running
+	    wait_any(control_child.start_event)
+	    wait_any(control_child.controller_child.start_event)
+	    wait_any(mapper_child.start_event)
+	    wait_any(mapper_child.eslam_child.start_event)
+
+	    execute do
+		map_reader = data_reader('mapper', 'map')
+		map_pose = mapper_child.eslam_child.orogen_task.cloneMap()
+		map_id = mapper_child.eslam_child.orogen_task.map_id
+
+		map = map_reader.read()
+		if(!map)
+		    raise("CS Error, did not get map after request")
+		end
+		   
+		if(!servoing_child.orogen_task.setMap(map, map_id, map_pose))
+		    raise("Failed to set map")
+		end
+	    end	
+	    execute do
+		emit :inital_map_written
+	    end
+	end
     end
 
+    event :inital_map_written
+    
+    event :servoing_error
+    # Needed to make the composition fail when the task fails
+    forward :servoing_error => :failed
+
+    
     poll do
 	target_point = nil
-	cur_pose = @map_pose_reader.read
-	if(parent_task && parent_task.corridor && cur_pose)
-	    median_curve = parent_task.corridor.median_curve
+	cur_pose = @localizer_pose_reader.read
+	if(@corridor && cur_pose)
+	    median_curve = @corridor.median_curve
 	    curve_pos = median_curve.find_one_closest_point(cur_pose.position, median_curve.start_param, 0.01)
 	    geom_res = (median_curve.end_param - median_curve.start_param) / median_curve.curve_length
 	    #4 meter lock ahead
@@ -74,7 +134,7 @@ composition 'CorridorServoing' do
 	    
 	    #convert global heading to odometry heading
             heading_world = Eigen::Vector3.UnitY.angle_to(cur_pose.orientation * Eigen::Vector3.UnitY)
-	    odo_sample = @pose_reader.read
+	    odo_sample = @odometry_pose_reader.read
 	    if(odo_sample)
 		
 		if((cur_pose.time - odo_sample.time).to_f.abs > 0.4)
@@ -100,6 +160,7 @@ composition 'CorridorServoing' do
 		#we are finished if we are within 20 cm to the goal
 		if(direction.norm() < 0.2)
                     puts("CS: reached target position #{target_point}")
+		    #this is a hack that makes the robot stop instantanious
 		    @direction_writer.disconnect()
 		    emit :target_reached
 		end
