@@ -8,7 +8,6 @@ class Icp::Task
     # Additional configuration for the transformer's automatic configuration
     transformer do
         transform_input "initial_pose_estimate", "body" => "world"
-        transform_input "odometry_samples", "body" => "odometry"
         transform_output "pose_samples", "body" => "world"
         associate_frame_to_ports "laser", "scan_samples"
     end
@@ -28,7 +27,6 @@ composition 'IcpRelocalization' do
     add(Icp::Task, :as => 'icp').
         use_conf('default', 'relocalization')
 
-    connect relative_pose.pose_samples => icp.odometry_samples
     connect laser_range_finder.scans   => icp.scan_samples
 end
 
