@@ -1,5 +1,11 @@
+module Dev
+    module Actuators
+        device_type 'Dynamixel'
+    end
+end
+
 class Dynamixel::Task
-    driver_for 'Dev::Dynamixel'
+    driver_for Dev::Actuators::Dynamixel
 
     # Add some more information for the transformer configuration
     transformer do

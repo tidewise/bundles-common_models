@@ -1,15 +1,17 @@
+require 'models/blueprints/control'
+
 class Skid4Control::SimpleController
-    provides Srv::ActuatorController, :as => 'controller'
-    provides Srv::Motion2DControlledSystem, :as => 'controlled_system'
+    provides Rock::Base::ActuatorControllerSrv, :as => 'controller'
+    provides Rock::Base::MotionSrv2DControlledSystem, :as => 'controlled_system'
 end
 
 using_task_library 'controldev'
 class Skid4Control::FourWheelController
-    provides Srv::ActuatorController, :as => 'controller'
-    provides Srv::FourWheelControlledSystem, :as => 'controlled_system'
+    provides Rock::Base::ActuatorControllerSrv, :as => 'controller'
+    provides Rock::Base::FourWheelControlledSystemSrv, :as => 'controlled_system'
 end
 
 class Skid4Control::ConstantSpeedController
-    provides Srv::ActuatorController, :as => 'controller'
-    provides Srv::Motion2DControlledSystem, :as => 'controlled_system'
+    provides Rock::Base::ActuatorControllerSrv, :as => 'controller'
+    provides Rock::Base::MotionSrv2DControlledSystem, :as => 'controlled_system'
 end

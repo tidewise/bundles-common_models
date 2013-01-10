@@ -1,10 +1,10 @@
-load_system_model 'blueprints/control'
+require 'models/blueprints/control'
 
 # Integration of the trajectory follower component
 #
 # It can be used in a ControlLoop composition as a Motion2DCommand provider.
 # In this case, the corresponding specialization is used, which requires a
-# Srv::Pose provider.
+# Rock::Base::PoseSrv provider.
 #
 # It can also be used with a static trajectory. One can set the following two
 # configuration parameters:
@@ -22,7 +22,7 @@ load_system_model 'blueprints/control'
 # Moreover, if the Conf.reverse_trajectory flag is set, the trajectory follower
 # will follow the static trajectory in the reverse direction
 class TrajectoryFollower::Task
-    provides Srv::Motion2DController
+    provides Rock::Base::MotionSrv2DController
 
     argument :trajectory, :default => nil
 
@@ -40,9 +40,9 @@ class TrajectoryFollower::Task
     end
 end
 
-Cmp::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Srv::Motion2DControlledSystem do
-    add Srv::Pose, :as => 'pose'
+Cmp::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Rock::Base::MotionSrv2DControlledSystem do
+    add Rock::Base::PoseSrv, :as => 'pose'
+    connect pose_child => controller_child
     export controller.trajectory
-    autoconnect
 end
 

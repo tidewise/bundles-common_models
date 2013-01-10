@@ -1,39 +1,36 @@
-load_system_model 'blueprints/control'
+require 'models/blueprints/control'
 
-data_service_type 'Joystick' do
-    provides Srv::Motion2DController
-end
-device_type 'Joystick' do
-    provides Srv::Joystick
-end
-device_type 'RemoteJoystick' do
-    provides Srv::Joystick
-end
+module Dev
+    module Controldev
+        device_type 'Joystick' do
+            provides Rock::Base::Motion2DControllerSrv
+        end
+        device_type 'CANJoystick' do
+            provides Rock::Base::Motion2DControllerSrv
+        end
 
-Cmp::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
+        Rock::Base::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
 
-data_service_type 'Sliderbox' do
-    provides Srv::FourWheelController
-end
+        device_type 'Sliderbox' do
+            provides Rock::Base::FourWheelControllerSrv
+        end
 
-device_type 'Sliderbox' do
-    provides Srv::Sliderbox
-end
-
-device_type 'RemoteSliderbox' do
-    provides Srv::Sliderbox
+        device_type 'CANSliderbox' do
+            provides Rock::Base::FourWheelControllerSrv
+        end
+    end
 end
 
 class Controldev::Remote
-    driver_for Dev::RemoteJoystick, :as => 'joystick'
-    driver_for Dev::RemoteSliderbox, :as => 'sliderbox'
+    driver_for Dev::Controldev::CANJoystick, :as => 'joystick'
+    driver_for Dev::Controldev::CANSliderbox, :as => 'sliderbox'
 end
 
 class Controldev::SliderboxTask
-    driver_for Dev::Sliderbox
+    driver_for Dev::Controldev::Sliderbox
 end
 
 class Controldev::JoystickTask
-    driver_for Dev::Joystick
+    driver_for Dev::Controldev::Joystick
 end
 

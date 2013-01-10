@@ -1,3 +1,5 @@
+require 'models/blueprints/pose'
+require 'models/blueprints/odometry'
 
 class Odometry::Skid4OdometryTask
     # Additional information for the transformer's automatic configuration
@@ -7,8 +9,7 @@ class Odometry::Skid4OdometryTask
        # transform_input "orientation_samples", "imu" => "world"
     end
     
-    provides Srv::Odometry, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
-#    provides Srv::Odometry, 'odometry_samples' => 'pose_samples', 'odometry_delta_samples' => 'pose_delta_samples' 
+    provides Rock::Base::OdometrySrv, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
 end
 
 class Odometry::ContactPointTask
@@ -19,13 +20,11 @@ class Odometry::ContactPointTask
        # transform_input "orientation_samples", "imu" => "world"
     end
     
-#    provides Srv::Odometry, 'odometry_samples' => 'pose_samples', 'odometry_delta_samples' => 'pose_delta_samples' 
-    provides Srv::Odometry, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
+    provides Rock::Base::OdometrySrv, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
 end
 
 
-Cmp::Odometry.specialize 'odometry' => Odometry::ContactPointTask do
+Rock::SLAM::Odometry.specialize 'odometry' => Odometry::ContactPointTask do
     add Srv::BodyContactState, :as => 'bcp_provider'
-    
     connect bcp_provider => odometry
 end

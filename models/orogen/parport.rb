@@ -1,15 +1,18 @@
-com_bus_type 'GPIOReader', :message_type => '/parport/StateChange', :override_policy => false
-parport_t = com_bus_type 'Parport' do
-    provides Dev::GPIOReader
-end
-parport_t.extend_attached_device_configuration do
-    dsl_attribute :parport_pin do |pin_id|
-        Integer(pin_id)
+require 'models/blueprints/sensors'
+
+Parport.com_bus_type 'GPIOReader', :message_type => '/parport/StateChange', :override_policy => false
+Dev::Bus.com_bus_type 'Parport' do
+    provides Parport::GPIOReader
+
+    extend_attached_device_configuration do
+        dsl_attribute :parport_pin do |pin_id|
+            Integer(pin_id)
+        end
     end
 end
 
 class Parport::Task
-    driver_for Dev::Parport
+    driver_for Dev::Bus::Parport
 
     def configure
         super

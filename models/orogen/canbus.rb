@@ -1,19 +1,24 @@
-com_bus_type('Canbus', :message_type => '/canbus/Message').
-    extend_attached_device_configuration do
-        dsl_attribute :can_id do |id, mask|
-            mask ||= id
-            id   = Integer(id)
-            mask = Integer(mask)
-            if (id & mask) != id
-                raise ArgumentError, "wrong id/mask combination: some bits in the ID are not set in the mask, and therefore the filter will never match"
+module Dev
+    module Bus
+        com_bus_type 'CAN', :message_type => '/canbus/Message' do
+            extend_attached_device_configuration do
+                dsl_attribute :can_id do |id, mask|
+                    mask ||= id
+                    id   = Integer(id)
+                    mask = Integer(mask)
+                    if (id & mask) != id
+                        raise ArgumentError, "wrong id/mask combination: some bits in the ID are not set in the mask, and therefore the filter will never match"
+                    end
+                    [id, mask]
+                end
             end
-            [id, mask]
         end
     end
+end
 
 
 class Canbus::Task
-    driver_for Devices::Canbus
+    driver_for Dev::Bus::CAN
 
     def configure
         super

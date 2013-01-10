@@ -10,8 +10,8 @@ end
 composition 'StereoProcessing' do
     add Stereo::Task, :as => 'stereotask'
     
-    add Srv::ImageProvider, :as => 'left'
-    add Srv::ImageProvider, :as => 'right'
+    add Rock::Base::ImageProviderSrv, :as => 'left'
+    add Rock::Base::ImageProviderSrv, :as => 'right'
     
     connect left.frame => stereotask.left_frame
     connect right.frame => stereotask.right_frame
@@ -19,5 +19,5 @@ composition 'StereoProcessing' do
     autoconnect
     
     export stereotask.distance_frame
-    provides Srv::DistanceImageProvider
+    provides Rock::Base::DistanceImageProviderSrv
 end

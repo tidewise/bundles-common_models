@@ -1,7 +1,10 @@
+require 'models/blueprints/sensors'
+Dev::Sensors.device_type 'MB500' do
+    provides Dev::Sensors::GPS
+end
+
 class Gps::MB500Task
-    driver_for 'Dev::MB500' do
-        provides Srv::Position
-    end
+    driver_for Dev::Sensors::MB500
 
     def configure
         super

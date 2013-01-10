@@ -1,29 +1,46 @@
 import_types_from 'base'
 
-data_service_type 'IMUSensors' do
-    output_port 'sensors', '/base/samples/IMUSensors'
-end
-data_service_type 'CompensatedIMUSensors' do
-    provides Srv::IMUSensors
-end
-data_service_type 'CalibratedIMUSensors' do
-    provides Srv::IMUSensors
+module Rock
+    module Base
+        data_service_type 'IMUSensorsSrv' do
+            output_port 'sensors', '/base/samples/IMUSensors'
+        end
+        data_service_type 'CompensatedIMUSensorsSrv' do
+            provides IMUSensorsSrv
+        end
+        data_service_type 'CalibratedIMUSensorsSrv' do
+            provides IMUSensorsSrv
+        end
+
+        data_service_type 'ImageProviderSrv' do
+            output_port 'frame', ro_ptr('/base/samples/frame/Frame')
+        end
+
+        data_service_type 'StereoPairProviderSrv' do
+            output_port 'images', ro_ptr('/base/samples/frame/FramePair')
+        end
+
+        data_service_type 'DistanceImageProviderSrv' do
+            output_port 'distance_images', 'base/samples/DistanceImage'
+        end
+
+        data_service_type 'LaserRangeFinderSrv' do
+            output_port 'scans', '/base/samples/LaserScan'
+        end
+    end
 end
 
-data_service_type 'ImageProvider' do
-    output_port 'frame', ro_ptr('/base/samples/frame/Frame')
-end
+module Dev
+    module Bus
+    end
 
-data_service_type 'StereoPairProvider' do
-    output_port 'images', ro_ptr('/base/samples/frame/FramePair')
+    module Sensors
+        device_type 'GPS' do
+            provides Rock::Base::PositionSrv
+        end
+        device_type 'LaserRangeFinder' do
+            provides Rock::Base::LaserRangeFinderSrv
+        end
+    end
 end
-
-data_service_type 'DistanceImageProvider' do
-    output_port 'distance_images', 'base/samples/DistanceImage'
-end
-
-data_service_type 'LaserRangeFinder' do
-    output_port 'scans', '/base/samples/LaserScan'
-end
-
 

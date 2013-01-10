@@ -1,4 +1,4 @@
-load_system_model 'blueprints/pose'
+require 'rock/blueprints/pose'
 
 class Icp::Task
     find_output_port('pose_samples').
@@ -18,7 +18,7 @@ class Icp::Task
     end
 end
 
-composition 'IcpRelocalization' do
+class Icp::Relocalization < Syskit::Composition
     add Srv::RelativePose, :as => 'relative_pose'
     add Srv::LaserRangeFinder, :as => 'laser_range_finder'
 
@@ -28,9 +28,7 @@ composition 'IcpRelocalization' do
         use_conf('default', 'relocalization')
 
     connect laser_range_finder.scans   => icp.scan_samples
-end
 
-class Cmp::IcpRelocalization
     attr_reader :result
     attr_reader :position
     attr_reader :yaw_bias

@@ -22,7 +22,7 @@ class CorridorPlanner::Task
     event :start do |context|
         orogen_task.start_point   = self.start_point
         orogen_task.target_point  = self.target_point
-        @result_reader = data_reader 'plan'
+        @result_reader = plan_port.reader
 
         super(context)
     end
@@ -31,10 +31,6 @@ class CorridorPlanner::Task
         # Forcefully read the result, as the data reader will get disconnected
         # when the task stops
         result
-    end
-    
-    def write_map(map)
-	#TODO write map on port
     end
 
     # Returns the resulting plan, if there is one

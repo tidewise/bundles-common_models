@@ -1,6 +1,130 @@
-load_system_model 'blueprints/sensors'
-load_system_model 'blueprints/pose'
+require 'models/blueprints/sensors'
+require 'models/blueprints/pose'
 using_task_library 'trajectory_follower'
+
+class CorridorNavigation::ServoingTask
+    argument :initial_heading
+
+    # Data writer connected to the heading port of the corridor servoing task
+    attr_reader :direction_writer
+
+    # Additional information for the transformer's automatic configuration
+    transformer do
+        associate_frame_to_ports 'laser', 'scan_samples'
+        associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
+        transform_input 'odometry_samples', 'body' => 'odometry'
+    end
+
+    on :start do |event|
+        if initial_heading
+            @direction_writer = servoing_child.heading_port.writer
+            @direction_writer.write(initial_heading)
+            Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
+        end
+    end
+end
+
+# Integration of the local servoing behaviour
+#
+# It adds the ability to initialize the map in the servoing by providing it in
+# the initial_map argument
+class CorridorNavigation::Servoing < Syskit::Composition
+    # The initial map (if there is one). It must be a triplet [map, map_id,
+    # map_pose] where
+    #
+    # map is the map as a marshalled envire environment
+    # map_id the ID of the map in 'map'
+    # map_pose is the current pose of the robot within this map
+    argument :initial_map, :default => nil
+
+    add Srv::RelativePose, :as => 'pose'
+    add Srv::LaserRangeFinder, :as => 'laser'
+    add(Compositions::ControlLoop, :as => 'control').
+        use(pose, 'controller' => TrajectoryFollower::Task)
+    add_main_task(CorridorNavigation::ServoingTask, :as => 'servoing')
+    connect pose.pose_samples => servoing.odometry_samples
+    connect laser => servoing
+    connect servoing => control
+
+    # Event emitted if the initial_map argument is set to a non-nil value, once
+    # the map is written to the corridor servoing
+    event :initial_map_written
+
+    # Needed to make the composition fail when the task fails
+    forward :servoing_error => :failed
+
+    on :start do
+        if initial_map
+            map, map_pose, map_id = *initial_map
+            corridor_servoing_child.execute do
+		if !servoing_child.setMap_op(map, map_id, map_pose)
+		    raise "Failed to set initial map"
+		end
+                emit :initial_map_written
+            end
+        end
+    end
+end
+
+# Extension of CorridorNavigation::Servoing to add the ability to always go
+# towards a point in a reference frame
+class CorridorNavigation::Explore < CorridorNavigation::Servoing
+    # The target point
+    argument :target, :type => Eigen::Vector3
+    # The threshold at which the target is considered as reached
+    argument :target_reached_threshold, :type => Numeric, :default => 1
+
+    # This child provides the pose in which the target is expressed
+    add Rock::Base::PoseSrv, :as => 'ref_pose'
+    # TODO: be able to choose the same value for ref_pose and pose by default,
+    # e.g.
+    #
+    #   use 'pose' => ref_pose_child
+    overload('servoing', CorridorNavigation::ServoingTask).
+        with_arguments(:initial_heading => nil)
+
+    # Data reader connected to the pose port of the reference_pose child (i.e.
+    # the reference pose in which the target point is expressed)
+    attr_reader :ref_pose_reader
+    # Data reader connected to the pose port of the pose child (i.e. the local
+    # pose used by the corridor servoing)
+    attr_reader :local_pose_reader
+
+    # Event emitted when the target is reached
+    event :target_reached
+    forward :target_reached => :success
+
+    on :start do |event|
+        @ref_pose_reader = ref_pose_child.pose_samples_port.reader
+        @local_pose_reader  = pose_child.pose_samples_port.reader
+    end
+
+    poll do
+        return if !(ref = ref_pose_reader.read)
+        return if !(local = local_pose_reader.read)
+
+        direction = (target - ref.position)
+        direction.z = 0
+        if direction.norm < target_reached_threshold
+            emit :target_reached
+            return
+        end
+
+        # convert the reference heading to the heading in the frame used by
+        # the servoing task
+        ref_target_heading = Eigen::Vector3.UnitY.angle_to(direction)
+        ref_cur_heading= Eigen::Vector3.UnitY.angle_to(ref.orientation * Eigen::Vector3.UnitY)
+        local_cur_heading = Eigen::Vector3.UnitY.angle_to(local.orientation * Eigen::Vector3.UnitY)
+        local_target_heading = ref_target_heading - (ref_cur_heading - local_cur_heading)
+
+        if local_target_heading < 0
+            local_target_heading += 2* Math::PI
+        elsif local_target_heading > 2* Math::PI
+            local_target_heading -= 2* Math::PI
+        end
+        direction_writer.write(local_target_heading)
+    end
+end
 
 class CorridorNavigation::FollowingTask
     # Additional information for the transformer's automatic configuration
@@ -10,173 +134,12 @@ class CorridorNavigation::FollowingTask
     end
 end
 
-# The task representing the corridor servoing computation
-#
-# It can be used in two modes:
-#
-# * if an initial heading is set (and target point is set to nil), the servoing
-#   will follow that heading
-# * if a target point is given (and initial_heading is set to nil), the servoing
-#   will try to reach that position by continuously trying to get towards that
-#   point. It uses State.pose.position for its current position.
-class CorridorNavigation::ServoingTask
-    argument :initial_heading
-    argument :target_point
-
-    # Additional information for the transformer's automatic configuration
-    transformer do
-        associate_frame_to_ports 'laser', 'scan_samples'
-        associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
-        transform_input 'odometry_samples', 'body' => 'odometry'
-    end
-end
-
-composition 'CorridorServoing' do
-    add Srv::Pose, :as => 'mapper'
-    add Srv::Pose, :as => 'localizer'
-
-    add Srv::LaserRangeFinder, :as => 'laser'
-    add Srv::RelativePose, :as => 'pose'
-    add(Compositions::ControlLoop, :as => 'control').
-        use(pose, 'controller' => TrajectoryFollower::Task)
-    add_main_task(CorridorNavigation::ServoingTask, :as => 'servoing')
-    connect pose.pose_samples => servoing.odometry_samples
-    connect laser => servoing
-    connect servoing => control
-
-    
-    on :start do |event|
-	Robot.info("Starting Corridor Servoing")
-
-	@direction_writer = servoing_child.data_writer 'heading'
-	@odometry_pose_reader = pose_child.data_reader 'pose_samples'
-	@localizer_pose_reader = localizer_child.data_reader 'pose_samples'
-        if servoing_child.initial_heading
-            @direction_writer.write(servoing_child.initial_heading)
-            Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
-        end
-
-	@corridor = nil
-	if(parent_task)
-	    @corridor = parent_task.corridor
-	end
-
-	# Make sure that the corridor servoing is not started before we wrote
-        # the current map
-        child_from_role('servoing').should_start_after inital_map_written_event
-
-	#finish if the target is reached
-	target_reached_event.forward_to success_event
-
-	servoing_child.exception_event.forward_to servoing_error_event
-
-	script do
-	    #make shure corridor servoing is stopped
-	    #the set map operation will fail if CS is not stopped
-	    poll do
-		state = servoing_child.read_current_state()
-		if(state == :STOPPED)
-		    transition!
-		end
-	    end
-
-	    
-	    #be shure control and servoing are running
-	    wait_any(control_child.start_event)
-	    wait_any(control_child.controller_child.start_event)
-	    wait_any(mapper_child.start_event)
-	    wait_any(mapper_child.eslam_child.start_event)
-
-	    execute do
-		map_reader = data_reader('mapper', 'map')
-		map_pose = mapper_child.eslam_child.orogen_task.cloneMap()
-		map_id = mapper_child.eslam_child.orogen_task.map_id
-
-		map = map_reader.read()
-		if(!map)
-		    raise("CS Error, did not get map after request")
-		end
-		   
-		if(!servoing_child.orogen_task.setMap(map, map_id, map_pose))
-		    raise("Failed to set map")
-		end
-	    end	
-	    execute do
-		emit :inital_map_written
-	    end
-	end
-    end
-
-    event :inital_map_written
-    
-    event :servoing_error
-    # Needed to make the composition fail when the task fails
-    forward :servoing_error => :failed
-
-    
-    poll do
-	target_point = nil
-	cur_pose = @localizer_pose_reader.read
-	if(@corridor && cur_pose)
-	    median_curve = @corridor.median_curve
-	    curve_pos = median_curve.find_one_closest_point(cur_pose.position, median_curve.start_param, 0.01)
-	    geom_res = (median_curve.end_param - median_curve.start_param) / median_curve.curve_length
-	    #4 meter lock ahead
-	    curve_pos = [curve_pos + geom_res * 1.2, median_curve.end_param].min
-	    target_point = median_curve.get(curve_pos)
-	else
-	    target_point = servoing_child.target_point
-	end
-
-        if target_point && cur_pose
-            direction = (target_point - cur_pose.position)
-            heading = Eigen::Vector3.UnitY.angle_to(direction)
-	    
-	    #convert global heading to odometry heading
-            heading_world = Eigen::Vector3.UnitY.angle_to(cur_pose.orientation * Eigen::Vector3.UnitY)
-	    odo_sample = @odometry_pose_reader.read
-	    if(odo_sample)
-		
-		if((cur_pose.time - odo_sample.time).to_f.abs > 0.4)
-		    puts("Warning, global and odometry times are diverged ")
-		end
-		
-		heading_odometry = Eigen::Vector3.UnitY.angle_to(odo_sample.orientation * Eigen::Vector3.UnitY)
-
-		final_heading = heading - (heading_world - heading_odometry)
-	    
-		if(final_heading < 0)
-		    final_heading += 2* Math::PI
-		end
-
-		if(final_heading > 2* Math::PI)
-		    final_heading -= 2* Math::PI
-		end
-
-		@direction_writer.write(final_heading)
-		
-		#ignore z
-		direction.z = 0
-		#we are finished if we are within 20 cm to the goal
-		if(direction.norm() < 0.2)
-                    puts("CS: reached target position #{target_point}")
-		    #this is a hack that makes the robot stop instantanious
-		    @direction_writer.disconnect()
-		    emit :target_reached
-		end
-	    end
-        end
-    end
-    event :target_reached
-    
-end
-
 composition 'CorridorFollowing' do
     add Srv::Pose, :as => 'pose'
     add(Compositions::ControlLoop, :as => 'control').
-        use(pose, 'controller' => TrajectoryFollower::Task)
+        use('pose' => pose_child, 'controller' => TrajectoryFollower::Task)
     add_main_task(CorridorNavigation::FollowingTask, :as => 'follower')
-    connect follower.trajectory => control.trajectory
-    autoconnect
+    connect follower_child => control_child
+    connect pose_child => follower_child
 end
 
