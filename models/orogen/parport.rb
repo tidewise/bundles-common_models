@@ -12,7 +12,7 @@ Dev::Bus.com_bus_type 'Parport' do
 end
 
 class Parport::Task
-    driver_for Dev::Bus::Parport
+    driver_for Dev::Bus::Parport, :as => 'driver'
 
     def configure
         super

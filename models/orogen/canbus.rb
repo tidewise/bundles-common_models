@@ -13,12 +13,13 @@ module Dev
                 end
             end
         end
+        puts Dev::Bus::CAN.name.inspect
     end
 end
 
 
 class Canbus::Task
-    driver_for Dev::Bus::CAN
+    driver_for Dev::Bus::CAN, :as => 'driver'
 
     def configure
         super

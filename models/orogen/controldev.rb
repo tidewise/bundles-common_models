@@ -27,10 +27,10 @@ class Controldev::Remote
 end
 
 class Controldev::SliderboxTask
-    driver_for Dev::Controldev::Sliderbox
+    driver_for Dev::Controldev::Sliderbox, :as => 'sliderbox'
 end
 
 class Controldev::JoystickTask
-    driver_for Dev::Controldev::Joystick
+    driver_for Dev::Controldev::Joystick, :as => 'joystick'
 end
 

@@ -4,7 +4,7 @@ Dev::Sensors.device_type 'Hokuyo' do
 end
 
 class Hokuyo::Task
-    driver_for Dev::Sensors::Hokuyo
-    provides Rock::Base::TimestampInputSrv
+    driver_for Dev::Sensors::Hokuyo, :as => 'driver'
+    provides Rock::Base::TimestampInputSrv, :as => 'timestamps'
 end
 

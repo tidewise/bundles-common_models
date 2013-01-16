@@ -3,24 +3,23 @@ import_types_from 'odometry'
 
 module Rock
     module SLAM
-        data_service_type 'Odometry' do
-            provides RelativePoseSrv
-            provides PoseDeltaSrv
+        data_service_type 'OdometrySrv' do
+            provides Rock::Base::RelativePoseSrv
+            provides Rock::Base::PoseDeltaSrv
         end
 
         # This data service provides contact point of the robot 
         # with its environment.
-        data_service_type 'BodyContactState' do
+        data_service_type 'BodyContactStateSrv' do
             output_port 'contact_samples', '/odometry/BodyContactState'
         end
 
         class Odometry < Syskit::Composition
-            add OrientationSrv, :as => 'imu'
+            add Rock::Base::OrientationSrv, :as => 'orientation'
             add OdometrySrv, :as => 'odometry'
-
-            export odometry.pose_samples
-            export odometry.pose_delta_samples
-            provides OdometrySrv
+            export odometry_child.pose_samples_port
+            export odometry_child.pose_delta_samples_port
+            provides OdometrySrv, :as => 'odometry'
         end
     end
 end

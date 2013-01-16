@@ -26,7 +26,7 @@ module Rock
         #
         # It is typically a pose estimator which fuses a global position measurement
         # such as GPS
-        data_service_type 'GlobalPose' do
+        data_service_type 'GlobalPoseSrv' do
             provides PoseSrv
         end
 
@@ -36,14 +36,14 @@ module Rock
         # local consistency constraint
         #
         # It is typically an odometry
-        data_service_type 'RelativePose' do
+        data_service_type 'RelativePoseSrv' do
             provides PoseSrv
         end
 
         # This data service provides deltas in pose (i.e. pose change between two time
         # steps). Usually, a component that provides a PoseDelta will also provide
         # RelativePose.
-        data_service_type 'PoseDelta' do
+        data_service_type 'PoseDeltaSrv' do
             output_port 'pose_delta_samples', '/base/samples/RigidBodyState'
         end
     end

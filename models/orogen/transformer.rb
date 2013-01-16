@@ -1,4 +1,4 @@
-class Orocos::RobyPlugin::Transformer::Task
+class Transformer::Task
     attr_reader :last_update
 
     poll do

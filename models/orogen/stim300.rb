@@ -1,11 +1,11 @@
 require 'models/blueprints/sensors'
 
 Dev::Sensors.device_type 'Stim300' do
-    provides Srv::CalibratedIMUSensors
+    provides Rock::Base::CalibratedIMUSensorsSrv
 end
 
 class Stim300::Task
-    driver_for Dev::Sensors::Stim300
+    driver_for Dev::Sensors::Stim300, :as => 'driver'
 
     # Additional information to allow for the transformer's automatic
     # configuration

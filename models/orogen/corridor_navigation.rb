@@ -37,21 +37,18 @@ class CorridorNavigation::Servoing < Syskit::Composition
     # map_pose is the current pose of the robot within this map
     argument :initial_map, :default => nil
 
-    add Srv::RelativePose, :as => 'pose'
-    add Srv::LaserRangeFinder, :as => 'laser'
-    add(Compositions::ControlLoop, :as => 'control').
+    add Rock::Base::RelativePoseSrv, :as => 'pose'
+    add Rock::Base::LaserRangeFinderSrv, :as => 'laser'
+    add(Rock::Base::ControlLoop, :as => 'control').
         use(pose, 'controller' => TrajectoryFollower::Task)
     add_main_task(CorridorNavigation::ServoingTask, :as => 'servoing')
-    connect pose.pose_samples => servoing.odometry_samples
-    connect laser => servoing
-    connect servoing => control
+    pose_child.pose_samples_port.connect_to servoing_child.odometry_samples_port
+    laser_child.connect_to servoing_child
+    servoing_child.connect_to control_child
 
     # Event emitted if the initial_map argument is set to a non-nil value, once
     # the map is written to the corridor servoing
     event :initial_map_written
-
-    # Needed to make the composition fail when the task fails
-    forward :servoing_error => :failed
 
     on :start do
         if initial_map
@@ -70,9 +67,11 @@ end
 # towards a point in a reference frame
 class CorridorNavigation::Explore < CorridorNavigation::Servoing
     # The target point
-    argument :target, :type => Eigen::Vector3
+    # @return [Eigen::Vector3]
+    argument :target
     # The threshold at which the target is considered as reached
-    argument :target_reached_threshold, :type => Numeric, :default => 1
+    # @return [Numeric]
+    argument :target_reached_threshold, :default => 1
 
     # This child provides the pose in which the target is expressed
     add Rock::Base::PoseSrv, :as => 'ref_pose'
@@ -135,8 +134,8 @@ class CorridorNavigation::FollowingTask
 end
 
 class CorridorNavigation::Following < Syskit::Composition
-    add Srv::Pose, :as => 'pose'
-    add(Compositions::ControlLoop, :as => 'control').
+    add Rock::Base::PoseSrv, :as => 'pose'
+    add(Rock::Base::ControlLoop, :as => 'control').
         use('pose' => pose_child, 'controller' => TrajectoryFollower::Task)
     add_main_task(CorridorNavigation::FollowingTask, :as => 'follower')
     connect follower_child => control_child

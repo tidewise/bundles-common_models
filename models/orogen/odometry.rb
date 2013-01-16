@@ -9,7 +9,8 @@ class Odometry::Skid4OdometryTask
        # transform_input "orientation_samples", "imu" => "world"
     end
     
-    provides Rock::Base::OdometrySrv, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
+    provides Rock::SLAM::OdometrySrv, :as => 'odometry',
+        'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
 end
 
 class Odometry::ContactPointTask
@@ -20,11 +21,12 @@ class Odometry::ContactPointTask
        # transform_input "orientation_samples", "imu" => "world"
     end
     
-    provides Rock::Base::OdometrySrv, 'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
+    provides Rock::SLAM::OdometrySrv, :as => 'odometry',
+        'pose_samples' => 'odometry_samples', 'pose_delta_samples' => 'odometry_delta_samples'
 end
 
 
 Rock::SLAM::Odometry.specialize 'odometry' => Odometry::ContactPointTask do
-    add Srv::BodyContactState, :as => 'bcp_provider'
-    connect bcp_provider => odometry
+    add Rock::SLAM::BodyContactStateSrv, :as => 'contact_points'
+    contact_points_child.connect_to(odometry_child)
 end

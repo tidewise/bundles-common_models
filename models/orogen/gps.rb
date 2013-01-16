@@ -4,7 +4,7 @@ Dev::Sensors.device_type 'MB500' do
 end
 
 class Gps::MB500Task
-    driver_for Dev::Sensors::MB500
+    driver_for Dev::Sensors::MB500, :as => 'driver'
 
     def configure
         super

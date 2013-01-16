@@ -22,7 +22,7 @@ require 'models/blueprints/control'
 # Moreover, if the Conf.reverse_trajectory flag is set, the trajectory follower
 # will follow the static trajectory in the reverse direction
 class TrajectoryFollower::Task
-    provides Rock::Base::MotionSrv2DController
+    provides Rock::Base::Motion2DControllerSrv, :as => 'controller'
 
     argument :trajectory, :default => nil
 
@@ -40,9 +40,9 @@ class TrajectoryFollower::Task
     end
 end
 
-Cmp::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Rock::Base::MotionSrv2DControlledSystem do
+Rock::Base::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Rock::Base::Motion2DControlledSystemSrv do
     add Rock::Base::PoseSrv, :as => 'pose'
     connect pose_child => controller_child
-    export controller.trajectory
+    export controller_child.trajectory_port
 end
 

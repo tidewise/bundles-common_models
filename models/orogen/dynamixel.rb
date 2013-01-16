@@ -5,7 +5,7 @@ module Dev
 end
 
 class Dynamixel::Task
-    driver_for Dev::Actuators::Dynamixel
+    driver_for Dev::Actuators::Dynamixel, :as => 'driver'
 
     # Add some more information for the transformer configuration
     transformer do

@@ -1,3 +1,8 @@
+Dev::Sensors.device_type 'XsensAHRS' do
+    provides Rock::Base::OrientationSrv
+    provides Rock::Base::CalibratedIMUSensorsSrv
+end
+
 class XsensImu::Task
     # Additional information to allow for the transformer's automatic
     # configuration
@@ -6,10 +11,7 @@ class XsensImu::Task
         transform_output "orientation_samples", "xsens" => "world"
     end
     
-    driver_for 'Dev::XsensImu' do
-        provides Srv::Orientation
-        provides Srv::CalibratedIMUSensors
-    end
-    provides Srv::TimestampInput, 'timestamps' => 'hard_timestamps'
+    driver_for Dev::Sensors::XsensAHRS, :as => 'driver'
+    provides Rock::Base::TimestampInputSrv, 'timestamps' => 'hard_timestamps', :as => 'timestamps'
 end
 
