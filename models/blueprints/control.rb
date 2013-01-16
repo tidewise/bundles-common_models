@@ -101,15 +101,17 @@ module Rock
                     end
                 end
                 specialize 'controller' => controlled_system_model do
-                    export controller.command_in
+                    export controller_child.command_in_port
                     if feedback_type
-                        export controller.status_out
+                        export controller_child.status_out_port
                     end
-                    provides controlled_system_model
+                    provides controlled_system_model, :as => "#{name}"
                 end
                 specialize 'controller' => controller_model, 'controlled_system' => controlled_system_model do
                     connect controller_child => controlled_system_child
-                    connect controlled_system_child => controller_child
+                    if feedback_type
+                        connect controlled_system_child => controller_child
+                    end
                 end
             end
         end

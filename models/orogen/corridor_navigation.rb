@@ -134,7 +134,7 @@ class CorridorNavigation::FollowingTask
     end
 end
 
-composition 'CorridorFollowing' do
+class CorridorNavigation::Following < Syskit::Composition
     add Srv::Pose, :as => 'pose'
     add(Compositions::ControlLoop, :as => 'control').
         use('pose' => pose_child, 'controller' => TrajectoryFollower::Task)
