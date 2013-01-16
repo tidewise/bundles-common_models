@@ -3,20 +3,20 @@ require 'models/blueprints/control'
 module Dev
     module Controldev
         device_type 'Joystick' do
-            provides Rock::Base::Motion2DControllerSrv
+            provides Base::Motion2DControllerSrv
         end
         device_type 'CANJoystick' do
-            provides Rock::Base::Motion2DControllerSrv
+            provides Base::Motion2DControllerSrv
         end
 
-        Rock::Base::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
+        Base::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
 
         device_type 'Sliderbox' do
-            provides Rock::Base::FourWheelControllerSrv
+            provides Base::FourWheelControllerSrv
         end
 
         device_type 'CANSliderbox' do
-            provides Rock::Base::FourWheelControllerSrv
+            provides Base::FourWheelControllerSrv
         end
     end
 end

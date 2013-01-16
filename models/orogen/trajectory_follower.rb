@@ -4,7 +4,7 @@ require 'models/blueprints/control'
 #
 # It can be used in a ControlLoop composition as a Motion2DCommand provider.
 # In this case, the corresponding specialization is used, which requires a
-# Rock::Base::PoseSrv provider.
+# Base::PoseSrv provider.
 #
 # It can also be used with a static trajectory. One can set the following two
 # configuration parameters:
@@ -22,7 +22,7 @@ require 'models/blueprints/control'
 # Moreover, if the Conf.reverse_trajectory flag is set, the trajectory follower
 # will follow the static trajectory in the reverse direction
 class TrajectoryFollower::Task
-    provides Rock::Base::Motion2DControllerSrv, :as => 'controller'
+    provides Base::Motion2DControllerSrv, :as => 'controller'
 
     argument :trajectory, :default => nil
 
@@ -40,8 +40,8 @@ class TrajectoryFollower::Task
     end
 end
 
-Rock::Base::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Rock::Base::Motion2DControlledSystemSrv do
-    add Rock::Base::PoseSrv, :as => 'pose'
+Base::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Base::Motion2DControlledSystemSrv do
+    add Base::PoseSrv, :as => 'pose'
     connect pose_child => controller_child
     export controller_child.trajectory_port
 end

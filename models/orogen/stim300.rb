@@ -1,7 +1,7 @@
 require 'models/blueprints/sensors'
 
 Dev::Sensors.device_type 'Stim300' do
-    provides Rock::Base::CalibratedIMUSensorsSrv
+    provides Base::CalibratedIMUSensorsSrv
 end
 
 class Stim300::Task

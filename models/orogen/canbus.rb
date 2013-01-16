@@ -13,7 +13,6 @@ module Dev
                 end
             end
         end
-        puts Dev::Bus::CAN.name.inspect
     end
 end
 

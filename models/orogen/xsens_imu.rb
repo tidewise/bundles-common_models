@@ -1,6 +1,6 @@
 Dev::Sensors.device_type 'XsensAHRS' do
-    provides Rock::Base::OrientationSrv
-    provides Rock::Base::CalibratedIMUSensorsSrv
+    provides Base::OrientationSrv
+    provides Base::CalibratedIMUSensorsSrv
 end
 
 class XsensImu::Task
@@ -12,6 +12,6 @@ class XsensImu::Task
     end
     
     driver_for Dev::Sensors::XsensAHRS, :as => 'driver'
-    provides Rock::Base::TimestampInputSrv, 'timestamps' => 'hard_timestamps', :as => 'timestamps'
+    provides Base::TimestampInputSrv, 'timestamps' => 'hard_timestamps', :as => 'timestamps'
 end
 

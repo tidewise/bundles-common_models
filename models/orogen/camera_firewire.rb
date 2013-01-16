@@ -2,14 +2,14 @@ require 'models/blueprints/sensors'
 module Dev
     module Camera
         device_type 'Firewire' do
-            provides Rock::Base::ImageProviderSrv
+            provides Base::ImageProviderSrv
         end
     end
 end
 
 class CameraFirewire::CameraTask
     driver_for Dev::Camera::Firewire, :as => 'driver'
-    provides Rock::Base::TimestampInputSrv, :as => 'timestamps'
+    provides Base::TimestampInputSrv, :as => 'timestamps'
     
     def configure
         super

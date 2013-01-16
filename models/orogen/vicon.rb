@@ -1,6 +1,6 @@
 require 'models/blueprints/pose'
 Dev::Sensors.device_type 'Vicon' do
-    provides Rock::Base::PoseSrv
+    provides Base::PoseSrv
 end
 
 class Vicon::Task
