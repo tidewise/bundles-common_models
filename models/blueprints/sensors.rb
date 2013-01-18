@@ -29,17 +29,3 @@ module Base
     end
 end
 
-module Dev
-    module Bus
-    end
-
-    module Sensors
-        device_type 'GPS' do
-            provides Base::PositionSrv
-        end
-        device_type 'LaserRangeFinder' do
-            provides Base::LaserRangeFinderSrv
-        end
-    end
-end
-
