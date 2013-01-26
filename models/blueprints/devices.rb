@@ -24,5 +24,10 @@ module Dev
     # Simulated platforms and sensors
     module Simulation
     end
+
+    # Actuators
+    module Actuators
+        device_type 'PTU'
+    end
 end
 
