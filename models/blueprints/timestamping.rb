@@ -19,8 +19,8 @@ module Base
 
     data_service_type 'TimestamperSrv' do
         output_port 'timestamps', '/base/Time'
-        extend TimestamperManagement
     end
+    TimestamperSrv.extend TimestamperManagement
 
     data_service_type 'TimestampInputSrv' do
         input_port 'timestamps', '/base/Time'
@@ -41,19 +41,19 @@ module Base
 
         # Avoid instanciating too many things by grouping providers together if they
         # provide timestamps for multiple outputs
-        plan.find_local_tasks(Srv::TimestampInput).each do |task|
-            task.each_device_name do |srv, name|
-                if provider = Srv::Timestamper.providers[name]
-                    srv = task.model.find_service_from_type(Srv::TimestampInput)
-                    providers_to_input[provider] << Orocos::RobyPlugin::DataServiceInstance.new(task, srv)
+        plan.find_local_tasks(TimestampInputSrv).each do |task|
+            task.each_master_device do |dev|
+                if provider = TimestamperSrv.providers[dev.full_name]
+                    srv = task.model.find_data_service_from_type(TimestampInputSrv)
+                    providers_to_input[provider] << srv.bind(task)
                 end
             end
         end
 
         providers_to_input.each do |provider, services|
-            task = engine.add_instance(provider)
+            task = provider.instanciate(engine.work_plan)
             services.each do |srv|
-                task.as(Srv::Timestamper).connect_ports(srv, ['timestamps', 'timestamps'] => Hash.new)
+                task.as(TimestamperSrv).timestamps_port.connect_to srv.timestamps_port
                 srv.task.influenced_by(task)
             end
         end
