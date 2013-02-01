@@ -1,4 +1,4 @@
-require 'models/blueprints/sensors'
+require 'models/blueprints/devices'
 Dev::Sensors.device_type 'MB500' do
     provides Dev::Sensors::GPS
 end
