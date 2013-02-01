@@ -1,4 +1,5 @@
 require 'models/blueprints/sensors'
+require 'models/blueprints/timestamping'
 Dev::Sensors.device_type 'Hokuyo' do
     provides Dev::Sensors::LaserRangeFinder
 end
