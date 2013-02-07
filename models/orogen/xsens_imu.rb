@@ -1,3 +1,5 @@
+require 'models/blueprints/timestamping'
+
 Dev::Sensors.device_type 'XsensAHRS' do
     provides Base::OrientationSrv
     provides Base::CalibratedIMUSensorsSrv
