@@ -18,7 +18,14 @@ module Dev
         device_type 'CANSliderbox' do
             provides Base::FourWheelControllerSrv
         end
+        
+        device_type 'Mouse3D' do
+        end
     end
+end
+
+class Controldev::Mouse3DTask
+    driver_for Dev::Controldev::Mouse3D, :as => 'mouse3d'
 end
 
 class Controldev::Remote
