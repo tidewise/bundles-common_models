@@ -1,14 +1,8 @@
-require 'models/blueprints/sensors'
-module Dev
-    module Camera
-        device_type 'Firewire' do
-            provides Base::ImageProviderSrv
-        end
-    end
-end
+require 'models/blueprints/devices'
+require 'models/blueprints/timestamping'
 
 class CameraFirewire::CameraTask
-    driver_for Dev::Camera::Firewire, :as => 'driver'
+    driver_for Dev::Sensors::Cameras::Firewire, :as => 'driver'
     provides Base::TimestampInputSrv, :as => 'timestamps'
     
     def configure

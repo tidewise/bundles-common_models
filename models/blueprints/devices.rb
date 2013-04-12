@@ -1,4 +1,5 @@
 require 'models/blueprints/sensors'
+require 'models/blueprints/timestamping'
 
 # The module under which all device models are defined
 module Dev
@@ -11,8 +12,19 @@ module Dev
         device_type 'GPS' do
             provides Base::PositionSrv
         end
-        device_type 'LaserRangeFinder' do
+        device_type 'Hokuyo' do
             provides Base::LaserRangeFinderSrv
+        end
+        device_type 'XsensAHRS' do
+            provides Base::OrientationSrv
+            provides Base::CalibratedIMUSensorsSrv
+        end
+
+        # Base namespace for all camera device models
+        module Cameras
+            device_type 'Firewire' do
+                provides Base::ImageProviderSrv
+            end
         end
     end
 

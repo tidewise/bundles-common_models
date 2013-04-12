@@ -1,9 +1,5 @@
 require 'models/blueprints/timestamping'
-
-Dev::Sensors.device_type 'XsensAHRS' do
-    provides Base::OrientationSrv
-    provides Base::CalibratedIMUSensorsSrv
-end
+require 'models/blueprints/devices'
 
 class XsensImu::Task
     # Additional information to allow for the transformer's automatic
