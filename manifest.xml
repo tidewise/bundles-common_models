@@ -7,5 +7,6 @@
     </copyright>
     <license>LGPL v2 or later</license>
 
+    <depend package="drivers/orogen/transformer" />
 </package>
 
