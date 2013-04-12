@@ -26,6 +26,16 @@ module Dev
                 provides Base::ImageProviderSrv
             end
         end
+
+        device_type 'TimestamperDev' do
+            provides Base::TimestamperSrv
+
+            extend_device_configuration do
+                def timestamper_for(*device_names)
+                    Base::TimestamperSrv.add_provider(self, *device_names)
+                end
+            end
+        end
     end
 
     # The module under which platforms are declared. Platforms are e.g. mobile

@@ -26,16 +26,6 @@ module Base
         input_port 'timestamps', '/base/Time'
     end
 
-    device_type 'TimestamperDev' do
-        provides TimestamperSrv
-
-        extend_device_configuration do
-            def timestamper_for(*device_names)
-                TimestamperSrv.add_provider(self.full_name, *device_names)
-            end
-        end
-    end
-
     Syskit::NetworkGeneration::Engine.register_instanciation_postprocessing do |engine, plan|
         providers_to_input = Hash.new { |h, k| h[k] = Array.new }
 
@@ -44,17 +34,17 @@ module Base
         plan.find_local_tasks(TimestampInputSrv).each do |task|
             task.each_master_device do |dev|
                 if provider = TimestamperSrv.providers[dev.full_name]
-                    srv = task.model.find_data_service_from_type(TimestampInputSrv)
-                    providers_to_input[provider] << srv.bind(task)
+                    srv = task.find_data_service_from_type(TimestampInputSrv)
+                    providers_to_input[provider] << srv
                 end
             end
         end
 
         providers_to_input.each do |provider, services|
-            task = provider.instanciate(engine.work_plan)
+            provider = provider.instanciate(engine.work_plan)
             services.each do |srv|
-                task.as(TimestamperSrv).timestamps_port.connect_to srv.timestamps_port
-                srv.task.influenced_by(task)
+                provider.timestamps_port.connect_to srv.timestamps_port
+                srv.component.influenced_by(provider)
             end
         end
     end
