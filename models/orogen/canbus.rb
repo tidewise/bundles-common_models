@@ -14,9 +14,13 @@ Dev::Bus.com_bus_type 'CAN', :message_type => '/canbus/Message' do
     end
 end
 
-
 class Canbus::Task
     driver_for Dev::Bus::CAN, :as => 'driver'
+
+    # This declares that all devices attached to this bus should use the 'in'
+    # port of the component. Otherwise, syskit will assume that a new dynamic
+    # input port should be created
+    provides Dev::Bus::CAN::BusInSrv, :as => 'to_bus'
 
     def configure
         super
