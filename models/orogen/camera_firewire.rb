@@ -8,7 +8,7 @@ class CameraFirewire::CameraTask
     def configure
         super
         if p = robot_device.period
-            orogen_task.fps = (1.0 / p).round
+            orocos_task.fps = (1.0 / p).round
         end
     end
 end
