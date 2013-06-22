@@ -40,9 +40,12 @@ class TrajectoryFollower::Task
     end
 end
 
-Base::ControlLoop.specialize 'controller' => TrajectoryFollower::Task, 'controlled_system' => Base::Motion2DControlledSystemSrv do
+Base::ControlLoop.specialize \
+    Base::ControlLoop.controller_child => TrajectoryFollower::Task,
+    Base::ControlLoop.controlled_system_child => Base::Motion2DControlledSystemSrv do
+
     add Base::PoseSrv, :as => 'pose'
-    connect pose_child => controller_child
+    pose_child.connect_to controller_child
     export controller_child.trajectory_port
 end
 

@@ -99,17 +99,17 @@ module Base
                     output_port "status_out", feedback_type
                 end
             end
-            specialize 'controller' => controlled_system_model do
+            specialize controller_child => controlled_system_model do
                 export controller_child.command_in_port
                 if feedback_type
                     export controller_child.status_out_port
                 end
                 provides controlled_system_model, :as => "#{name}"
             end
-            specialize 'controller' => controller_model, 'controlled_system' => controlled_system_model do
-                connect controller_child => controlled_system_child
+            specialize controller_child => controller_model, controlled_system_child => controlled_system_model do
+                controller_child.connect_to controlled_system_child
                 if feedback_type
-                    connect controlled_system_child => controller_child
+                    controlled_system_child.connect_to controller_child
                 end
             end
         end

@@ -27,7 +27,7 @@ class Icp::Relocalization < Syskit::Composition
     add(Icp::Task, :as => 'icp').
         use_conf('default', 'relocalization')
 
-    connect laser_range_finder.scans   => icp.scan_samples
+    laser_range_finder_child.scans_port.connect_to icp_child.scan_samples_port
 
     attr_reader :result
     attr_reader :position
