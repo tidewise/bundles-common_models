@@ -25,6 +25,9 @@ module Dev
             device_type 'Firewire' do
                 provides Base::ImageProviderSrv
             end
+            device_type 'Network' do
+                provides Base::ImageProviderSrv
+            end
             device_type 'USB' do
                 provides Base::ImageProviderSrv
             end

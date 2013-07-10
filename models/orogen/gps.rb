@@ -15,3 +15,12 @@ class Gps::MB500Task
     end
 end
 
+class Gps::GPSDTask
+    driver_for Dev::Sensors::GPS, :as => 'driver'
+    def configure
+        super
+        if Conf.utm_local_origin?
+            orogen_task.origin = Conf.utm_local_origin
+        end
+    end
+end

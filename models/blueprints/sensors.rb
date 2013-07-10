@@ -27,5 +27,9 @@ module Base
     data_service_type 'LaserRangeFinderSrv' do
         output_port 'scans', '/base/samples/LaserScan'
     end
+    
+    data_service_type 'SonarScanProviderSrv' do
+        output_port 'sonarscan', '/base/samples/SonarBeam'
+    end
 end
 

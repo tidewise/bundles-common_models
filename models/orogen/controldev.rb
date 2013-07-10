@@ -1,15 +1,32 @@
 require 'models/blueprints/control'
 
+using_task_library 'canbus'
+
 module Dev
     module Controldev
+
+        Base::ControlLoop.declare 'RawCommand', 'controldev/RawCommand'
+        Base::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
+
         device_type 'Joystick' do
-            provides Base::Motion2DControllerSrv
+            #Rename it manually since otherwise the name is already used
+            #but first we need to creare the new-named-ports
+            output_port "motion_raw","/controldev/RawCommand"
+            output_port "motion_2d","/base/MotionCommand2D"
+
+            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d"
+            provides Base::RawCommandControllerSrv, "command_out" => "motion_raw"
         end
         device_type 'CANJoystick' do
-            provides Base::Motion2DControllerSrv
+            output_port "motion_raw","/controldev/RawCommand"
+            output_port "motion_2d","/base/MotionCommand2D"
+
+            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d"
+            provides Base::RawCommandControllerSrv, "command_out" => "motion_raw"
+            
+            provides Dev::Bus::CAN::ClientInSrv
         end
 
-        Base::ControlLoop.declare 'FourWheel', 'controldev/FourWheelCommand'
 
         device_type 'Sliderbox' do
             provides Base::FourWheelControllerSrv
@@ -20,6 +37,7 @@ module Dev
         end
         
         device_type 'Mouse3D' do
+            provides Base::RawCommandControllerSrv
         end
     end
 end
@@ -29,7 +47,7 @@ class Controldev::Mouse3DTask
 end
 
 class Controldev::Remote
-    driver_for Dev::Controldev::CANJoystick, :as => 'joystick'
+    driver_for Dev::Controldev::CANJoystick, "from_bus" => "canJoystick", :as => 'joystick'
     driver_for Dev::Controldev::CANSliderbox, :as => 'sliderbox'
 end
 
