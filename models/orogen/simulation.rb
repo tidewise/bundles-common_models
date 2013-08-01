@@ -55,21 +55,46 @@ class Syskit::Actions::Profile
     #
     #   define_simulated_device 'dynamixel', Dev::Simulation::Sonar
     #
-    def define_simulated_device(name, model, options = Hash.new)
-        robot.device model, :as => name
-        define name, Simulated::getSensor(model.name,options) #composition_from_device_type(model)#.use(mars_dev)
+    def define_simulated_device(name, model, &block)
+        Simulated.define_simulated_device(self, name, model, &block)
     end
 end
 
 module Simulated
-    
+    def self.define_simulated_device(profile, name, model)
+        device = profile.robot.device model, :as => name
+        # The SimulatedDevice subclasses expect the MARS task,not the device
+        # model. Resolve the task from the device definition by removing the
+        # data service selection (#to_component_model)
+        #
+        # to_instance_requirements is there to convert the device object into
+        # an InstanceRequirements object
+        device = device.to_instance_requirements.to_component_model
+        composition = Simulated.composition_from_device(model)
+        device = yield(device) if block_given?
+        composition = composition.use('task' => device)
+        profile.define name, composition
+        model
+    end
 
-    class Servo < Syskit::Composition
+    def self.composition_from_device(device_model, options = nil)
+        SimulatedDevice.each_submodel do |cmp_m|
+            if cmp_m.task_child.fullfills?(device_model)
+                return cmp_m
+            end
+        end
+        raise ArgumentError, "no composition found to represent devices of type #{device_model} in MARS"
+    end
+    
+    class SimulatedDevice < Syskit::Composition
+    end
+
+    class Servo < SimulatedDevice
         add Simulation::Mars, :as => "mars"
         add Simulation::MarsServo, :as => "task"
     end
     
-    class Actuator < Syskit::Composition
+    class Actuator < SimulatedDevice
         add Simulation::Mars, :as => "mars"
         add Simulation::Actuators, :as => "task"
         
@@ -83,7 +108,7 @@ module Simulated
         provides Base::ActuatorControlledSystemSrv, :as => 'actuators'
     end
     
-    class Camera < Syskit::Composition
+    class Camera < SimulatedDevice
         add Simulation::Mars, :as => "mars"
         add Simulation::MarsCamera, :as => "task"
         
@@ -99,7 +124,7 @@ module Simulated
 
     #TODO Add missing ones from above like the actuator
     
-    class IMU < Syskit::Composition
+    class IMU < SimulatedDevice
         add Simulation::Mars, :as => "mars"
         add Simulation::MarsIMU, :as => "task"
 
@@ -113,21 +138,5 @@ module Simulated
 
     end
 
-    def self.getSensor(name,options = nil)
-        constants.each do |c|
-            c = eval(c)
-            if c < Syskit::Composition
-                a = c.task_child.model
-                b = name
-                if a.fullfills?(eval(b))
-                    options.each_pair do |key,value|
-                        eval("c.task_child.#{key}(#{value})")
-                    end
-                    return c
-                end
-            end
-        end
-        raise ArgumentError, "No composition found that represent an #{name} for the simulation"
-    end
 end
 
