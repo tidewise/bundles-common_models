@@ -1,66 +1,102 @@
 require 'models/blueprints/pose'
 
-
 using_task_library 'simulation'
 
-
-Dev::Simulation.device_type "Servo"
-Dev::Simulation.device_type "Camera"
-Dev::Simulation.device_type "DepthCamera"
-Dev::Simulation.device_type "MarsActuator"
-
-Dev::Simulation.device_type "Actuator" 
-
-Dev::Simulation.device_type "Joint"
-Dev::Simulation.device_type "RangeFinder"
-
-Dev::Simulation.device_type "IMU"
-Dev::Simulation.device_type "Sonar"
-
-
-class Simulation::Mars
-    def configure
-        orocos_task.enable_gui = true
-        super
-    end
-
-end
-
-class Simulation::MarsServo 
-    driver_for Dev::Simulation::Servo, :as => "driver"
-end
-
-class Simulation::MarsIMU
-    driver_for Dev::Simulation::IMU, :as => 'driver'
-end
-
-class Simulation::Sonar
-    driver_for Dev::Simulation::Sonar, :as => "driver"
-end
-
-class Simulation::MarsCamera
-    driver_for Dev::Simulation::Camera, :as => "driver"
-end
-
-class Simulation::Actuators
-    driver_for Dev::Simulation::Actuator, :as => "driver"
-end
-
-class Syskit::Actions::Profile
-    #
-    # Instead of doing
-    #   define 'dynamixel', Model
-    #
-    # Do
-    #
-    #   define_simulated_device 'dynamixel', Dev::Simulation::Sonar
-    #
-    def define_simulated_device(name, model, &block)
-        Simulated.define_simulated_device(self, name, model, &block)
+module Dev::Simulation
+    module Mars
+        device_type "Servo"
+        device_type "Camera"
+        device_type "DepthCamera"
+        device_type "Actuator"
+        device_type "Joint"
+        device_type "RangeFinder"
+        device_type "IMU"
+        device_type "Sonar"
     end
 end
 
-module Simulated
+module Simulation
+    DevMars = Dev::Simulation::Mars
+    class SimulatedDevice < Syskit::Composition
+        add Simulation::Mars, :as => "mars"
+    end
+
+
+    class Mars
+        def configure
+            orocos_task.enable_gui = true
+            super
+        end
+    
+    end
+    
+    class MarsServo 
+        driver_for DevMars::Servo, :as => "driver"
+        class Cmp < SimulatedDevice
+            add Simulation::MarsServo, :as => "task"
+        end
+    end
+    
+    class MarsIMU
+        driver_for DevMars::IMU, :as => 'driver'
+        provides Base::OrientationSrv, :as => 'orientation'
+
+        class Cmp < SimulatedDevice
+            add [DevMars::IMU,Base::OrientationSrv], :as => "task"
+            export task_child.orientation_samples_port
+            provides Base::OrientationSrv, :as => 'orientation'
+        end
+    end
+    
+    class Sonar
+        driver_for DevMars::Sonar, :as => "driver"
+    end
+    
+    class MarsCamera
+        driver_for DevMars::Camera, :as => "driver"
+        class Cmp < SimulatedDevice
+            add Base::ImageProviderSrv, :as => "task"
+            export task_child.frame_port
+            provides Base::ImageProviderSrv, :as => 'camera'
+        end
+    end
+    
+    class MarsActuator
+        driver_for DevMars::Actuator, :as => "driver"
+        
+        dynamic_service  Base::ActuatorControlledSystemSrv, :as => 'dispatch' do
+            component_model.argument "#{name}_mappings", :default => options[:mappings]
+            provides  Base::ActuatorControlledSystemSrv, "status_out" => "status_#{name}", "command_in" => "cmd_#{name}"
+        end
+    
+        class Cmp < SimulatedDevice
+            argument :name
+
+            add [DevMars::Actuator,Base::ActuatorControlledSystemSrv], :as => "task"
+            export task_child.command_in_port
+            export task_child.status_out_port
+            provides Base::ActuatorControlledSystemSrv, :as => 'actuators'
+        end
+    
+        def self.dispatch(name, mappings)
+            model = self.specialize
+            model.require_dynamic_service('dispatch', :as => name, :mappings => mappings)
+            model
+        end
+    
+        def configure
+            each_data_service do |srv|
+                if srv.fullfills?(Base::ActuatorControlledSystemSrv)
+                    mappings = arguments["#{srv.name}_mappings"]
+                    if !orocos_task.dispatch(srv.name, mappings)
+                        puts "Could not dispatch the actuator set #{srv.name}"
+                    end
+                end
+            end
+            super
+        end
+    end
+
     def self.define_simulated_device(profile, name, model)
         device = profile.robot.device model, :as => name
         # The SimulatedDevice subclasses expect the MARS task,not the device
@@ -70,7 +106,7 @@ module Simulated
         # to_instance_requirements is there to convert the device object into
         # an InstanceRequirements object
         device = device.to_instance_requirements.to_component_model
-        composition = Simulated.composition_from_device(model)
+        composition = composition_from_device(model)
         device = yield(device) if block_given?
         composition = composition.use('task' => device)
         profile.define name, composition
@@ -85,58 +121,20 @@ module Simulated
         end
         raise ArgumentError, "no composition found to represent devices of type #{device_model} in MARS"
     end
-    
-    class SimulatedDevice < Syskit::Composition
+end
+
+
+class Syskit::Actions::Profile
+    #
+    # Instead of doing
+    #   define 'dynamixel', Model
+    #
+    # Do
+    #
+    #   define_simulated_device 'dynamixel', Dev::Simulation::Sonar
+    #
+    def define_simulated_device(name, model, &block)
+        Simulation.define_simulated_device(self, name, model, &block)
     end
-
-    class Servo < SimulatedDevice
-        add Simulation::Mars, :as => "mars"
-        add Simulation::MarsServo, :as => "task"
-    end
-    
-    class Actuator < SimulatedDevice
-        add Simulation::Mars, :as => "mars"
-        add Simulation::Actuators, :as => "task"
-        
-        task_child.each_output_port do |port|
-            export port
-        end
-        task_child.each_input_port do |port|
-            export port
-        end
-        
-        provides Base::ActuatorControlledSystemSrv, :as => 'actuators'
-    end
-    
-    class Camera < SimulatedDevice
-        add Simulation::Mars, :as => "mars"
-        add Simulation::MarsCamera, :as => "task"
-        
-        task_child.each_output_port do |port|
-            export port
-        end
-        task_child.each_input_port do |port|
-            export port
-        end
-        
-        provides Base::ImageProviderSrv, :as => 'camera'
-    end
-
-    #TODO Add missing ones from above like the actuator
-    
-    class IMU < SimulatedDevice
-        add Simulation::Mars, :as => "mars"
-        add Simulation::MarsIMU, :as => "task"
-
-        task_child.each_output_port do |port|
-            export port
-        end
-
-        provides Base::OrientationSrv, :as => 'orientation'
-        provides Base::OrientationWithZSrv, "orientation_z_samples" => "orientation_samples", :as => 'orientation_with_z'
-        provides Base::ZProviderSrv, :as => 'z_samples', 'z_samples' => "pose_samples"
-
-    end
-
 end
 
