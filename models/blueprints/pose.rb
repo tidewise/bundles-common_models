@@ -12,11 +12,23 @@ module Base
     data_service_type 'OrientationSrv' do
         output_port 'orientation_samples', '/base/samples/RigidBodyState'
     end
+    
+    data_service_type 'ZProviderSrv' do
+            output_port 'z_samples', '/base/samples/RigidBodyState'
+    end
+    
+    data_service_type 'OrientationWithZSrv' do
+        output_port 'orientation_z_samples', '/base/samples/RigidBodyState'
+        provides OrientationSrv, 'orientation_samples' => 'orientation_z_samples'
+        provides ZProviderSrv, 'z_samples' => 'orientation_z_samples'
+    end
+    
 
     data_service_type 'PoseSrv' do
         output_port 'pose_samples', '/base/samples/RigidBodyState'
         provides PositionSrv,    'position_samples' => 'pose_samples'
         provides OrientationSrv, 'orientation_samples' => 'pose_samples'
+        provides OrientationWithZSrv, 'orientation_z_samples' => 'pose_samples'
     end
 
     data_service_type 'TransformationSrv' do
@@ -50,16 +62,6 @@ module Base
         output_port 'pose_delta_samples', '/base/samples/RigidBodyState'
     end
 
-    #Here are more-special Datatypes often used on AUV-Systems 
-    data_service_type 'ZProviderSrv' do
-            output_port 'z_samples', '/base/samples/RigidBodyState'
-    end
-    
-    data_service_type 'OrientationWithZSrv' do
-        output_port 'orientation_z_samples', '/base/samples/RigidBodyState'
-        provides OrientationSrv, 'orientation_samples' => 'orientation_z_samples'
-        provides ZProviderSrv, 'z_samples' => 'orientation_z_samples'
-    end
     
     data_service_type 'VelocitySrv' do
         output_port 'velocity_samples', '/base/samples/RigidBodyState'

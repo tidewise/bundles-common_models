@@ -8,6 +8,7 @@ module Dev::Simulation
         device_type "Camera"
         device_type "DepthCamera"
         device_type "Actuator"
+        device_type "Actuators"
         device_type "Joint"
         device_type "RangeFinder"
         device_type "IMU"
@@ -19,15 +20,30 @@ module Simulation
     DevMars = Dev::Simulation::Mars
     class SimulatedDevice < Syskit::Composition
         add Simulation::Mars, :as => "mars"
+            
+            def self.instanciate(*args)
+                cmp_task = super
+                cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
+                cmp_task
+            end
     end
 
 
     class Mars
         def configure
-            orocos_task.enable_gui = true
+            #orocos_task.enable_gui = true
             super
         end
+    end
     
+    class Actuators
+        driver_for DevMars::Actuators, :as => "driver"
+        class Cmp < SimulatedDevice
+            add Simulation::Actuators, :as => "task"
+            export task_child.command_port
+            export task_child.status_port
+            provides Base::ActuatorControlledSystemSrv, :as => 'actuator' 
+        end
     end
     
     class MarsServo 
@@ -39,12 +55,12 @@ module Simulation
     
     class MarsIMU
         driver_for DevMars::IMU, :as => 'driver'
-        provides Base::OrientationSrv, :as => 'orientation'
+        provides Base::PoseSrv, :as  => "pose"
 
         class Cmp < SimulatedDevice
             add [DevMars::IMU,Base::OrientationSrv], :as => "task"
             export task_child.orientation_samples_port
-            provides Base::OrientationSrv, :as => 'orientation'
+            provides Base::PoseSrv, :as  => "pose"
         end
     end
     
@@ -54,8 +70,10 @@ module Simulation
     
     class MarsCamera
         driver_for DevMars::Camera, :as => "driver"
+        provides Base::ImageProviderSrv, :as => 'camera'
+
         class Cmp < SimulatedDevice
-            add Base::ImageProviderSrv, :as => "task"
+            add [DevMars::Camera,Base::ImageProviderSrv], :as => "task"
             export task_child.frame_port
             provides Base::ImageProviderSrv, :as => 'camera'
         end
