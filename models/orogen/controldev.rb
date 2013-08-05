@@ -12,16 +12,16 @@ module Dev
             #Rename it manually since otherwise the name is already used
             #but first we need to creare the new-named-ports
             output_port "motion_raw","/controldev/RawCommand"
-            output_port "motion_2d","/base/MotionCommand2D"
+            output_port "motion_2d","/base/MotionCommand2D" #Depricated
 
-            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d"
+            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d" #Depricated
             provides Base::RawCommandControllerSrv, "command_out" => "motion_raw"
         end
         device_type 'CANJoystick' do
             output_port "motion_raw","/controldev/RawCommand"
-            output_port "motion_2d","/base/MotionCommand2D"
+            output_port "motion_2d","/base/MotionCommand2D" #Depricated
 
-            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d"
+            provides Base::Motion2DControllerSrv, "command_out"=> "motion_2d" #Depricated
             provides Base::RawCommandControllerSrv, "command_out" => "motion_raw"
             
             provides Dev::Bus::CAN::ClientInSrv
@@ -48,7 +48,10 @@ end
 
 class Controldev::Remote
     driver_for Dev::Controldev::CANJoystick, "from_bus" => "canJoystick", :as => 'joystick'
-    driver_for Dev::Controldev::CANSliderbox, :as => 'sliderbox'
+    #Results in an problem that there must be an device too for the sliderbox.
+    #NEverless the RawCommand should be the only used datatype.
+    #The Other one's are Depricated and will be removed in the future.
+#    driver_for Dev::Controldev::CANSliderbox, :as => 'sliderbox'
 end
 
 class Controldev::SliderboxTask
