@@ -24,12 +24,15 @@ class Canbus::Task
 
     def configure
         super
-        bus_name = self.canbus_name
+        bus_name = self.driver_dev.name #self.canbus_name
         each_attached_device do |dev|
             can_id, can_mask = dev.can_id
+            if !dev.can_id
+                raise "No can id/mask given for #{dev}" 
+            end
             name = dev.name
-            Robot.info "#{bus_name}: watching #{name} on 0x#{can_id.to_s(16)}/#{can_mask.to_s(16)}"
-            orogen_task.watch(name, can_id, can_mask)
+            Robot.info "#{bus_name}: watching #{name} on 0x#{can_id.to_s.to_i(16)}/#{can_mask.to_s.to_i(16)}"
+            orocos_task.watch(name, can_id, can_mask)
         end
     end
 end
