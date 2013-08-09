@@ -30,6 +30,8 @@ module Simulation
 
 
     class Mars
+        forward :physics_error => :failed
+
         def configure
             #orocos_task.enable_gui = true
             super
@@ -37,6 +39,8 @@ module Simulation
     end
     
     class Actuators
+        forward :lost_mars_connection => :failed 
+
         driver_for DevMars::Actuators, :as => "driver"
         class Cmp < SimulatedDevice
             add Simulation::Actuators, :as => "task"
@@ -47,6 +51,7 @@ module Simulation
     end
     
     class MarsServo 
+        forward :lost_mars_connection => :failed 
         driver_for DevMars::Servo, :as => "driver"
         class Cmp < SimulatedDevice
             add Simulation::MarsServo, :as => "task"
@@ -54,6 +59,7 @@ module Simulation
     end
     
     class MarsIMU
+        forward :lost_mars_connection => :failed 
         driver_for DevMars::IMU, :as => 'driver'
         provides Base::PoseSrv, :as  => "pose"
 
@@ -65,10 +71,12 @@ module Simulation
     end
     
     class Sonar
+        forward :lost_mars_connection => :failed 
         driver_for DevMars::Sonar, :as => "driver"
     end
     
     class MarsCamera
+        forward :lost_mars_connection => :failed 
         driver_for DevMars::Camera, :as => "driver"
         provides Base::ImageProviderSrv, :as => 'camera'
 
@@ -80,6 +88,7 @@ module Simulation
     end
     
     class MarsActuator
+        forward :lost_mars_connection => :failed 
         driver_for DevMars::Actuator, :as => "driver"
         
         dynamic_service  Base::ActuatorControlledSystemSrv, :as => 'dispatch' do
