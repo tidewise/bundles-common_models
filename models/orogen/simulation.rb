@@ -13,6 +13,8 @@ module Dev::Simulation
         device_type "RangeFinder"
         device_type "IMU"
         device_type "Sonar"
+        device_type "Altimeter"
+        device_type "AuvController"
     end
 end
 
@@ -57,6 +59,27 @@ module Simulation
             add Simulation::MarsServo, :as => "task"
         end
     end
+    
+    class AuvController
+        forward :lost_mars_connection => :failed 
+        driver_for DevMars::AuvController, :as => "driver"
+        class Cmp < SimulatedDevice
+            add Simulation::AuvController, :as => "task"
+        end
+    end
+    
+    
+    class MarsAltimeter 
+        forward :lost_mars_connection => :failed 
+        driver_for DevMars::Altimeter, :as => "driver"
+        provides Base::GroundDistanceSrv, :as => 'dist'
+        class Cmp < SimulatedDevice
+            add [Simulation::MarsAltimeter,Base::GroundDistanceSrv], :as => "task"
+            export task_child.ground_distance_port
+            provides Base::GroundDistanceSrv, :as => 'dist'
+        end
+    end
+    
     
     class MarsIMU
         forward :lost_mars_connection => :failed 
