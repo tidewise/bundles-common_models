@@ -97,8 +97,6 @@ module Simulation
         end
     
         class Cmp < SimulatedDevice
-            argument :name
-
             add [DevMars::Actuator,Base::ActuatorControlledSystemSrv], :as => "task"
             export task_child.command_in_port
             export task_child.status_out_port
@@ -112,15 +110,15 @@ module Simulation
         end
     
         def configure
+            super
             each_data_service do |srv|
                 if srv.fullfills?(Base::ActuatorControlledSystemSrv)
                     mappings = arguments["#{srv.name}_mappings"]
                     if !orocos_task.dispatch(srv.name, mappings)
-                        puts "Could not dispatch the actuator set #{srv.name}"
+                        raise "Could not dispatch the actuator set #{srv.name}"
                     end
                 end
             end
-            super
         end
     end
 
