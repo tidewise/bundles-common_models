@@ -31,5 +31,9 @@ module Base
     data_service_type 'SonarScanProviderSrv' do
         output_port 'sonarscan', '/base/samples/SonarBeam'
     end
+
+    data_service_type 'PointcloudProviderSrv' do
+        output_port 'pointcloud', '/base/samples/Pointcloud'
+    end
 end
 
