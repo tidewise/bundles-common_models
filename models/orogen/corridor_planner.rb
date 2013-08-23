@@ -11,17 +11,17 @@ class CorridorPlanner::Task
     def configure
         super
         if Conf.traversability_map_file?
-            orogen_task.map_path = Conf.traversability_map_file
+            orocos_task.map_path = Conf.traversability_map_file
         end
-        orogen_task.terrain_classes = Conf.traversability_classes_file
-        orogen_task.strong_edge_filter do |p|
+        orocos_task.terrain_classes = Conf.traversability_classes_file
+        orocos_task.strong_edge_filter do |p|
             p.env_path = Conf.environment_map_path
         end
     end
 
     event :start do |context|
-        orogen_task.start_point   = self.start_point
-        orogen_task.target_point  = self.target_point
+        orocos_task.start_point   = self.start_point
+        orocos_task.target_point  = self.target_point
         @result_reader = plan_port.reader
 
         super(context)
@@ -43,9 +43,9 @@ end
 
 class CorridorPlanner::Traversability
     event :start do |context|
-        if !orogen_task.env_save_path.empty?
+        if !orocos_task.env_save_path.empty?
             # Make sure that the directory exists
-            FileUtils.mkdir_p(File.expand_path(orogen_task.env_save_path, Roby.app.log_dir))
+            FileUtils.mkdir_p(File.expand_path(orocos_task.env_save_path, Roby.app.log_dir))
         end
 
         super(context)
