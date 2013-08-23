@@ -1,4 +1,5 @@
-require 'models/blueprints/pose'
+require 'rock/models/blueprints/pose'
+require 'rock/models/blueprints/devices'
 
 using_task_library 'simulation'
 
@@ -11,6 +12,7 @@ module Dev::Simulation
         device_type "Actuators"
         device_type "Joint"
         device_type "RangeFinder"
+        device_type "HighResRangeFinder" # e.g. velodyne
         device_type "IMU"
         device_type "Sonar"
     end
@@ -117,6 +119,37 @@ module Simulation
                     if !orocos_task.dispatch(srv.name, mappings)
                         raise "Could not dispatch the actuator set #{srv.name}"
                     end
+                end
+            end
+        end
+    end
+
+    class MarsHighResRangeFinder
+        forward :lost_mars_connection => :failed
+        driver_for DevMars::HighResRangeFinder, :as => "driver"
+        provides Base::PointcloudProviderSrv, :as => "pointcloud_provider"
+
+        # Camera can be added to increase the viewing angle, but needs to be added after start of
+        # the device
+        def self.defineCameras(name,viewing_angles = [90,180,270])
+            cameras = {}
+            viewing_angles.each {|v| cameras["#{name}#{v}"] = v }
+            argument "cameras", :default => cameras
+            self
+        end
+
+        class Cmp < SimulatedDevice
+            add [DevMars::HighResRangeFinder, Base::PointcloudProviderSrv], :as => "task"
+            export task_child.pointcloud_port
+            provides Base::PointcloudProviderSrv, :as => 'pointcloud_provider'
+        end
+
+        on :start do |event|
+            cameras = arguments[:cameras]
+            if cameras
+                cameras.each do |name, angle|
+                    puts "#{__FILE__}: Simulation::MarsHighResRangeFinder adding camera '#{name}' for angle '#{angle}'"
+                    orocos_task.addCamera(name, angle)
                 end
             end
         end
