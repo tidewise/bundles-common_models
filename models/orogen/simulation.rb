@@ -88,6 +88,10 @@ module Simulation
         driver_for DevMars::IMU, :as => 'driver'
         provides Base::PoseSrv, :as  => "pose"
 
+        transformer do
+            transform_output 'pose_samples', 'imu' => 'world'
+        end
+
         class Cmp < SimulatedDevice
             add [DevMars::IMU,Base::OrientationSrv], :as => "task"
             export task_child.orientation_samples_port
@@ -151,6 +155,9 @@ module Simulation
         forward :lost_mars_connection => :failed
         driver_for DevMars::HighResRangeFinder, :as => "driver"
         provides Base::PointcloudProviderSrv, :as => "pointcloud_provider"
+        transformer do
+            associate_frame_to_ports 'high_res_range_finder', 'pointcloud'
+        end
 
         # Camera can be added to increase the viewing angle, but needs to be added after start of
         # the device
