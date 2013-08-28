@@ -120,6 +120,10 @@ module Base
     ControlLoop.declare "Actuator", 'base/actuators/Command',
         :feedback_type => 'base/actuators/Status'
 
+    # This declares an JointsController and JointsControlledSystem data service
+    # types, and the necessary specializations on ControlLoop
+    ControlLoop.declare "Joints", 'base/commands/Joints',
+        :feedback_type => 'base/samples/Joints'
 
     # This declares an Motion2DController and Motion2DControlledSystem data service
     # types, and the necessary specializations on ControlLoop
