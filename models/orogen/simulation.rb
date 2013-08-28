@@ -10,7 +10,7 @@ module Dev::Simulation
         device_type "DepthCamera"
         device_type "Actuator"
         device_type "Actuators"
-        device_type "Joint"
+        device_type "Joints"
         device_type "RangeFinder"
         device_type "HighResRangeFinder" # e.g. velodyne
         device_type "IMU"
@@ -114,6 +114,13 @@ module Simulation
             export task_child.frame_port
             provides Base::ImageProviderSrv, :as => 'camera'
         end
+    end
+
+    class Joints
+        forward :lost_mars_connection => :failed 
+        driver_for DevMars::Joints, :as => "driver"
+
+        provides Base::JointsControlledSystemSrv, :as => 'actuators'
     end
     
     class MarsActuator
