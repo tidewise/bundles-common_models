@@ -25,11 +25,11 @@ module Simulation
     class SimulatedDevice < Syskit::Composition
         add Simulation::Mars, :as => "mars"
             
-            def self.instanciate(*args)
-                cmp_task = super
-                cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
-                cmp_task
-            end
+        def self.instanciate(*args)
+            cmp_task = super
+            # cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
+            cmp_task
+        end
     end
 
 
