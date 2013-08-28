@@ -116,13 +116,13 @@ module Base
     end
 
     # This declares an ActuatorController and ActuatorControlledSystem data service
-    # types, and the necessary specializations on Cmp::ControlLoop
+    # types, and the necessary specializations on ControlLoop
     ControlLoop.declare "Actuator", 'base/actuators/Command',
         :feedback_type => 'base/actuators/Status'
 
 
     # This declares an Motion2DController and Motion2DControlledSystem data service
-    # types, and the necessary specializations on Cmp::ControlLoop
+    # types, and the necessary specializations on ControlLoop
     ControlLoop.declare "Motion2D", 'base/MotionCommand2D'
 end
 
