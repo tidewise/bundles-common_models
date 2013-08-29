@@ -10,7 +10,9 @@ module Dev::Simulation
         device_type "DepthCamera"
         device_type "Actuator"
         device_type "Actuators"
-        device_type "Joints"
+        device_type "Joints" do
+            provides Base::JointsControlledSystemSrv
+        end
         device_type "RangeFinder"
         device_type "HighResRangeFinder" # e.g. velodyne
         device_type "IMU"
@@ -121,6 +123,13 @@ module Simulation
         driver_for DevMars::Joints, :as => "driver"
 
         provides Base::JointsControlledSystemSrv, :as => 'actuators'
+
+        class Cmp < SimulatedDevice
+            add DevMars::Joints, :as => "task"
+            export task_child.command_in_port
+            export task_child.status_out_port
+            provides Base::JointsControlledSystemSrv, :as => 'actuators'
+        end
     end
     
     class MarsActuator
