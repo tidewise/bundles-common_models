@@ -168,6 +168,8 @@ module Simulation
     end
 
     class MarsHighResRangeFinder
+        argument :cameras
+
         forward :lost_mars_connection => :failed
         driver_for DevMars::HighResRangeFinder, :as => "driver"
         provides Base::PointcloudProviderSrv, :as => "pointcloud_provider"
@@ -177,15 +179,18 @@ module Simulation
 
         # Camera can be added to increase the viewing angle, but needs to be added after start of
         # the device
-        def self.defineCameras(name,viewing_angles = [90,180,270])
-            cameras = {}
+        def self.with_cameras(name, *viewing_angles)
+            if viewing_angles.empty?
+                viewing_angles = [90,180,270]
+            end
+            cameras = Hash.new
             viewing_angles.each {|v| cameras["#{name}#{v}"] = v }
-            argument "cameras", :default => cameras
-            self
+            to_instance_requirements.
+                with_arguments('cameras' => cameras)
         end
 
         class Cmp < SimulatedDevice
-            add [DevMars::HighResRangeFinder, Base::PointcloudProviderSrv], :as => "task"
+            add MarsHighResRangeFinder, :as => "task"
             export task_child.pointcloud_port
             provides Base::PointcloudProviderSrv, :as => 'pointcloud_provider'
         end
