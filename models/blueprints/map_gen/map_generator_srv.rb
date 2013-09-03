@@ -15,6 +15,11 @@ module Rock
 
         # Data service that is used to tag map generators that provide a single
         # map at startup, and then nothing
+        #
+        # To be able to use these type of map producers properly, one has to
+        # take care of using subclasses of MapGen::PipelineBase to represent the
+        # processing pipeline. This ensures that proper synchronization is done
+        # (i.e. that the map generator is started after all the consumers)
         data_service_type 'OneShotSrv'
         
         def OneShotSrv.included(other)
