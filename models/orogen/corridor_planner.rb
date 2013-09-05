@@ -42,6 +42,10 @@ class CorridorPlanner::Task
 end
 
 class CorridorPlanner::Traversability
+    transformer do
+        associate_frame_to_ports 'world', 'mls_map', 'traversability_map'
+    end
+
     event :start do |context|
         if !orocos_task.env_save_path.empty?
             # Make sure that the directory exists
