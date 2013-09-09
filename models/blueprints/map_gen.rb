@@ -4,5 +4,5 @@ module Rock
     end
 end
 
-require 'models/blueprints/map_generator_srv'
-require 'models/blueprints/pipeline_base'
+require 'models/blueprints/map_gen/map_generator_srv'
+require 'models/blueprints/map_gen/pipeline_base'
