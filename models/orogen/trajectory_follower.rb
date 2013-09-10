@@ -1,4 +1,5 @@
 require 'models/blueprints/control'
+require 'models/blueprints/pose'
 
 # Integration of the trajectory follower component
 #
