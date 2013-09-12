@@ -85,6 +85,11 @@ module Base
             options = Kernel.validate_options options, :feedback_type
             feedback_type = options[:feedback_type]
 
+            if feedback_type
+                status_model = Base.data_service_type "#{name}StatusSrv" do
+                    output_port "status_samples", feedback_type
+                end
+            end
             controller_model = Base.data_service_type "#{name}ControllerSrv" do
                 provides Base::ControllerSrv
                 output_port "command_out", control_type
@@ -96,7 +101,8 @@ module Base
                 provides Base::ControlledSystemSrv
                 input_port "command_in", control_type
                 if feedback_type
-                    output_port "status_out", feedback_type
+                    output_port 'status_out', feedback_type
+                    provides status_model, 'status_samples' => 'status_out'
                 end
             end
             specialize controller_child => controlled_system_model do
