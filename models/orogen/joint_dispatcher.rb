@@ -50,7 +50,12 @@ module JointDispatcher
         def self.port_dispatch(*conf_names)
             conf = Orocos.conf.resolve('joint_dispatcher::Task', conf_names, true)
             conf['dispatches'].map do |dispatch|
-                [dispatch['input'], dispatch['output']]
+                # The configuration objects are using typelib values, convert to
+                # proper strings
+                #
+                # This workarounds a bug in oroGen, which does not call #to_str
+                # whenever it expects a string
+                [dispatch['input'].to_str, dispatch['output'].to_str]
             end
         end
     end
