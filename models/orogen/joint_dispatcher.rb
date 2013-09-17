@@ -27,7 +27,9 @@ module JointDispatcher
         end
 
         Dispatch.new_submodel :name => "JointDispatcher::Dispatcher{#{conf_names.join(",")}}" do
-            overload 'dispatcher', task
+            overload('dispatcher', task).
+                with_conf(*conf_names)
+
             dispatches.each do |input, _, srv|
                 child = add Base::JointsStatusSrv, :as => input
                 child.connect_to dispatcher_child.find_data_service(srv.name)
