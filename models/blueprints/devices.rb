@@ -56,6 +56,7 @@ module Dev
     # Actuators
     module Actuators
         device_type 'PTU'
+        device_type 'Dynamixel'
     end
 end
 
