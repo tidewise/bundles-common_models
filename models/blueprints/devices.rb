@@ -25,9 +25,10 @@ module Dev
             device_type 'Firewire' do
                 provides Base::ImageProviderSrv
             end
-            device_type 'Network' do
+            device_type 'Prosilica' do
                 provides Base::ImageProviderSrv
             end
+            Network = Prosilica
             device_type 'USB' do
                 provides Base::ImageProviderSrv
             end
