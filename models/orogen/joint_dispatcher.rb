@@ -45,6 +45,7 @@ module JointDispatcher
     class Task
         dynamic_service DispatchedStatusSrv, :as => 'dispatch' do
             provides DispatchedStatusSrv, "status_in" => options[:status_in], "status_out" => options[:status_out]
+            component_model.orogen_model.port_driven options[:status_in]
         end
 
         # @return [Array<(String,String)>] the dispatches represented at the port
