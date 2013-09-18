@@ -13,6 +13,10 @@ module Rock
             provides MapGeneratorSrv
         end
 
+        data_service_type 'MultilevelLaserScanSrv' do
+            output_port 'laser_scans', 'velodyne_lidar::MultilevelLaserScan'
+        end
+
         # Data service that is used to tag map generators that provide a single
         # map at startup, and then nothing
         #
