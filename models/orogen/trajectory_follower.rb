@@ -1,5 +1,6 @@
 require 'models/blueprints/control'
 require 'models/blueprints/pose'
+require 'models/blueprints/planning'
 
 # Integration of the trajectory follower component
 #
@@ -48,5 +49,7 @@ Base::ControlLoop.specialize \
     add Base::PoseSrv, :as => 'pose'
     pose_child.connect_to controller_child
     export controller_child.trajectory_port
+
+    provides Rock::Planning::TrajectoryExecutionSrv, :as => 'trajectory_execution'
 end
 
