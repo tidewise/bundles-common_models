@@ -1,5 +1,5 @@
 class CorridorNavigation::ServoingTask
-    argument :initial_heading
+    argument :initial_heading, :default => nil
 
     # Data writer connected to the heading port of the corridor servoing task
     attr_reader :direction_writer
@@ -8,7 +8,7 @@ class CorridorNavigation::ServoingTask
     transformer do
         associate_frame_to_ports 'laser', 'scan_samples'
         associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
-        transform_input 'odometry_samples', 'body' => 'odometry'
+        #transform_input 'odometry_samples', 'body' => 'odometry'
     end
 
     on :start do |event|
