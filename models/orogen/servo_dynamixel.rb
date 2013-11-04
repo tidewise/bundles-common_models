@@ -2,6 +2,8 @@ require 'models/blueprints/devices'
 class ServoDynamixel::Task
     driver_for Dev::Actuators::Dynamixel, :as => 'driver'
 
+    orogen_model.find_port('command').multiplexes
+
     transformer do
         frames "lower", "upper"
         transform_output "transforms", "lower" => "upper"
