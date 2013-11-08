@@ -32,7 +32,7 @@ module JointDispatcher
 
             dispatches.each do |input, _, srv|
                 child = add Base::JointsStatusSrv, :as => input
-                child.connect_to dispatcher_child.find_data_service(srv.name)
+                child.connect_to dispatcher_child.find_data_service(srv.name), :type => :buffer, :size => 100
             end
 
             dispatches.map { |_, output, _| output }.to_set.each do |output|
