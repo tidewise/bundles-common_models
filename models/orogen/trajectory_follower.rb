@@ -32,10 +32,12 @@ class TrajectoryFollower::Task
         transform_input "pose", "body" => "world"
     end
 
-    on :start do |event|
-        if trajectory
-            @trajectory_writer = data_writer 'trajectory'
-            @trajectory_writer.write(trajectory)
+    script do
+        trajectory_w = trajectory_port.writer
+        execute do
+            if trajectory
+                trajectory_w.write trajectory
+            end
         end
     end
 end
