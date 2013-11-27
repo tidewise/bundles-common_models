@@ -8,7 +8,7 @@ class CorridorNavigation::ServoingTask
     transformer do
         associate_frame_to_ports 'laser', 'scan_samples'
         associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
-        transform_input 'odometry_samples', 'body' => 'odometry'
+        #transform_input 'odometry_samples', 'body' => 'odometry'
     end
 
     on :start do |event|
