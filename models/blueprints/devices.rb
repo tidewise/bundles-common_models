@@ -57,9 +57,7 @@ module Dev
     # Actuators
     module Actuators
         device_type 'PTU'
-        device_type 'Dynamixel' do
-            provides ::Base::TransformationSrv
-        end
+        device_type 'Dynamixel'
     end
 end
 
