@@ -8,3 +8,5 @@ data/cmae_data
 *~
 *.swp
 *.swo
+coverage/
+logs/
