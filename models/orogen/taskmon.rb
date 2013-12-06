@@ -1,16 +1,18 @@
 class Taskmon::Task
+    attr_reader :query_tasks
+    attr_reader :query_deployments
+
     def initialize(options = Hash.new)
         super
 
-        @watched_deployments = Hash.new { |h, k| h[k] = ValueSet.new }
+        @watched_deployments = ValueSet.new
         @watched_tasks = ValueSet.new
-        @watched_pids = Hash.new
     end
 
     on :start do |event|
-        @query_tasks = plan.find_tasks(Orocos::RobyPlugin::TaskContext).
+        @query_tasks = plan.find_tasks(Syskit::TaskContext).
             running
-        @query_deployments = plan.find_tasks(Orocos::RobyPlugin::Deployment).
+        @query_deployments = plan.find_tasks(Syskit::Deployment).
             running
     end
 
@@ -21,27 +23,13 @@ class Taskmon::Task
 
         @query_deployments.reset
         deployments = @query_deployments.to_value_set
-        old_deployments = (@watched_deployments.keys.to_value_set - deployments)
+        new_deployments = (deployments - @watched_deployments)
 
-        # If there is no new tasks / old deployments, no need to do anything
-        if new_tasks.empty? && old_deployments.empty?
-            return
-        end
-
-        @watched_tasks.delete_if { |t| !t.running? }
-        @watched_tasks |= new_tasks
-
-        required_deployments = new_tasks.map(&:execution_agent).to_value_set
-        pids = required_deployments.map(&:pid)
-        orogen_task.add_watches(pids, [])
-
-        old_tids = Set.new
-        old_deployments.each do |deployment_task|
-            tids = @watched_deployments.delete(deployment_task)
-            next if !tids
-            old_tids |= tids.to_set
-        end
-        orogen_task.remove_watches(old_tids)
+        return if new_deployments.empty? && new_tasks.empty?
+        orocos_task.add_watches(new_deployments.map(&:pid),
+                                new_tasks.map(&:orocos_task))
+        @watched_deployments = deployments
+        @watched_tasks = tasks
     end
 end
 
