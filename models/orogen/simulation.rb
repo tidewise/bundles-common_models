@@ -5,7 +5,6 @@ using_task_library 'simulation'
 
 module Dev::Simulation
     module Mars
-        device_type "Servo"
         device_type "Camera"
         device_type "DepthCamera"
         device_type "Actuator"
@@ -26,7 +25,7 @@ module Simulation
     DevMars = Dev::Simulation::Mars
     class SimulatedDevice < Syskit::Composition
         add Simulation::Mars, :as => "mars"
-            
+
         def self.instanciate(*args)
             cmp_task = super
             # cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
@@ -43,38 +42,31 @@ module Simulation
             super
         end
     end
-    
+
     class Actuators
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
 
         driver_for DevMars::Actuators, :as => "driver"
         class Cmp < SimulatedDevice
             add Simulation::Actuators, :as => "task"
             export task_child.command_port
             export task_child.status_port
-            provides Base::ActuatorControlledSystemSrv, :as => 'actuator' 
+            provides Base::ActuatorControlledSystemSrv, :as => 'actuator'
         end
     end
-    
-    class MarsServo 
-        forward :lost_mars_connection => :failed 
-        driver_for DevMars::Servo, :as => "driver"
-        class Cmp < SimulatedDevice
-            add Simulation::MarsServo, :as => "task"
-        end
-    end
-    
+
+
     class AuvController
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::AuvController, :as => "driver"
         class Cmp < SimulatedDevice
             add Simulation::AuvController, :as => "task"
         end
     end
-    
-    
+
+
     class MarsAltimeter 
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::Altimeter, :as => "driver"
         provides Base::GroundDistanceSrv, :as => 'dist'
         class Cmp < SimulatedDevice
@@ -83,10 +75,10 @@ module Simulation
             provides Base::GroundDistanceSrv, :as => 'dist'
         end
     end
-    
-    
+
+
     class MarsIMU
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::IMU, :as => 'driver'
         provides Base::PoseSrv, :as  => "pose"
 
@@ -100,14 +92,14 @@ module Simulation
             provides Base::PoseSrv, :as  => "pose"
         end
     end
-    
+
     class Sonar
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::Sonar, :as => "driver"
     end
-    
+
     class MarsCamera
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::Camera, :as => "driver"
         provides Base::ImageProviderSrv, :as => 'camera'
 
@@ -119,7 +111,7 @@ module Simulation
     end
 
     class Joints
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::Joints, :as => "driver"
 
         provides Base::JointsControlledSystemSrv, :as => 'actuators'
@@ -131,29 +123,29 @@ module Simulation
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
         end
     end
-    
+
     class MarsActuator
-        forward :lost_mars_connection => :failed 
+        forward :lost_mars_connection => :failed
         driver_for DevMars::Actuator, :as => "driver"
-        
+
         dynamic_service  Base::ActuatorControlledSystemSrv, :as => 'dispatch' do
             component_model.argument "#{name}_mappings", :default => options[:mappings]
             provides  Base::ActuatorControlledSystemSrv, "status_out" => "status_#{name}", "command_in" => "cmd_#{name}"
         end
-    
+
         class Cmp < SimulatedDevice
             add [DevMars::Actuator,Base::ActuatorControlledSystemSrv], :as => "task"
             export task_child.command_in_port
             export task_child.status_out_port
             provides Base::ActuatorControlledSystemSrv, :as => 'actuators'
         end
-    
+
         def self.dispatch(name, mappings)
             model = self.specialize
             model.require_dynamic_service('dispatch', :as => name, :mappings => mappings)
             model
         end
-    
+
         def configure
             super
             each_data_service do |srv|
