@@ -28,7 +28,7 @@ module Simulation
 
         def self.instanciate(*args)
             cmp_task = super
-            # cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
+            #cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
             cmp_task
         end
     end
@@ -55,7 +55,6 @@ module Simulation
         end
     end
 
-
     class AuvController
         forward :lost_mars_connection => :failed
         driver_for DevMars::AuvController, :as => "driver"
@@ -65,7 +64,7 @@ module Simulation
     end
 
 
-    class MarsAltimeter 
+    class MarsAltimeter
         forward :lost_mars_connection => :failed
         driver_for DevMars::Altimeter, :as => "driver"
         provides Base::GroundDistanceSrv, :as => 'dist'
@@ -96,6 +95,12 @@ module Simulation
     class Sonar
         forward :lost_mars_connection => :failed
         driver_for DevMars::Sonar, :as => "driver"
+        provides Base::SonarScanProviderSrv, :as => "sonar_beam"
+        class Cmp < SimulatedDevice
+            add [DevMars::Sonar,Base::SonarScanProviderSrv], :as => "task"
+            export task_child.sonarscan_port
+            provides Base::SonarScanProviderSrv, :as  => "scan"
+        end
     end
 
     class MarsCamera
