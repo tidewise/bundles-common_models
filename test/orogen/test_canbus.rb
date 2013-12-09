@@ -30,8 +30,7 @@ module Canbus
             dev.can_id(0x01, 0x11)
             dev_task = syskit_run_deployer(dev)
             bus_task = dev_task.children.first
-            flexmock(bus_task.orocos_task).
-                should_receive(:watch).once.
+            flexmock(bus_task).should_receive_operation(:watch).once.
                 with('dev', 0x01, 0x11)
             syskit_setup_component(bus_task)
         end
