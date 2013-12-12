@@ -85,6 +85,9 @@ module Base
             options = Kernel.validate_options options, :feedback_type
             feedback_type = options[:feedback_type]
 
+            command_model = Base.data_service_type "#{name}CommandConsumerSrv" do
+                input_port "cmd_in", control_type
+            end
             if feedback_type
                 status_model = Base.data_service_type "#{name}StatusSrv" do
                     output_port "status_samples", feedback_type
@@ -100,6 +103,7 @@ module Base
             controlled_system_model = Base.data_service_type "#{name}ControlledSystemSrv" do
                 provides Base::ControlledSystemSrv
                 input_port "command_in", control_type
+                provides command_model, 'cmd_in' => 'command_in'
                 if feedback_type
                     output_port 'status_out', feedback_type
                     provides status_model, 'status_samples' => 'status_out'
