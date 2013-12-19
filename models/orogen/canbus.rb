@@ -25,7 +25,7 @@ class Canbus::Task
     def configure
         super
         bus_name = self.driver_dev.name #self.canbus_name
-        each_attached_device do |dev|
+        each_declared_attached_device do |dev|
             can_id, can_mask = dev.can_id
             if !dev.can_id
                 raise ArgumentError, "No can id/mask given for #{dev}" 
