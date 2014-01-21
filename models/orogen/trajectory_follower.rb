@@ -36,6 +36,7 @@ class TrajectoryFollower::Task
 
     script do
         trajectory_w = trajectory_port.writer
+        wait_until_ready trajectory_w
         execute do
             if trajectory
                 trajectory_w.write trajectory

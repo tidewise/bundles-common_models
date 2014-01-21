@@ -10,3 +10,4 @@ data/cmae_data
 *.swo
 coverage/
 logs/
+models/pack
