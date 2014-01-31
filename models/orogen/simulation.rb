@@ -164,6 +164,18 @@ module Simulation
         end
     end
 
+    class MarsLaserRangeFinder 
+        forward :lost_mars_connection => :failed
+        driver_for DevMars::RangeFinder, :as => "driver"
+        provides Base::LaserRangeFinderSrv, :as => 'range_finder'
+
+        class Cmp < SimulatedDevice
+            add [DevMars::RangeFinder,Base::LaserRangeFinderSrv], :as => "task"
+            export task_child.scans_port
+            provides Base::LaserRangeFinderSrv, :as => 'range_finder'
+        end
+    end
+
     class MarsHighResRangeFinder
         argument :cameras
 
