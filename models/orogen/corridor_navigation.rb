@@ -13,9 +13,9 @@ class CorridorNavigation::ServoingTask
 
     on :start do |event|
         if initial_heading
-            @direction_writer = servoing_child.heading_port.writer
+            @direction_writer = heading_port.writer
             @direction_writer.write(initial_heading)
-            Robot.info "corridor_servoing: initial heading=#{servoing_child.initial_heading * 180 / Math::PI}deg"
+            Robot.info "corridor_servoing: initial heading=#{initial_heading * 180 / Math::PI}deg"
         end
     end
 end
