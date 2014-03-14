@@ -1,6 +1,7 @@
 require 'models/blueprints/devices'
 
 Dev::Bus.com_bus_type 'CAN', :message_type => '/canbus/Message' do
+    worstcase_processing_time 0.2 
     extend_attached_device_configuration do
         dsl_attribute :can_id do |id, mask|
             mask ||= id
