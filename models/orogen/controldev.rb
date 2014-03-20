@@ -22,7 +22,7 @@ class Controldev::Mouse3DTask
 end
 
 class Controldev::Remote
-    provides Dev::Bus::CAN::ClientInSrv, "from_bus" => "canGenericInputDevice" ,:as => "can"
+    provides Dev::Bus::CAN::ClientInSrv, "from_bus" => "canInputDevice" ,:as => "can"
 
     driver_for Dev::Controldev::Raw, :as => 'joystick'
 end
