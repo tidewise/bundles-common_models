@@ -82,8 +82,9 @@ module Base
         #   end
         #
         def self.declare(name, control_type, options = Hash.new)
-            options = Kernel.validate_options options, :feedback_type
+            options = Kernel.validate_options options, :feedback_type, :command_provider
             feedback_type = options[:feedback_type]
+            command_provider = options[:command_provider]
 
             command_model = Base.data_service_type "#{name}CommandConsumerSrv" do
                 input_port "cmd_in", control_type
@@ -91,6 +92,11 @@ module Base
             if feedback_type
                 status_model = Base.data_service_type "#{name}StatusSrv" do
                     output_port "status_samples", feedback_type
+                end
+            end
+            if command_provider
+                command_provider_model = Base.data_service_type "#{name}CommandSrv" do
+                    output_port "command_samples", control_type
                 end
             end
             controller_model = Base.data_service_type "#{name}ControllerSrv" do
@@ -133,7 +139,7 @@ module Base
     # This declares an JointsController and JointsControlledSystem data service
     # types, and the necessary specializations on ControlLoop
     ControlLoop.declare "Joints", 'base/commands/Joints',
-        :feedback_type => 'base/samples/Joints'
+        :feedback_type => 'base/samples/Joints', :command_provider => true
 
     # This declares an Motion2DController and Motion2DControlledSystem data service
     # types, and the necessary specializations on ControlLoop
