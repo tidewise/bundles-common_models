@@ -2,6 +2,9 @@ import_types_from 'base'
 require 'models/blueprints/pose'
 
 module Base
+    data_service_type "ImageConsumerSrv" do 
+        input_port "frame","/base/samples/frame/Frame"
+    end
     data_service_type 'IMUSensorsSrv' do
         output_port 'sensors', '/base/samples/IMUSensors'
     end
