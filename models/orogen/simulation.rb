@@ -1,3 +1,4 @@
+require 'rock/models/blueprints/control'
 require 'rock/models/blueprints/pose'
 require 'rock/models/blueprints/devices'
 
