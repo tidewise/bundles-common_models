@@ -15,6 +15,10 @@ module Base
         provides IMUSensorsSrv
     end
 
+    data_service_type 'ImageConsumerSrv' do
+        input_port 'frame', ro_ptr('/base/samples/frame/Frame')
+    end
+
     data_service_type 'ImageProviderSrv' do
         output_port 'frame', ro_ptr('/base/samples/frame/Frame')
     end
