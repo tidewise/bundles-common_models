@@ -22,6 +22,7 @@ module Dev::Simulation
         device_type "Sonar"
         device_type "Altimeter"
         device_type "AuvController"
+        device_type "ForceTorque6DOF"
     end
 end
 
@@ -143,6 +144,17 @@ module Simulation
             export task_child.status_out_port
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
         end
+    end
+    
+    class ForceTorque6DOF
+      forward :lost_mars_connection => :failed
+      driver_for DevMars::ForceTorque6DOF, :as => "driver"
+
+      class Cmp < SimulatedDevice
+          add DevMars::ForceTorque6DOF, :as => "task"
+          #export task_child.force_port
+          #export task_child.torque_port
+      end
     end
 
     class MarsActuator
