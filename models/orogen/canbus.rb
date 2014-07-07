@@ -1,6 +1,7 @@
 require 'models/blueprints/devices'
 
 Dev::Bus.com_bus_type 'CAN', :message_type => '/canbus/Message' do
+    worstcase_processing_time 0.2 
     extend_attached_device_configuration do
         dsl_attribute :can_id do |id, mask|
             mask ||= id
@@ -25,7 +26,7 @@ class Canbus::Task
     def configure
         super
         bus_name = self.driver_dev.name #self.canbus_name
-        each_attached_device do |dev|
+        each_declared_attached_device do |dev|
             can_id, can_mask = dev.can_id
             if !dev.can_id
                 raise ArgumentError, "No can id/mask given for #{dev}" 

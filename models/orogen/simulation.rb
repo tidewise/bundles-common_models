@@ -1,3 +1,4 @@
+require 'rock/models/blueprints/control'
 require 'rock/models/blueprints/pose'
 require 'rock/models/blueprints/devices'
 
@@ -12,12 +13,16 @@ module Dev::Simulation
         device_type "Joints" do
             provides Base::JointsControlledSystemSrv
         end
+        device_type "AuvMotion" do
+            provides Base::JointsControlledSystemSrv
+        end
         device_type "RangeFinder"
         device_type "HighResRangeFinder" # e.g. velodyne
         device_type "IMU"
         device_type "Sonar"
         device_type "Altimeter"
         device_type "AuvController"
+        device_type "ForceTorque6DOF"
     end
 end
 
@@ -28,7 +33,7 @@ module Simulation
 
         def self.instanciate(*args)
             cmp_task = super
-            #cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
+            cmp_task.task_child.should_configure_after cmp_task.mars_child.start_event
             cmp_task
         end
     end
@@ -52,6 +57,18 @@ module Simulation
             export task_child.command_port
             export task_child.status_port
             provides Base::ActuatorControlledSystemSrv, :as => 'actuator'
+        end
+    end
+    
+    class AuvMotion
+        forward :lost_mars_connection => :failed
+
+        driver_for DevMars::AuvMotion, :as => "driver"
+        class Cmp < SimulatedDevice
+            add Simulation::AuvMotion, :as => "task"
+            export task_child.command_port
+            export task_child.status_port
+            provides Base::JointsControlledSystemSrv, :as => 'actuator'
         end
     end
 
@@ -127,6 +144,17 @@ module Simulation
             export task_child.status_out_port
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
         end
+    end
+    
+    class ForceTorque6DOF
+      forward :lost_mars_connection => :failed
+      driver_for DevMars::ForceTorque6DOF, :as => "driver"
+
+      class Cmp < SimulatedDevice
+          add DevMars::ForceTorque6DOF, :as => "task"
+          #export task_child.force_port
+          #export task_child.torque_port
+      end
     end
 
     class MarsActuator
