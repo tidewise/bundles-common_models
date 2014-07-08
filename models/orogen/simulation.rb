@@ -86,7 +86,7 @@ module Simulation
         driver_for DevMars::Altimeter, :as => "driver"
         provides Base::GroundDistanceSrv, :as => 'dist'
         class Cmp < SimulatedDevice
-            add [Simulation::MarsAltimeter,Base::GroundDistanceSrv], :as => "task"
+            add Simulation::MarsAltimeter, :as => "task"
             export task_child.ground_distance_port
             provides Base::GroundDistanceSrv, :as => 'dist'
         end
@@ -103,7 +103,7 @@ module Simulation
         end
 
         class Cmp < SimulatedDevice
-            add [DevMars::IMU,Base::OrientationSrv], :as => "task"
+            add Simulation::MarsIMU, :as => "task"
             export task_child.orientation_samples_port
             provides Base::PoseSrv, :as  => "pose"
         end
@@ -114,8 +114,8 @@ module Simulation
         driver_for DevMars::Sonar, :as => "driver"
         provides Base::SonarScanProviderSrv, :as => "sonar_beam"
         class Cmp < SimulatedDevice
-            add [DevMars::Sonar,Base::SonarScanProviderSrv], :as => "task"
-            export task_child.sonarscan_port
+            add Simulation::Sonar, :as => "task"
+            export task_child.sonar_beam_port
             provides Base::SonarScanProviderSrv, :as  => "scan"
         end
     end
@@ -126,7 +126,7 @@ module Simulation
         provides Base::ImageProviderSrv, :as => 'camera'
 
         class Cmp < SimulatedDevice
-            add [DevMars::Camera,Base::ImageProviderSrv], :as => "task"
+            add Simulation::MarsCamera, :as => "task"
             export task_child.frame_port
             provides Base::ImageProviderSrv, :as => 'camera'
         end
