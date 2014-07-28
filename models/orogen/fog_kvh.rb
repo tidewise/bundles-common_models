@@ -1,7 +1,12 @@
 using_task_library "fog_kvh"
+require 'models/blueprints/sensors'
 
-Dev::Sensors.device_type 'FOG' do
-    provides Base::RotationSrv#, :as => 'rotation'
+module Dev
+    module Sensors
+        device_type 'FOG' do
+            provides Base::RotationSrv#, :as => 'rotation'
+        end
+    end
 end
 
 class FogKvh::Dsp3000Task
