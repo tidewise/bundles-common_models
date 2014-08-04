@@ -3,9 +3,11 @@ require 'models/blueprints/devices'
 
 module Dev
     module Sensors
-        device_type 'DVL' do
-            provides Base::GroundDistanceSrv
-            provides Base::VelocitySrv
+        module Teledyne 
+            device_type 'Explorer' do
+                provides Base::GroundDistanceSrv
+                provides Base::VelocitySrv
+            end
         end
     end
 end
@@ -13,6 +15,6 @@ end
 
 
 class DvlTeledyne::Task
-    driver_for Dev::Sensors::DVL, :as => 'driver', "distance" => "ground_distance", "velocity_samples" => "velocity_samples"
+    driver_for Dev::Sensors::Teledyne::Explorer, :as => 'driver', "distance" => "ground_distance", "velocity_samples" => "velocity_samples"
 end
 
