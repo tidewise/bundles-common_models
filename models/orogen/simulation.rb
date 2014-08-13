@@ -18,6 +18,7 @@ module Dev::Simulation
         end
         device_type "RangeFinder"
         device_type "HighResRangeFinder" # e.g. velodyne
+        device_type "RotatingRangeFinder"
         device_type "IMU"
         device_type "Sonar"
         device_type "Altimeter"
@@ -229,6 +230,17 @@ module Simulation
                 end
             end
         end
+    end
+
+    class MarsRotatingLaserRangeFinder
+      forward :lost_mars_connection => :failed
+      driver_for DevMars::RotatingRangeFinder, :as => "driver"
+
+      class Cmp < SimulatedDevice
+          add MarsRotatingLaserRangeFinder, :as => "task"
+          export task_child.pointcloud_port
+          provides Base::PointcloudProviderSrv, :as => 'pointcloud_provider'
+      end
     end
 
     def self.define_simulated_device(profile, name, model)
