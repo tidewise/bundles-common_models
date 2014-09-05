@@ -6,8 +6,7 @@ class CorridorNavigation::ServoingTask
 
     # Additional information for the transformer's automatic configuration
     transformer do
-        associate_frame_to_ports 'laser', 'scan_samples'
-        associate_frame_to_ports 'odometry', 'trajectory', 'gridDump', 'debugVfhTree'
+        associate_frame_to_ports 'odometry', 'trajectory', 'debugVfhTree'
         #transform_input 'odometry_samples', 'body' => 'odometry'
     end
 
