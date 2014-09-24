@@ -1,4 +1,5 @@
 require 'models/blueprints/control'
+using_task_library 'joint_dispatcher'
 
 module JointDispatcher
     # Representation of a single dispatch in {Task}
