@@ -1,1 +1,1 @@
-require "test/services/test_control_loop.rb"
+require "test/services/test_control_loop"
