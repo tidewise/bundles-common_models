@@ -92,10 +92,13 @@ module Rock
             #   end
             #
             # @return [Model<ConstantGenerator>]
-            def self.for_data_service(service_model)
+            def self.for_data_service(service_model, options = Hash.new)
                 if service_model.const_defined_here?('Generator')
                     return service_model.const_get(:Generator)
                 end
+
+                options = Kernel.validate_options options,
+                    as: 'template'
 
                 generator = ConstantGenerator.new_submodel
                 service_model.each_input_port do |port|
@@ -104,7 +107,7 @@ module Rock
                 service_model.each_output_port do |port|
                     generator.output_port port.name, port.orocos_type_name
                 end
-                generator.provides service_model, :as => 'srv'
+                generator.provides service_model, as: options[:as]
                 service_model.const_set :Generator, generator
                 generator
             end
