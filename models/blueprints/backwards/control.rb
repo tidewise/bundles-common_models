@@ -48,12 +48,15 @@ module Base
                 end
                 controlled_system.provides command_consumer_srv, 'cmd_in' => 'command_in'
 
+                command_provider_srv = Base.data_service_type "#{name}CommandSrv" do
+                    output_port "command_samples", control_type
+                end
+
                 Base.const_set "#{name}ControllerSrv", controller
                 Base.const_set "#{name}ControlledSystemSrv", controlled_system
                 Base.const_set "#{name}CommandConsumerSrv", Rock::Services::ControlLoop.
                     open_loop_controlled_system_for(name)
-                Base.const_set "#{name}CommandSrv", Rock::Services::ControlLoop.
-                    open_loop_controller_for(name)
+                Base.const_set "#{name}CommandSrv", command_provider_srv
             end
         end
     else
