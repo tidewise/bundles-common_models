@@ -35,7 +35,7 @@ module Base
                     status_backward = Base.data_service_type "#{name}StatusSrv" do
                         output_port "status_samples", feedback_type
                     end
-                    status.provides status_backward, 'status_samples', 'status_out'
+                    status.provides status_backward, 'status_samples' => 'status_out'
                 else
                     controller = Rock::Services::ControlLoop.
                         open_loop_controller_for(name)
