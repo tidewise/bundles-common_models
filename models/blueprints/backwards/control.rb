@@ -54,8 +54,7 @@ module Base
 
                 Base.const_set "#{name}ControllerSrv", controller
                 Base.const_set "#{name}ControlledSystemSrv", controlled_system
-                Base.const_set "#{name}CommandConsumerSrv", Rock::Services::ControlLoop.
-                    open_loop_controlled_system_for(name)
+                Base.const_set "#{name}CommandConsumerSrv", command_consumer_srv
                 Base.const_set "#{name}CommandSrv", command_provider_srv
             end
         end
