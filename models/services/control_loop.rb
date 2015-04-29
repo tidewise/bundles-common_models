@@ -1,5 +1,5 @@
-require "models/services/controller.rb"
-require "models/services/controlled_system.rb"
+require "rock/models/services/controller.rb"
+require "rock/models/services/controlled_system.rb"
 
 module Rock
     module Services
@@ -48,6 +48,10 @@ module Rock
                         output_port "command_out", control_type
                         provides Controller
                     end
+
+                this_file = File.expand_path(__FILE__)
+                open_loop_controlled_system.definition_location.delete_if { |file, _| file == this_file }
+                open_loop_controller.definition_location.delete_if { |file, _| file == this_file }
 
                 return open_loop_controller, open_loop_controlled_system
             end
@@ -108,6 +112,11 @@ module Rock
                         open_loop_controller
                     end
                 end
+
+                this_file = File.expand_path(__FILE__)
+                feedback_model.definition_location.delete_if { |file, _| file == this_file }
+                controlled_system.definition_location.delete_if { |file, _| file == this_file }
+                controller.definition_location.delete_if { |file, _| file == this_file }
             end
 
             # Returns the controller data service defined for this type by
