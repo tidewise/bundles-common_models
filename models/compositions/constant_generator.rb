@@ -17,7 +17,7 @@ module Rock
         # @example create and deploy a task that generates a constant double value of 0.2
         #   DoubleGenerator = ConstantGenerator.for_type('/double')
         #   Syskit.conf.use_ruby_tasks DoubleGenerator => 'double_gen'
-        #   add_mission DoubleGenerator.with_arguments(:values => Hash['out'
+        #   add_mission DoubleGenerator.with_arguments(:values => Hash['out' => 10])
         class ConstantGenerator < Syskit::RubyTaskContext
             # Values that should be pushed on the ports
             #
