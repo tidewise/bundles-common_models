@@ -1,6 +1,5 @@
-require 'models/blueprints/control'
-require 'models/blueprints/pose'
-require 'models/blueprints/planning'
+require 'rock/models/services/motion2d_control_loop'
+require 'rock/models/compositions/motion2d_control_loop'
 
 # Integration of the trajectory follower component
 #
@@ -24,9 +23,9 @@ require 'models/blueprints/planning'
 # Moreover, if the Conf.reverse_trajectory flag is set, the trajectory follower
 # will follow the static trajectory in the reverse direction
 class OroGen::TrajectoryFollower::Task
-    provides Base::Motion2DControllerSrv, :as => 'controller'
+    provides Rock::Services::Motion2DOpenLoopController, as: 'controller'
 
-    argument :trajectory, :default => nil
+    argument :trajectory, default: nil
 
     # Add some more information for the transformer integration
     transformer do
@@ -43,16 +42,5 @@ class OroGen::TrajectoryFollower::Task
             end
         end
     end
-end
-
-Base::ControlLoop.specialize \
-    Base::ControlLoop.controller_child => TrajectoryFollower::Task,
-    Base::ControlLoop.controlled_system_child => Base::Motion2DControlledSystemSrv do
-
-    add Base::PoseSrv, :as => 'pose'
-    pose_child.connect_to controller_child
-    export controller_child.trajectory_port
-
-    provides Rock::Planning::TrajectoryExecutionSrv, :as => 'trajectory_execution'
 end
 

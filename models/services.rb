@@ -15,3 +15,5 @@ require "models/services/control_loop"
 require "models/services/actuator_control_loop"
 require "models/services/joints_control_loop"
 require "models/services/motion2d_control_loop"
+
+require "models/services/trajectory_execution"
