@@ -1,13 +1,12 @@
 using_task_library 'taskmon'
 
+module OroGen
 module Taskmon
     describe Task do
         it_should_be_configurable
 
         it "calls add_watches with the PID of the new deployments" do
-            stub_syskit_deployment_model(Task, 'task')
-            task = syskit_run_deployer(Task)
-            syskit_setup_component(task)
+            task = syskit_stub_deploy_and_configure(Task)
 
             pids = [2]
             deployments = [flexmock(:pid => 2)]
@@ -23,9 +22,7 @@ module Taskmon
         end
 
         it "calls add_watches with the new orocos tasks" do
-            stub_syskit_deployment_model(Task, 'task')
-            task = syskit_run_deployer(Task)
-            syskit_setup_component(task)
+            task = syskit_stub_deploy_and_configure(Task)
 
             tasks = [flexmock(:orocos_task => "bla")]
             task.on :start do |event|
@@ -41,4 +38,5 @@ module Taskmon
             process_events
         end
     end
+end
 end

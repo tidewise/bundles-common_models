@@ -12,20 +12,18 @@ module Envire
         end
 
         it "should fail to configure if the provided initial map does not exist" do
-            stub_syskit_deployment_model(Envire::SynchronizationTransmitter, 'task')
-            envire = syskit_run_deployer(Envire::SynchronizationTransmitter.with_arguments(:initial_map => 'bogus_path'))
+            envire = syskit_stub_and_deploy(SynchronizationTransmitter.with_arguments(:initial_map => 'bogus_path'))
             assert_raises(ArgumentError) do
-                syskit_start_component(envire)
+                syskit_configure(envire)
             end
         end
 
         it "should load the provided environment on the task" do
             FileUtils.mkdir_p "/environment"
-            stub_syskit_deployment_model(Envire::SynchronizationTransmitter, 'task')
-            envire = syskit_run_deployer(Envire::SynchronizationTransmitter.with_arguments(:initial_map => '/environment'))
+            envire = syskit_stub_and_deploy(SynchronizationTransmitter.with_arguments(:initial_map => 'bogus_path'))
             flexmock(envire).should_receive_operation(:loadEnvironment).once.
                 with('/environment')
-            syskit_start_component(envire)
+            syskit_configure(envire)
         end
     end
 
