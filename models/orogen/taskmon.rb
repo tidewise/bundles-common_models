@@ -18,11 +18,11 @@ class OroGen::Taskmon::Task
 
     poll do
         @query_tasks.reset
-        tasks = @query_tasks.to_value_set
+        tasks = @query_tasks.to_set
         new_tasks = (tasks - @watched_tasks)
 
         @query_deployments.reset
-        deployments = @query_deployments.to_value_set
+        deployments = @query_deployments.to_set
         new_deployments = (deployments - @watched_deployments)
 
         return if new_deployments.empty? && new_tasks.empty?
