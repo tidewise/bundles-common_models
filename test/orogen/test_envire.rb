@@ -28,6 +28,6 @@ module Envire
     end
 
     describe SynchronizationReceiver do
-        it_should_be_configurable
+        it { is_configurable }
     end
 end

@@ -3,7 +3,7 @@ using_task_library 'taskmon'
 module OroGen
 module Taskmon
     describe Task do
-        it_should_be_configurable
+        it { is_configurable }
 
         it "calls add_watches with the PID of the new deployments" do
             task = syskit_stub_deploy_and_configure(Task)
