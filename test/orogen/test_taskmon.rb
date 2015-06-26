@@ -6,7 +6,7 @@ module Taskmon
         it { is_configurable }
 
         it "calls add_watches with the PID of the new deployments" do
-            task = syskit_stub_deploy_and_configure(Task)
+            task = syskit_deploy_and_configure
 
             pids = [2]
             deployments = [flexmock(:pid => 2)]
@@ -17,12 +17,10 @@ module Taskmon
                     and_return(deployments.to_set)
             end
             task.start!
-            process_events
-            process_events
         end
 
         it "calls add_watches with the new orocos tasks" do
-            task = syskit_stub_deploy_and_configure(Task)
+            task = syskit_deploy_and_configure
 
             tasks = [flexmock(:orocos_task => "bla")]
             task.on :start do |event|
@@ -34,8 +32,6 @@ module Taskmon
                     and_return(tasks.to_set)
             end
             task.start!
-            process_events
-            process_events
         end
     end
 end
