@@ -23,3 +23,5 @@ require "models/services/scanning_sonar"
 require "models/services/motion2d"
 
 require "models/services/raw_input_command"
+
+require "models/services/raw_io"
