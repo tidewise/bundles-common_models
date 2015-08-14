@@ -1,27 +1,12 @@
-require 'models/blueprints/devices'
-
-Dev::Bus.com_bus_type 'CAN', :message_type => '/canbus/Message' do
-    worstcase_processing_time 0.2 
-    extend_attached_device_configuration do
-        dsl_attribute :can_id do |id, mask|
-            mask ||= id
-            id   = Integer(id)
-            mask = Integer(mask)
-            if (id & mask) != id
-                raise ArgumentError, "wrong id/mask combination: some bits in the ID are not set in the mask, and therefore the filter will never match"
-            end
-            [id, mask]
-        end
-    end
-end
+require 'models/devices/bus/can'
 
 class OroGen::Canbus::Task
-    driver_for Dev::Bus::CAN, :as => 'driver'
+    driver_for Rock::Devices::Bus::CAN, as: 'driver'
 
     # This declares that all devices attached to this bus should use the 'in'
     # port of the component. Otherwise, syskit will assume that a new dynamic
     # input port should be created
-    provides Dev::Bus::CAN::BusInSrv, :as => 'to_bus'
+    provides Rock::Devices::Bus::CAN::BusInSrv, as: 'to_bus'
 
     def configure
         super
