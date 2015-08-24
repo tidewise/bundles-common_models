@@ -25,3 +25,7 @@ require "models/services/motion2d"
 require "models/services/raw_input_command"
 
 require "models/services/raw_io"
+
+require "models/services/gazebo"
+
+require "models/services/laser_scan"

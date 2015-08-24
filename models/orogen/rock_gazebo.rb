@@ -1,6 +1,6 @@
 require 'rock/models/services/joints_control_loop'
 require 'rock/models/services/transformation'
-require 'rock/models/devices/gazebo/model'
+require 'rock/models/devices/gazebo'
 
 class OroGen::RockGazebo::WorldTask
     # Customizes the configuration step.
@@ -49,10 +49,12 @@ class OroGen::RockGazebo::ModelTask
     # One uses it by first require'ing
     dynamic_service Rock::Services::Transformation, as: 'link_export' do
         name      = self.name
-        port_name = options[:port_name] || name
-        provides Rock::Services::Transformation, "transformation" => port_name
+        port_name = options.fetch(:port_name, name)
+        frame_basename = options.fetch(:frame_basename, name)
+
+        driver_for Rock::Devices::Gazebo::Link, "transformation" => port_name
         component_model.transformer do
-            transform_output port_name, "#{name}_source" => "#{name}_target"
+            transform_output port_name, "#{frame_basename}_source" => "#{frame_basename}_target"
         end
     end
 
@@ -85,5 +87,9 @@ class OroGen::RockGazebo::ModelTask
 
         orocos_task.exported_links = exports
     end
+end
+
+class OroGen::RockGazebo::LaserScanTask
+    driver_for Rock::Devices::Gazebo::Ray, as: 'sensor'
 end
 
