@@ -6,7 +6,14 @@ module Rock
         module Gazebo
             device_type 'Model' do
                 provides Rock::Services::Pose
-                provides Rock::Services::JointsControlledSystem
+
+                # Rename status_out and command_in to something that talks about
+                # joints
+                input_port 'joints_cmd', '/base/samples/Joints'
+                output_port 'joints_status', '/base/samples/Joints'
+                provides Rock::Services::JointsControlledSystem,
+                    'command_in' => 'joints_cmd',
+                    'status_out' => 'joints_status'
             end
         end
     end
