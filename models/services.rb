@@ -17,3 +17,15 @@ require "models/services/joints_control_loop"
 require "models/services/motion2d_control_loop"
 
 require "models/services/trajectory_execution"
+
+require "models/services/scanning_sonar"
+
+require "models/services/motion2d"
+
+require "models/services/raw_input_command"
+
+require "models/services/raw_io"
+
+require "models/services/gazebo"
+
+require "models/services/laser_scan"

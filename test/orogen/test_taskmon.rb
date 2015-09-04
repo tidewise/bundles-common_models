@@ -16,7 +16,9 @@ module Taskmon
                 flexmock(task.query_deployments).should_receive(:to_set).
                     and_return(deployments.to_set)
             end
-            task.start!
+            assert_event_emission task.start_event do
+                task.start!
+            end
         end
 
         it "calls add_watches with the new orocos tasks" do
@@ -31,7 +33,9 @@ module Taskmon
                 flexmock(task.query_tasks).should_receive(:to_set).
                     and_return(tasks.to_set)
             end
-            task.start!
+            assert_event_emission task.start_event do
+                task.start!
+            end
         end
     end
 end

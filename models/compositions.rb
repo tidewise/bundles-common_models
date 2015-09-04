@@ -6,3 +6,4 @@ require "models/compositions/joints_control_loop"
 require "models/compositions/motion2d_control_loop"
 
 require "models/compositions/trajectory_follower_control_loop"
+
