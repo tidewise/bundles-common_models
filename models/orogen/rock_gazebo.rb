@@ -58,6 +58,10 @@ class OroGen::RockGazebo::ModelTask
         end
     end
 
+    transformer do
+        transform_output 'pose_samples', 'body' => 'world'
+    end
+
     def configure
         super
 
