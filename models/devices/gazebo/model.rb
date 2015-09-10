@@ -1,11 +1,14 @@
 require 'rock/models/services/joints_control_loop'
 require 'rock/models/services/pose'
+require 'rock/models/services/velocity'
 
 module Rock
     module Devices
         module Gazebo
             device_type 'Model' do
                 provides Rock::Services::Pose
+                provides Rock::Services::Velocity,
+                    'velocity_samples' => 'pose_samples'
 
                 # Rename status_out and command_in to something that talks about
                 # joints
