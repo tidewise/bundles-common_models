@@ -91,6 +91,17 @@ class OroGen::RockGazebo::ModelTask
 
         orocos_task.exported_links = exports
     end
+
+    stub do
+        def configure(*)
+            super
+            model.each_output_port do |p|
+                if !has_port?(p.name)
+                    create_output_port p.name, p.type
+                end
+            end
+        end
+    end
 end
 
 class OroGen::RockGazebo::LaserScanTask
