@@ -26,7 +26,7 @@ module Rock
             # @return [{String=>Object}]
             argument :values
 
-            # Sets the {values} argument
+            # Sets the {#values} argument
             def values=(setpoint)
                 setpoint = setpoint.map_key do |port_name, _|
                     port_name = port_name.to_s
