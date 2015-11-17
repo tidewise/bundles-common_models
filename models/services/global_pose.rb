@@ -10,6 +10,7 @@ module Rock
         # It is typically a pose estimator which fuses a global position measurement
         # such as GPS
         data_service_type 'GlobalPose' do
+            provides GlobalPosition
             provides Pose
         end
     end

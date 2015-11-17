@@ -29,3 +29,5 @@ require "models/services/raw_io"
 require "models/services/gazebo"
 
 require "models/services/laser_scan"
+
+require "models/services/global_position"

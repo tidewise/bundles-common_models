@@ -1,7 +1,5 @@
-require 'models/blueprints/devices'
-Dev::Sensors.device_type 'MB500' do
-    provides Dev::Sensors::GPS
-end
+require 'rock/models/devices/gps/mb500'
+require 'rock/models/devices/gps/generic'
 
 class OroGen::Gps::BaseTask
     def configure
@@ -14,9 +12,9 @@ class OroGen::Gps::BaseTask
 end
 
 class OroGen::Gps::MB500Task
-    driver_for Dev::Sensors::MB500, :as => 'driver'
+    driver_for Rock::Devices::GPS::MB500, as: 'driver'
 end
 
 class OroGen::Gps::GPSDTask
-    driver_for Dev::Sensors::GPS, :as => 'driver'
+    driver_for Rock::Devices::GPS::Generic, as: 'driver'
 end
