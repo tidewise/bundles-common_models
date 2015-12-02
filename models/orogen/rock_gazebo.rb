@@ -108,3 +108,11 @@ class OroGen::RockGazebo::LaserScanTask
     driver_for Rock::Devices::Gazebo::Ray, as: 'sensor'
 end
 
+class OroGen::RockGazebo::ImuTask
+    driver_for Rock::Devices::Gazebo::Imu, as: 'sensor'
+end
+
+class OroGen::RockGazebo::CameraTask
+    driver_for Rock::Devices::Gazebo::Camera, as: 'sensor'
+end
+
