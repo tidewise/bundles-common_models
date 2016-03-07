@@ -21,5 +21,12 @@ class OroGen::Canbus::Task
             orocos_task.watch(name, can_id, can_mask)
         end
     end
+
+    stub do
+        def watch(name, can_id, can_mask)
+            create_input_port "w#{name}", '/canbus/Message'
+            create_output_port name, '/canbus/Message'
+        end
+    end
 end
 
