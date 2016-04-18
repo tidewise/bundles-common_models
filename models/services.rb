@@ -31,3 +31,7 @@ require "models/services/gazebo"
 require "models/services/laser_scan"
 
 require "models/services/global_position"
+
+require "models/services/imu_compensated_sensors"
+require "models/services/imu_calibrated_sensors"
+require "models/services/imu_raw_sensors"
