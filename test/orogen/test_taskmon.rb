@@ -10,7 +10,7 @@ module Taskmon
 
             pids = [2]
             deployments = [flexmock(:pid => 2)]
-            task.on :start do |event|
+            task.start_event.on do |event|
                 flexmock(task.orocos_task).should_receive(:add_watches).
                     once.with(pids, [task.orocos_task])
                 flexmock(task.query_deployments).should_receive(:to_set).
@@ -25,7 +25,7 @@ module Taskmon
             task = syskit_deploy_and_configure
 
             tasks = [flexmock(:orocos_task => "bla")]
-            task.on :start do |event|
+            task.start_event.on do |event|
                 flexmock(task.orocos_task).should_receive(:add_watches).
                     once.with([], ["bla"])
                 flexmock(task.query_deployments).should_receive(:to_set).
