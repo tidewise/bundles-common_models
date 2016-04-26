@@ -1,6 +1,6 @@
 using_task_library 'gps'
 
-module Gps
+module OroGen::Gps
     describe BaseTask do
     end
 
