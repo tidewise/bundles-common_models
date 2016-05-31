@@ -19,6 +19,9 @@ module Dev
             provides Base::OrientationSrv
             provides Base::CalibratedIMUSensorsSrv
         end
+        device_type 'Velodyne' do
+            provides Base::DepthMapProviderSrv
+        end
 
         # Base namespace for all camera device models
         module Cameras
