@@ -35,6 +35,9 @@ module Dev
             device_type 'USB' do
                 provides Base::ImageProviderSrv
             end
+            device_type 'Aravis' do
+                provides Base::ImageProviderSrv
+            end
         end
 
         device_type 'TimestamperDev' do
