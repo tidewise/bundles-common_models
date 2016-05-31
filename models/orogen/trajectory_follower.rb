@@ -31,7 +31,7 @@ class TrajectoryFollower::Task
     # Add some more information for the transformer integration
     transformer do
         associate_frame_to_ports "world", "trajectory"
-        transform_input "pose", "body" => "world"
+        transform_input "robot_pose", "body" => "world"
     end
 
     script do
