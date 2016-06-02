@@ -160,7 +160,9 @@ module JointDispatcher
         # @return [Array<(String,String)>] the dispatches represented at the port
         #   level, as a map from input ports to the corresponding output port
         def self.port_dispatch(*conf_names)
-            conf = Orocos.conf.resolve('joint_dispatcher::Task', conf_names, true)
+            config_file = JointDispatcher::Task.configuration_manager.existing_configuration_file
+            Orocos.conf.load_file(config_file)
+            conf = Orocos.conf.resolve("joint_dispatcher::Task", conf_names, true)
             conf['dispatches'].map do |dispatch|
                 # The configuration objects are using typelib values, convert to
                 # proper strings
