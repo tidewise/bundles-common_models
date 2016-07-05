@@ -56,8 +56,8 @@ module Base
         #
         # If you expand what this method does for
         #
-        #   Cmp::ControlLoop.declare "Actuator", 'base/actuators/Command',
-        #       :feedback_type => 'base/actuators/Status'
+        #   Cmp::ControlLoop.declare "Actuator", 'base/commands/Joints'
+        #       :feedback_type => 'base/samples/Joints'
         #
         # it is
         #
@@ -131,11 +131,6 @@ module Base
         end
     end
 
-    # This declares an ActuatorController and ActuatorControlledSystem data service
-    # types, and the necessary specializations on ControlLoop
-    ControlLoop.declare "Actuator", 'base/actuators/Command',
-        :feedback_type => 'base/actuators/Status'
-
     # This declares an JointsController and JointsControlledSystem data service
     # types, and the necessary specializations on ControlLoop
     ControlLoop.declare "Joints", 'base/commands/Joints',
@@ -143,6 +138,6 @@ module Base
 
     # This declares an Motion2DController and Motion2DControlledSystem data service
     # types, and the necessary specializations on ControlLoop
-    ControlLoop.declare "Motion2D", 'base/MotionCommand2D'
+    ControlLoop.declare "Motion2D", 'base/commands/Motion2D'
 end
 
