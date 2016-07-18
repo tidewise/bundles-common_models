@@ -38,5 +38,13 @@ module Base
     data_service_type 'PointcloudProviderSrv' do
         output_port 'pointcloud', '/base/samples/Pointcloud'
     end
+
+    data_service_type 'DepthMapProviderSrv' do
+        output_port 'depth_map', '/base/samples/DepthMap'
+    end
+
+    data_service_type 'ForceTorqueProviderSrv' do
+        output_port 'force_torque', '/base/samples/Wrenches'
+    end
 end
 

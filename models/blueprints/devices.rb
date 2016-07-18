@@ -19,6 +19,9 @@ module Dev
             provides Base::OrientationSrv
             provides Base::CalibratedIMUSensorsSrv
         end
+        device_type 'Velodyne' do
+            provides Base::DepthMapProviderSrv
+        end
 
         # Base namespace for all camera device models
         module Cameras
@@ -30,6 +33,9 @@ module Dev
             end
             Network = Prosilica
             device_type 'USB' do
+                provides Base::ImageProviderSrv
+            end
+            device_type 'Aravis' do
                 provides Base::ImageProviderSrv
             end
         end
