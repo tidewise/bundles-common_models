@@ -5,24 +5,41 @@ require 'rock/models/blueprints/devices'
 using_task_library 'mars'
 
 module Dev::Mars
-        device_type "Camera"
-        device_type "DepthCamera"
         device_type "Actuators"
-        device_type "Joints" do
-            provides Base::JointsControlledSystemSrv
-        end
+        device_type "AuvController"
         device_type "AuvMotion" do
             provides Base::JointsControlledSystemSrv
         end
-        device_type "RangeFinder"
-        device_type "HighResRangeFinder" # e.g. velodyne
-        device_type "RotatingRangeFinder"
-        device_type "IMU"
-        device_type "Sonar"
-        device_type "AuvController"
-        device_type "ForceTorque6DOF"
+        device_type "Camera" do
+            provides Base::ImageProviderSrv
+        end
+        device_type "DepthCamera"
+        device_type "ForceTorque6DOF" do
+            provides Base::ForceTorqueProviderSrv
+        end
+        device_type "HighResRangeFinder" do
+            provides Base::PointcloudProviderSrv
+        end
+        device_type "IMU" do
+            provides Base::PoseSrv
+        end
+        device_type "Joints" do
+            provides Base::JointsControlledSystemSrv
+        end
+        device_type "RangeFinder" do
+            provides Base::PointcloudProviderSrv
+        end
+        device_type "RotatingLaserRangeFinder" do
+            provides Base::PointcloudProviderSrv
+        end
+        device_type "Sonar" do
+            provides Base::SonarScanProviderSrv
+        end
+
 end
 
+# This section extends the existing mars simulation tasks, e.g.,
+# typically they will be defined in simulation/orogen/mars
 module Mars
     class SimulatedDevice < Syskit::Composition
         add Mars::Task, :as => "mars"
@@ -67,10 +84,9 @@ module Mars
     class IMU
         forward :lost_mars_connection => :failed
         driver_for Dev::Mars::IMU, :as => 'driver'
-        provides Base::PoseSrv, :as  => "pose"
 
         transformer do
-            transform_output 'pose_samples', 'imu' => 'world'
+            transform_output 'orientation_samples', 'imu' => 'world'
         end
 
         class Cmp < SimulatedDevice
@@ -83,7 +99,7 @@ module Mars
     class Sonar
         forward :lost_mars_connection => :failed
         driver_for Dev::Mars::Sonar, :as => "driver"
-        provides Base::SonarScanProviderSrv, :as => "sonar_beam"
+
         class Cmp < SimulatedDevice
             add [Dev::Mars::Sonar,Base::SonarScanProviderSrv], :as => "task"
             export task_child.sonarscan_port
@@ -94,7 +110,6 @@ module Mars
     class Camera
         forward :lost_mars_connection => :failed
         driver_for Dev::Mars::Camera, :as => "driver"
-        provides Base::ImageProviderSrv, :as => 'camera'
 
         class Cmp < SimulatedDevice
             add [Dev::Mars::Camera,Base::ImageProviderSrv], :as => "task"
@@ -107,10 +122,8 @@ module Mars
         forward :lost_mars_connection => :failed
         driver_for Dev::Mars::Joints, :as => "driver"
 
-        provides Base::JointsControlledSystemSrv, :as => 'actuators'
-
         class Cmp < SimulatedDevice
-            add Dev::Mars::Joints, :as => "task"
+            add [Dev::Mars::Joints,Base::JointsControlledSystemSrv], :as => "task"
             export task_child.command_in_port
             export task_child.status_out_port
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
@@ -122,9 +135,9 @@ module Mars
       driver_for Dev::Mars::ForceTorque6DOF, :as => "driver"
 
       class Cmp < SimulatedDevice
-          add Dev::Mars::ForceTorque6DOF, :as => "task"
-          #export task_child.force_port
-          #export task_child.torque_port
+          add [Dev::Mars::ForceTorque6DOF,Base::ForceTorqueProviderSrv], :as => "task"
+          export task_child.force_torque_port
+          provides Base::ForceTorqueProviderSrv, :as => "force_torque"
       end
     end
 
@@ -133,7 +146,7 @@ module Mars
 
         forward :lost_mars_connection => :failed
         driver_for Dev::Mars::HighResRangeFinder, :as => "driver"
-        provides Base::PointcloudProviderSrv, :as => "pointcloud_provider"
+
         transformer do
             associate_frame_to_ports 'high_res_range_finder', 'pointcloud'
         end
@@ -151,7 +164,7 @@ module Mars
         end
 
         class Cmp < SimulatedDevice
-            add HighResRangeFinder, :as => "task"
+            add [Dev::Mars::HighResRangeFinder,Base::PointcloudProviderSrv], :as => "task"
             export task_child.pointcloud_port
             provides Base::PointcloudProviderSrv, :as => 'pointcloud_provider'
         end
@@ -169,10 +182,10 @@ module Mars
 
     class RotatingLaserRangeFinder
       forward :lost_mars_connection => :failed
-      driver_for Dev::Mars::RotatingRangeFinder, :as => "driver"
+      driver_for Dev::Mars::RotatingLaserRangeFinder, :as => "driver"
 
       class Cmp < SimulatedDevice
-          add RotatingLaserRangeFinder, :as => "task"
+          add [Dev::Mars::RotatingLaserRangeFinder,Base::PointcloudProviderSrv], :as => "task"
           export task_child.pointcloud_port
           provides Base::PointcloudProviderSrv, :as => 'pointcloud_provider'
       end
