@@ -25,6 +25,7 @@ module Dev::Mars
         end
         device_type "Joints" do
             provides Base::JointsControlledSystemSrv
+            provides Base::TransformationSrv
         end
         device_type "RangeFinder" do
             provides Base::PointcloudProviderSrv
@@ -126,10 +127,13 @@ module Mars
         driver_for Dev::Mars::Joints, :as => "driver"
 
         class Cmp < SimulatedDevice
-            add [Dev::Mars::Joints,Base::JointsControlledSystemSrv], :as => "task"
+            add [Dev::Mars::Joints,Base::JointsControlledSystemSrv,Base::TransformationSrv], :as => "task"
             export task_child.command_in_port
             export task_child.status_out_port
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
+
+            export task_child.transformation_port
+            provides Base::TransformationSrv, :as => 'transformation'
         end
     end
     
