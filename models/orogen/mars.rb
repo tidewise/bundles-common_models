@@ -29,6 +29,9 @@ module Dev::Mars
         device_type "RangeFinder" do
             provides Base::PointcloudProviderSrv
         end
+        device_type "LaserRangeFinder" do
+            provides Base::LaserRangeFinderSrv
+        end
         device_type "RotatingLaserRangeFinder" do
             provides Base::PointcloudProviderSrv
         end
@@ -138,6 +141,17 @@ module Mars
           add [Dev::Mars::ForceTorque6DOF,Base::ForceTorqueProviderSrv], :as => "task"
           export task_child.force_torque_port
           provides Base::ForceTorqueProviderSrv, :as => "force_torque"
+      end
+    end
+
+    class LaserRangeFinder
+      forward :lost_mars_connection => :failed
+      driver_for Dev::Mars::LaserRangeFinder, :as => "driver"
+
+      class Cmp < SimulatedDevice
+          add [Dev::Mars::LaserRangeFinder,Base::LaserRangeFinderSrv], :as => "task"
+          export task_child.scans_port
+          provides Base::LaserRangeFinderSrv, :as => "scans"
       end
     end
 
