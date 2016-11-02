@@ -25,9 +25,13 @@ module Dev::Mars
         end
         device_type "Joints" do
             provides Base::JointsControlledSystemSrv
+            provides Base::TransformationSrv
         end
         device_type "RangeFinder" do
             provides Base::PointcloudProviderSrv
+        end
+        device_type "LaserRangeFinder" do
+            provides Base::LaserRangeFinderSrv
         end
         device_type "RotatingLaserRangeFinder" do
             provides Base::PointcloudProviderSrv
@@ -123,10 +127,13 @@ module Mars
         driver_for Dev::Mars::Joints, :as => "driver"
 
         class Cmp < SimulatedDevice
-            add [Dev::Mars::Joints,Base::JointsControlledSystemSrv], :as => "task"
+            add [Dev::Mars::Joints,Base::JointsControlledSystemSrv,Base::TransformationSrv], :as => "task"
             export task_child.command_in_port
             export task_child.status_out_port
             provides Base::JointsControlledSystemSrv, :as => 'actuators'
+
+            export task_child.transformation_port
+            provides Base::TransformationSrv, :as => 'transformation'
         end
     end
     
@@ -138,6 +145,17 @@ module Mars
           add [Dev::Mars::ForceTorque6DOF,Base::ForceTorqueProviderSrv], :as => "task"
           export task_child.force_torque_port
           provides Base::ForceTorqueProviderSrv, :as => "force_torque"
+      end
+    end
+
+    class LaserRangeFinder
+      forward :lost_mars_connection => :failed
+      driver_for Dev::Mars::LaserRangeFinder, :as => "driver"
+
+      class Cmp < SimulatedDevice
+          add [Dev::Mars::LaserRangeFinder,Base::LaserRangeFinderSrv], :as => "task"
+          export task_child.scans_port
+          provides Base::LaserRangeFinderSrv, :as => "scans"
       end
     end
 
