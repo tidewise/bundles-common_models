@@ -106,13 +106,29 @@ end
 
 class OroGen::RockGazebo::LaserScanTask
     driver_for Rock::Devices::Gazebo::Ray, as: 'sensor'
+
+    transformer do
+        frames 'sensor'
+        associate_ports_to_frame 'laser_scan_samples', 'sensor'
+    end
 end
 
 class OroGen::RockGazebo::ImuTask
     driver_for Rock::Devices::Gazebo::Imu, as: 'sensor'
+
+    transformer do
+        frames 'sensor', 'inertial'
+        associate_ports_to_transform 'orientation_samples', 'sensor' => 'inertial'
+        associate_ports_to_frame 'imu_samples', 'sensor'
+    end
 end
 
 class OroGen::RockGazebo::CameraTask
     driver_for Rock::Devices::Gazebo::Camera, as: 'sensor'
+
+    transformer do
+        frames 'sensor'
+        associate_ports_to_frame 'frame', 'sensor'
+    end
 end
 
