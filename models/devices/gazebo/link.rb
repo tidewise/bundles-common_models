@@ -5,6 +5,7 @@ module Rock
         module Gazebo
             device_type 'Link' do
                 provides Rock::Services::Transformation
+                provides Rock::Services::Velocity
             end
         end
     end
