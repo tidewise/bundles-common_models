@@ -89,7 +89,7 @@ class OroGen::RockGazebo::ModelTask
             end
         end
 
-        orocos_task.exported_links = exports
+        properties.exported_links = exports
     end
 
     stub do
