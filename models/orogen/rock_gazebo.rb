@@ -47,12 +47,12 @@ class OroGen::RockGazebo::ModelTask
     # Declare a dynamic service for the link export feature
     #
     # One uses it by first require'ing
-    dynamic_service Rock::Services::Transformation, as: 'link_export' do
+    dynamic_service Rock::Devices::Gazebo::Link, as: 'link_export' do
         name      = self.name
         port_name = options.fetch(:port_name, name)
         frame_basename = options.fetch(:frame_basename, name)
 
-        driver_for Rock::Devices::Gazebo::Link, "transformation" => port_name
+        driver_for Rock::Devices::Gazebo::Link, "link_state_samples" => port_name
         component_model.transformer do
             transform_output port_name, "#{frame_basename}_source" => "#{frame_basename}_target"
         end
@@ -71,7 +71,7 @@ class OroGen::RockGazebo::ModelTask
         # The source/target information is stored in the transformer
         each_required_dynamic_service do |srv|
             # Find the task port that on which the service port is mapped
-            task_port = srv.transformation_port.to_component_port
+            task_port = srv.link_state_samples_port.to_component_port
             # And get the relevant transformer information
             if transform = find_transform_of_port(task_port)
                 if !transform.from || !transform.to
