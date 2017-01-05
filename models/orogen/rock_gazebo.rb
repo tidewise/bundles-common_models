@@ -78,12 +78,14 @@ class OroGen::RockGazebo::ModelTask
                     model_transform = self.class.find_transform_of_port(task_port)
                     raise ArgumentError, "you did not select the frames for #{model_transform.from} or #{model_transform.to}, needed for #{srv.name}"
                 end
+                device = find_device_attached_to(srv)
                 exports << Types.rock_gazebo.LinkExport.new(
                     port_name: task_port.name,
                     source_link: transform.from,
                     target_link: transform.to,
                     source_frame: transform.from,
-                    target_frame: transform.to)
+                    target_frame: transform.to,
+                    port_period: Time.at(device.period))
             else
                 raise ArgumentError, "cannot find the transform information for #{task_port}"
             end
