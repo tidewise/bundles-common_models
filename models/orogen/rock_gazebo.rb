@@ -85,7 +85,7 @@ class OroGen::RockGazebo::ModelTask
                     target_link: transform.to,
                     source_frame: transform.from,
                     target_frame: transform.to,
-                    port_period: Time.at(device.period))
+                    port_period: Time.at(device.period || 0))
             else
                 raise ArgumentError, "cannot find the transform information for #{task_port}"
             end
