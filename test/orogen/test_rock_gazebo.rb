@@ -56,5 +56,29 @@ module OroGen
                 assert_equal Time.at(0), exports.first.port_period
             end
         end
+
+        describe GPSTask do
+            before do
+                require 'rock_gazebo/syskit'
+                Conf.sdf.world = SDF::World.from_string(
+                    "<world><spherical_coordinates>
+                        <latitude_deg>48.858093</latitude_deg>
+                        <longitude_deg>2.294694</longitude_deg>
+                        <elevation>42</elevation>
+                     </spherical_coordinates></world>")
+            end
+
+            it "sets up the GPSTask origin property using the SDF global_origin" do
+                task = syskit_stub_deploy_and_configure GPSTask
+                assert((Eigen::Vector3.new(5_411_920.65, 1_000_000 - 448_265.91, 42) - task.orocos_task.nwu_origin).norm < 1)
+            end
+
+            it "sets up the GPSTask UTM properties using the SDF UTM coordinates" do
+                task = syskit_stub_deploy_and_configure GPSTask
+                assert_equal 31, task.orocos_task.utm_zone
+                assert_equal true, task.orocos_task.utm_north
+            end
+        end
     end
 end
+

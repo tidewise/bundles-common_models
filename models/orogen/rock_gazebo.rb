@@ -134,3 +134,20 @@ class OroGen::RockGazebo::CameraTask
     end
 end
 
+class OroGen::RockGazebo::GPSTask
+    driver_for Rock::Devices::Gazebo::GPS, as: 'gps'
+
+    transformer do
+        frames 'gps', 'nwu', 'utm'
+        associate_ports_to_transform 'position_samples', 'gps' => 'nwu'
+        associate_ports_to_transform 'utm_samples', 'gps' => 'utm'
+    end
+
+    def configure
+        super
+        properties.nwu_origin = Conf.sdf.global_origin
+        properties.utm_zone   = Conf.sdf.utm_zone
+        properties.utm_north  = Conf.sdf.utm_north?
+    end
+end
+

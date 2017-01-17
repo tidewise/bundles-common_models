@@ -7,3 +7,5 @@ require "models/devices/gazebo/link"
 require "models/devices/gazebo/camera"
 
 require "models/devices/gazebo/imu"
+
+require "models/devices/gazebo/gps"
