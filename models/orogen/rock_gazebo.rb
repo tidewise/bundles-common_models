@@ -91,6 +91,7 @@ class OroGen::RockGazebo::ModelTask
             end
         end
 
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
         properties.exported_links = exports
     end
 
@@ -113,6 +114,11 @@ class OroGen::RockGazebo::LaserScanTask
         frames 'sensor'
         associate_ports_to_frame 'laser_scan_samples', 'sensor'
     end
+
+    def configure
+        super
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
+    end
 end
 
 class OroGen::RockGazebo::ImuTask
@@ -123,6 +129,11 @@ class OroGen::RockGazebo::ImuTask
         associate_ports_to_transform 'orientation_samples', 'sensor' => 'inertial'
         associate_ports_to_frame 'imu_samples', 'sensor'
     end
+
+    def configure
+        super
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
+    end
 end
 
 class OroGen::RockGazebo::CameraTask
@@ -131,6 +142,11 @@ class OroGen::RockGazebo::CameraTask
     transformer do
         frames 'sensor'
         associate_ports_to_frame 'frame', 'sensor'
+    end
+
+    def configure
+        super
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
     end
 end
 
@@ -145,6 +161,7 @@ class OroGen::RockGazebo::GPSTask
 
     def configure
         super
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
         properties.nwu_origin = Conf.sdf.global_origin
         properties.utm_zone   = Conf.sdf.utm_zone
         properties.utm_north  = Conf.sdf.utm_north?

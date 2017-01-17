@@ -1,3 +1,4 @@
+require 'rock_gazebo/syskit'
 using_task_library 'rock_gazebo'
 
 module OroGen
@@ -11,7 +12,22 @@ module OroGen
         describe ModelTask do
             run_simulated
 
+            after do
+                Conf.gazebo.use_sim_time = false
+            end
+
             it { is_configurable }
+
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
+                task = syskit_stub_deploy_and_configure(ModelTask)
+                refute task.orocos_task.use_sim_time
+            end
+
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
+                Conf.gazebo.use_sim_time = true
+                task = syskit_stub_deploy_and_configure(ModelTask)
+                assert task.orocos_task.use_sim_time
+            end
 
             it "sets up the link export based on the instanciated link_export services" do
                 model = ModelTask.specialize
@@ -57,15 +73,82 @@ module OroGen
             end
         end
 
+        describe LaserScanTask do
+            after do
+                Conf.gazebo.use_sim_time = false
+            end
+
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
+                Conf.gazebo.use_sim_time = false
+                task = syskit_stub_deploy_and_configure(LaserScanTask)
+                refute task.orocos_task.use_sim_time
+            end
+
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
+                Conf.gazebo.use_sim_time = true
+                task = syskit_stub_deploy_and_configure(LaserScanTask)
+                assert task.orocos_task.use_sim_time
+            end
+        end
+
+        describe ImuTask do
+            after do
+                Conf.gazebo.use_sim_time = false
+            end
+
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
+                Conf.gazebo.use_sim_time = false
+                task = syskit_stub_deploy_and_configure(ImuTask)
+                refute task.orocos_task.use_sim_time
+            end
+
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
+                Conf.gazebo.use_sim_time = true
+                task = syskit_stub_deploy_and_configure(ImuTask)
+                assert task.orocos_task.use_sim_time
+            end
+        end
+
+        describe CameraTask do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
+                Conf.gazebo.use_sim_time = false
+                task = syskit_stub_deploy_and_configure(CameraTask)
+                refute task.orocos_task.use_sim_time
+            end
+
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
+                Conf.gazebo.use_sim_time = true
+                task = syskit_stub_deploy_and_configure(CameraTask)
+                assert task.orocos_task.use_sim_time
+            end
+        end
+
         describe GPSTask do
             before do
-                require 'rock_gazebo/syskit'
+                @original_sdf = Conf.sdf
+                Conf.sdf = ::RockGazebo::Syskit::SDF.new
                 Conf.sdf.world = SDF::World.from_string(
                     "<world><spherical_coordinates>
                         <latitude_deg>48.858093</latitude_deg>
                         <longitude_deg>2.294694</longitude_deg>
                         <elevation>42</elevation>
                      </spherical_coordinates></world>")
+            end
+            after do
+                Conf.sdf = @original_sdf
+                Conf.gazebo.use_sim_time = false
+            end
+
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
+                Conf.gazebo.use_sim_time = false
+                task = syskit_stub_deploy_and_configure(GPSTask)
+                refute task.orocos_task.use_sim_time
+            end
+
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
+                Conf.gazebo.use_sim_time = true
+                task = syskit_stub_deploy_and_configure(GPSTask)
+                assert task.orocos_task.use_sim_time
             end
 
             it "sets up the GPSTask origin property using the SDF global_origin" do
