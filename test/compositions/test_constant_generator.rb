@@ -28,6 +28,16 @@ module Rock
                         instanciate(plan)
                 end
             end
+
+            it "kills the write thread on exit" do
+                task = syskit_stub_deploy_configure_and_start(generator_m.with_arguments('values' => Hash['out' => 10]))
+                plan.unmark_mission_task(task)
+                reader = task.orocos_task.out.reader
+                task.stop!
+                task.stop_event.on { |_| reader.clear }
+                assert_event_emission task.stop_event
+                refute reader.read_new
+            end
         end
     end
 end
