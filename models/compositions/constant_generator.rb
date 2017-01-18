@@ -29,6 +29,11 @@ module Rock
             # The write period in seconds
             argument :period, default: 0.1
 
+            # @api private
+            #
+            # The writing thread
+            attr_reader :write_thread
+
             # Sets the {#values} argument
             def values=(setpoint)
                 setpoint = setpoint.map_key do |port_name, _|
@@ -57,13 +62,21 @@ module Rock
 
             poll do
                 if !@write_thread.alive?
-                    aborted_event.emit @write_thread.value
+                    begin
+                        @write_thread.value
+                        aborted! if !stop_event.pending?
+                    rescue ::Exception => e
+                        aborted!
+                    end
                 end
             end
 
             event :stop do |context|
                 @write_thread_exit.set
-                @write_thread.join
+                begin
+                    @write_thread.join
+                rescue ::Exception
+                end
                 super(context)
             end
 
