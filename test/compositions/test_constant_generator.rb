@@ -29,6 +29,18 @@ module Rock
                 end
             end
 
+            it "allows to tune the values by overriding #values" do
+                overload_m = generator_m.new_submodel
+                overload_m.class_eval do
+                    def values
+                        Hash['out' => super['out'] * 2]
+                    end
+                end
+                task = syskit_stub_deploy_configure_and_start(overload_m.with_arguments('values' => Hash['out' => 10]))
+                sample = assert_has_one_new_sample(task.out_port)
+                assert_in_delta sample, 20, 0.01
+            end
+
             it "kills the write thread on exit" do
                 task = syskit_stub_deploy_configure_and_start(generator_m.with_arguments('values' => Hash['out' => 10]))
                 plan.unmark_mission_task(task)

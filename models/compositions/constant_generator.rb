@@ -43,16 +43,11 @@ module Rock
 
             event :start do |context|
                 @write_thread_exit = exit_event = Concurrent::Event.new
-                values = self.values.map do |port_name, value|
-                    port  = orocos_task.port(port_name)
-                    value = Typelib.from_ruby(value, port.type)
-                    [port, value]
-                end
                 period = self.period
                 @write_thread = Thread.new do
                     while !exit_event.set?
-                        values.each do |port, value|
-                            port.write(value)
+                        values.each do |port_name, value|
+                            orocos_task.port(port_name).write(value)
                         end
                         exit_event.wait(period)
                     end
