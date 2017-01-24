@@ -26,6 +26,14 @@ module Rock
             # @return [{String=>Object}]
             argument :values
 
+            # The write period in seconds
+            argument :period, default: 0.1
+
+            # @api private
+            #
+            # The writing thread
+            attr_reader :write_thread
+
             # Sets the {#values} argument
             def values=(setpoint)
                 setpoint = setpoint.map_key do |port_name, _|
@@ -38,10 +46,38 @@ module Rock
                 arguments[:values] = setpoint
             end
 
-            poll do
-                values.each do |port_name, value|
-                    orocos_task.port(port_name).write value
+            event :start do |context|
+                @write_thread_exit = exit_event = Concurrent::Event.new
+                period = self.period
+                @write_thread = Thread.new do
+                    while !exit_event.set?
+                        values.each do |port_name, value|
+                            orocos_task.port(port_name).write(value)
+                        end
+                        exit_event.wait(period)
+                    end
                 end
+                super(context)
+            end
+
+            poll do
+                if !@write_thread.alive?
+                    begin
+                        @write_thread.value
+                        aborted! if !stop_event.pending?
+                    rescue ::Exception => e
+                        aborted!
+                    end
+                end
+            end
+
+            event :stop do |context|
+                @write_thread_exit.set
+                begin
+                    @write_thread.join
+                rescue ::Exception
+                end
+                super(context)
             end
 
             # Shortcut for {for_type} and {for_data_service}

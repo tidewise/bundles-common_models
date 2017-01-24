@@ -1,3 +1,4 @@
+require 'rock/models/devices/gazebo/entity'
 require 'rock/models/services/laser_scan'
 
 module Rock
@@ -5,6 +6,7 @@ module Rock
         module Gazebo
             # Representation of gazebo's 'ray' sensor
             device_type 'Ray' do
+                provides Entity
                 provides Rock::Services::LaserScan
             end
         end
