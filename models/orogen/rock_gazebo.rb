@@ -51,6 +51,10 @@ class OroGen::RockGazebo::ModelTask
         name      = self.name
         port_name = options.fetch(:port_name, name)
         frame_basename = options.fetch(:frame_basename, name)
+        nans = [Float::NAN] * 9
+        options[:cov_position]    ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_orientation] ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_velocity]    ||= Types.base.Matrix3d.new(data: nans.dup)
 
         driver_for Rock::Devices::Gazebo::Link, "link_state_samples" => port_name
         component_model.transformer do
@@ -85,7 +89,10 @@ class OroGen::RockGazebo::ModelTask
                     target_link: transform.to,
                     source_frame: transform.from,
                     target_frame: transform.to,
-                    port_period: Time.at(device.period || 0))
+                    port_period: Time.at(device.period || 0),
+                    cov_position: srv.model.dynamic_service_options[:cov_position],
+                    cov_orientation: srv.model.dynamic_service_options[:cov_orientation],
+                    cov_velocity: srv.model.dynamic_service_options[:cov_velocity])
             else
                 raise ArgumentError, "cannot find the transform information for #{task_port}"
             end
