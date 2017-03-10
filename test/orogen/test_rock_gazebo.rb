@@ -1,4 +1,5 @@
 require 'rock_gazebo/syskit'
+require 'test/helpers'
 using_task_library 'rock_gazebo'
 
 module OroGen
@@ -125,8 +126,7 @@ module OroGen
 
         describe GPSTask do
             before do
-                @original_sdf = Conf.sdf
-                Conf.sdf = ::RockGazebo::Syskit::SDF.new
+                stub_sdf
                 Conf.sdf.world = SDF::World.from_string(
                     "<world><spherical_coordinates>
                         <latitude_deg>48.858093</latitude_deg>
@@ -135,7 +135,6 @@ module OroGen
                      </spherical_coordinates></world>")
             end
             after do
-                Conf.sdf = @original_sdf
                 Conf.gazebo.use_sim_time = false
             end
 
