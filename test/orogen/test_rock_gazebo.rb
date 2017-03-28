@@ -129,8 +129,8 @@ module OroGen
                 stub_sdf
                 Conf.sdf.world = SDF::World.from_string(
                     "<world><spherical_coordinates>
-                        <latitude_deg>48.858093</latitude_deg>
-                        <longitude_deg>2.294694</longitude_deg>
+                        <latitude_deg>48.8580</latitude_deg>
+                        <longitude_deg>2.2946</longitude_deg>
                         <elevation>42</elevation>
                      </spherical_coordinates></world>")
             end
@@ -152,7 +152,8 @@ module OroGen
 
             it "sets up the GPSTask origin property using the SDF global_origin" do
                 task = syskit_stub_deploy_and_configure GPSTask
-                assert((Eigen::Vector3.new(5_411_920.65, 1_000_000 - 448_265.91, 42) - task.orocos_task.nwu_origin).norm < 1)
+                assert((Eigen::Vector3.new(5_411_910.38, 1_000_000 - 448_258.92, 42) - task.orocos_task.nwu_origin).norm < 1,
+                       "invalid nwu_origin set on task: #{task.orocos_task.nwu_origin.to_a}")
             end
 
             it "sets up the GPSTask UTM properties using the SDF UTM coordinates" do
