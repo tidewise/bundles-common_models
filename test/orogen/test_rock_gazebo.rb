@@ -150,6 +150,12 @@ module OroGen
                 assert task.orocos_task.use_sim_time
             end
 
+            it "sets up the GPSTask latitude_origin and longitude_origin from the spherical coordinates info in the SDF" do
+                task = syskit_stub_deploy_and_configure GPSTask
+                assert_in_delta 48.8580*Math::PI/180, task.orocos_task.latitude_origin.rad, 1e-6
+                assert_in_delta 2.2946*Math::PI/180, task.orocos_task.longitude_origin.rad, 1e-6
+            end
+
             it "sets up the GPSTask origin property using the SDF global_origin" do
                 task = syskit_stub_deploy_and_configure GPSTask
                 assert((Eigen::Vector3.new(5_411_920.65, 1_000_000 - 448_265.91, 42) - task.orocos_task.nwu_origin).norm < 1)
