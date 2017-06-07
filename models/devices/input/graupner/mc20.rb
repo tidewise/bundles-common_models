@@ -1,4 +1,4 @@
-require 'rock/models/services/raw_input_command'
+require 'models/services/raw_input_command'
 
 module Rock
     module Devices

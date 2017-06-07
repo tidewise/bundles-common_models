@@ -1,5 +1,5 @@
-require 'rock/models/devices/gazebo/entity'
-require 'rock/models/services/transformation'
+require 'models/devices/gazebo/entity'
+require 'models/services/transformation'
 
 module Rock
     module Devices

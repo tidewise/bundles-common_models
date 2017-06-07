@@ -1,7 +1,7 @@
 import_types_from 'base'
-require 'rock/models/services/position'
-require 'rock/models/services/orientation'
-require 'rock/models/services/orientation_with_z'
+require 'models/services/position'
+require 'models/services/orientation'
+require 'models/services/orientation_with_z'
 
 module Rock
     module Services

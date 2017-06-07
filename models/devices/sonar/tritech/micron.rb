@@ -1,4 +1,4 @@
-require 'rock/models/services/sonar_beam'
+require 'models/services/sonar_beam'
 
 module Rock
     module Devices

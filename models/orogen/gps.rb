@@ -1,5 +1,5 @@
-require 'rock/models/devices/gps/mb500'
-require 'rock/models/devices/gps/generic'
+require 'models/devices/gps/mb500'
+require 'models/devices/gps/generic'
 
 class OroGen::Gps::BaseTask
     def configure

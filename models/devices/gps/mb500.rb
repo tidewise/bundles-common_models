@@ -1,4 +1,4 @@
-require 'rock/models/services/global_position'
+require 'models/services/global_position'
 
 module Rock
     module Devices

@@ -1,5 +1,5 @@
-require "rock/models/services/controller.rb"
-require "rock/models/services/controlled_system.rb"
+require "models/services/controller.rb"
+require "models/services/controlled_system.rb"
 
 module Rock
     module Services

@@ -1,4 +1,4 @@
-require 'rock/models/services/position'
+require 'models/services/position'
 
 module Rock
     module Services

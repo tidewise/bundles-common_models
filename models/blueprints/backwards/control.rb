@@ -8,7 +8,7 @@ module Base
         Syskit.warn "  in addition, the ControlLoop declaration API has changed, please look at the API documentation"
         Syskit.warn "  of Rock::Services::ControlLoop in rock/models/services/control_loop"
         Syskit.warn "  and of Rock::Compositions::ControlLoop in rock/models/compositions/control_loop"
-        require 'rock/models/compositions/control_loop'
+        require 'models/compositions/control_loop'
         class ControlLoop < Rock::Compositions::ControlLoop
             def self.declare(name, control_type, options = Hash.new)
                 options, _ = Kernel.filter_options options, :feedback_type

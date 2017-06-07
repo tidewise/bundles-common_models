@@ -1,5 +1,5 @@
-require 'rock/models/services/motion2d_control_loop'
-require 'rock/models/compositions/motion2d_control_loop'
+require 'models/services/motion2d_control_loop'
+require 'models/compositions/motion2d_control_loop'
 
 # Integration of the trajectory follower component
 #

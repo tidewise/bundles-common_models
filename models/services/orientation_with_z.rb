@@ -1,6 +1,6 @@
 import_types_from 'base'
-require 'rock/models/services/orientation'
-require 'rock/models/services/z_provider'
+require 'models/services/orientation'
+require 'models/services/z_provider'
 
 module Rock
     module Services

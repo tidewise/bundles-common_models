@@ -1,7 +1,7 @@
-require 'rock/models/devices/gazebo/entity'
-require 'rock/models/services/joints_control_loop'
-require 'rock/models/services/pose'
-require 'rock/models/services/velocity'
+require 'models/devices/gazebo/entity'
+require 'models/services/joints_control_loop'
+require 'models/services/pose'
+require 'models/services/velocity'
 
 module Rock
     module Devices
