@@ -1,6 +1,6 @@
 require 'models/services/position'
 
-module Rock
+module CommonModels
     module Services
         data_service_type 'GlobalPosition' do
             provides Position

@@ -2,7 +2,7 @@ import_types_from 'base'
 require 'models/services/orientation'
 require 'models/services/z_provider'
 
-module Rock
+module CommonModels
     module Services
         # Provider of a full orientation as well as the altitude/depth part of the
         # position

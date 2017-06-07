@@ -3,7 +3,7 @@ require 'models/services/position'
 require 'models/services/orientation'
 require 'models/services/orientation_with_z'
 
-module Rock
+module CommonModels
     module Services
         # Provider of a full pose
         data_service_type 'Pose' do

@@ -1,7 +1,7 @@
 require "models/services/controller.rb"
 require "models/services/controlled_system.rb"
 
-module Rock
+module CommonModels
     module Services
         module ControlLoop
             class AlreadyDeclared < ArgumentError; end

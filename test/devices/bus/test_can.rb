@@ -1,6 +1,6 @@
 require 'models/devices/bus/can'
 using_task_library 'canbus'
-module Rock
+module CommonModels
     module Devices
         module Bus
             describe CAN do
