@@ -2,6 +2,8 @@ require 'models/devices/gazebo/entity'
 require 'models/services/pose'
 require 'models/services/velocity'
 require 'models/services/transformation'
+require 'models/services/acceleration'
+require 'models/services/wrench'
 
 module CommonModels
     module Devices
@@ -17,6 +19,8 @@ module CommonModels
                     'transformation' => 'link_state_samples'
                 provides Services::Velocity,
                     'velocity_samples' => 'link_state_samples'
+                provides Services::Acceleration
+                provides Services::Wrench
             end
         end
     end
