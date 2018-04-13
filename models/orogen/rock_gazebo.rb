@@ -231,11 +231,12 @@ class OroGen::RockGazebo::GPSTask
     def configure
         super
         properties.use_sim_time = !!Conf.gazebo.use_sim_time?
-        properties.latitude_origin  = Types.base.Angle.new(rad: Conf.sdf.world.spherical_coordinates.latitude_deg * Math::PI / 180)
-        properties.longitude_origin = Types.base.Angle.new(rad: Conf.sdf.world.spherical_coordinates.longitude_deg * Math::PI / 180)
+        properties.latitude_origin  = Types.base.Angle.new(
+            rad: Conf.sdf.world.spherical_coordinates.latitude_deg * Math::PI / 180)
+        properties.longitude_origin = Types.base.Angle.new(
+            rad: Conf.sdf.world.spherical_coordinates.longitude_deg * Math::PI / 180)
         properties.nwu_origin = Conf.sdf.global_origin
         properties.utm_zone   = Conf.sdf.utm_zone
-        properties.utm_north  = Conf.sdf.utm_north?
+        properties.utm_north  = !!Conf.sdf.utm_north?
     end
 end
-
