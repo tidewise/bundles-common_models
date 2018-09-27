@@ -11,3 +11,5 @@ require "common_models/models/devices/gazebo/camera"
 require "common_models/models/devices/gazebo/imu"
 
 require "common_models/models/devices/gazebo/gps"
+
+require "common_models/models/devices/gazebo/thruster"

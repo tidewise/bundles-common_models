@@ -205,6 +205,15 @@ class OroGen::RockGazebo::ImuTask
     end
 end
 
+class OroGen::RockGazebo::ThrusterTask
+    driver_for CommonModels::Devices::Gazebo::Thruster, as: 'thruster'
+
+    def configure
+        super
+        properties.use_sim_time = !!Conf.gazebo.use_sim_time?
+    end
+end
+
 class OroGen::RockGazebo::CameraTask
     driver_for CommonModels::Devices::Gazebo::Camera, as: 'sensor'
 
