@@ -9,16 +9,43 @@ module CommonModels
                     output_port 'out', 'double'
                 end
                 @generator_m = ConstantGenerator.for(srv_m)
+                @registry = Roby.app.default_loader.registry
             end
 
-            describe "defined from a data service" do
-                it "constantly writes data to its output port" do
-                    generator = syskit_stub_deploy_configure_and_start(generator_m.with_arguments(values: Hash['out' => 10]))
-                    sample = expect_execution.to { have_one_new_sample generator.out_port }
+            describe '.for_data_service' do
+                it 'constantly writes data to its output port' do
+                    generator = syskit_stub_deploy_configure_and_start(
+                        generator_m.with_arguments(values: Hash['out' => 10])
+                    )
+                    sample = expect_execution
+                             .to { have_one_new_sample generator.out_port }
                     assert_in_delta sample, 10, 0.01
                 end
-                it "returns the same component over and over again" do
+                it 'optionally allows to specify fields which should be updated with '\
+                   'the current time' do
+                    srv_m = Syskit::DataService.new_submodel do
+                        output_port 'out', '/base/samples/RigidBodyState'
+                    end
+                    generator_m = ConstantGenerator
+                                  .for_data_service(srv_m, time_fields: { out: 'time' })
+
+                    rbs = Types.base.samples.RigidBodyState.Invalid
+                    generator = syskit_stub_deploy_configure_and_start(
+                        generator_m.with_arguments(values: Hash['out' => rbs])
+                    )
+                    Timecop.freeze(t = Time.now)
+                    sample = expect_execution
+                             .to { have_one_new_sample generator.out_port }
+                    assert_equal Time.at(t.tv_sec, t.tv_usec.round(3)), sample.time
+                end
+                it 'returns the same component over and over again by default' do
                     assert_same generator_m, ConstantGenerator.for(srv_m)
+                end
+                it 'optionally allows to disable constant registration' do
+                    refute_same(
+                        generator_m,
+                        ConstantGenerator.for_data_service(srv_m, register: false)
+                    )
                 end
             end
 
@@ -29,7 +56,7 @@ module CommonModels
                 end
             end
 
-            it "allows to tune the values by overriding #values" do
+            it 'allows to tune the values by overriding #values' do
                 overload_m = generator_m.new_submodel
                 overload_m.class_eval do
                     def values
