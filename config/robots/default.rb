@@ -52,8 +52,9 @@ Robot.requires do
     # Exclude joints_trajectory_open_loop_control.rb, it conflicts with
     # joints_trajectory_control_loop
     require_all_except Roby.app.app_dir, 'models', 'services',
-        except: [excluded_services, 'joints_trajectory_open_loop_control.rb']
-    require_all_except Roby.app.app_dir, 'models', 'compositions', except: excluded_compositions
+        except: [*excluded_services, 'joints_trajectory_open_loop_control.rb']
+    require_all_except Roby.app.app_dir, 'models', 'compositions',
+        except: excluded_compositions
 end
 
 # Block evaluated to configure the system, that is set up values in Roby's Conf
