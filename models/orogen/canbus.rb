@@ -23,7 +23,12 @@ class OroGen::Canbus::Task
     end
 
     stub do
+        def stub_configured_watches
+            @stub_configured_watches ||= []
+        end
+
         def watch(name, can_id, can_mask)
+            stub_configured_watches << [name, can_id, can_mask]
             create_input_port "w#{name}", '/canbus/Message'
             create_output_port name, '/canbus/Message'
         end
