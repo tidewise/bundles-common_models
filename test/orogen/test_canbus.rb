@@ -20,9 +20,8 @@ module OroGen
                     dev_task = syskit_deploy(dev)
                     bus_task = dev_task.children.first
                     syskit_start_execution_agents(bus_task)
-                    flexmock(bus_task.orocos_task).should_receive(:watch).once.
-                        with('dev', 0x01, 0x11)
                     syskit_configure(bus_task)
+                    assert_equal [['dev', 0x1, 0x11]], bus_task.orocos_task.stub_configured_watches
                 end
             end
         end
