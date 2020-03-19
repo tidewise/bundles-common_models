@@ -15,13 +15,18 @@ module OroGen
         describe ModelTask do
             run_simulated
 
+            before do
+                @use_sim_time = Conf.gazebo.use_sim_time?
+            end
+
             after do
-                Conf.gazebo.use_sim_time = false
+                Conf.gazebo.use_sim_time = @use_sim_time
             end
 
             it { is_configurable }
 
             it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+                Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(ModelTask)
                 refute task.orocos_task.use_sim_time
             end
