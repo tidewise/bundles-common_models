@@ -7,7 +7,7 @@ require 'common_models/models/devices/gazebo'
 ## Double negation is needed to convert objects to boolean when writing to properties
 # rubocop:disable Style/DoubleNegation
 
-class OroGen::RockGazebo::WorldTask
+Syskit.extend_model OroGen.rock_gazebo.WorldTask do
     # Customizes the configuration step.
     #
     # The orocos task is available from orocos_task
@@ -30,7 +30,7 @@ end
 # service with e.g.
 #
 # @example
-#   model = OroGen::RockGazebo::ModelTask.specialize
+#   model = OroGen.rock_gazebo.ModelTask.specialize
 #   model.require_dynamic_service 'link_export, as: 'new_service_name',
 #       port_name: 'whatever_you_want_but_uses_the_service_name_by_default"
 #
@@ -46,7 +46,7 @@ end
 #
 # Note that in most cases you won't have to access this interface directly, the
 # rock_gazebo plugin does it for you through a high-level API on the profiles.
-class OroGen::RockGazebo::ModelTask
+Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/BlockLength
     driver_for CommonModels::Devices::Gazebo::RootModel, as: 'model'
 
     # @api private
@@ -56,9 +56,9 @@ class OroGen::RockGazebo::ModelTask
         port_name      = options.fetch(:port_name, port_name)
         frame_basename = options.fetch(:frame_basename, name)
         nans = [Float::NAN] * 9
-        options[:cov_position]    ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_position] ||= Types.base.Matrix3d.new(data: nans.dup)
         options[:cov_orientation] ||= Types.base.Matrix3d.new(data: nans.dup)
-        options[:cov_velocity]    ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_velocity] ||= Types.base.Matrix3d.new(data: nans.dup)
         [port_name, frame_basename]
     end
 
@@ -68,8 +68,8 @@ class OroGen::RockGazebo::ModelTask
     dynamic_service CommonModels::Devices::Gazebo::Link, as: 'link_export' do
         name = self.name
         port_name, frame_basename =
-            OroGen::RockGazebo::ModelTask
-            .common_dynamic_link_export(self, name, options)
+            OroGen.rock_gazebo.ModelTask
+                  .common_dynamic_link_export(self, name, options)
         driver_for CommonModels::Devices::Gazebo::Link,
                    'link_state_samples' => port_name,
                    'wrench_samples' => "#{port_name}_wrench",
@@ -197,7 +197,7 @@ class OroGen::RockGazebo::ModelTask
     end
 end
 
-class OroGen::RockGazebo::LaserScanTask
+Syskit.extend_model OroGen.rock_gazebo.LaserScanTask do
     driver_for CommonModels::Devices::Gazebo::Ray, as: 'sensor'
 
     transformer do
@@ -211,7 +211,7 @@ class OroGen::RockGazebo::LaserScanTask
     end
 end
 
-class OroGen::RockGazebo::ImuTask
+Syskit.extend_model OroGen.rock_gazebo.ImuTask do
     driver_for CommonModels::Devices::Gazebo::Imu, as: 'sensor'
 
     transformer do
@@ -226,7 +226,7 @@ class OroGen::RockGazebo::ImuTask
     end
 end
 
-class OroGen::RockGazebo::ThrusterTask
+Syskit.extend_model OroGen.rock_gazebo.ThrusterTask do
     driver_for CommonModels::Devices::Gazebo::Thruster, as: 'thruster'
 
     def configure
@@ -235,7 +235,7 @@ class OroGen::RockGazebo::ThrusterTask
     end
 end
 
-class OroGen::RockGazebo::UnderwaterTask
+Syskit.extend_model OroGen.rock_gazebo.UnderwaterTask do
     driver_for CommonModels::Devices::Gazebo::Underwater, as: 'underwater'
 
     def configure
@@ -244,7 +244,7 @@ class OroGen::RockGazebo::UnderwaterTask
     end
 end
 
-class OroGen::RockGazebo::CameraTask
+Syskit.extend_model OroGen.rock_gazebo.CameraTask do
     driver_for CommonModels::Devices::Gazebo::Camera, as: 'sensor'
 
     transformer do
@@ -258,7 +258,7 @@ class OroGen::RockGazebo::CameraTask
     end
 end
 
-class OroGen::RockGazebo::GPSTask
+Syskit.extend_model OroGen.rock_gazebo.GPSTask do
     driver_for CommonModels::Devices::Gazebo::GPS, as: 'gps'
 
     transformer do
