@@ -81,6 +81,14 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
         end
     end
 
+    # Declare a dynamic service that provides an interface to a set of joints
+    dynamic_service CommonModels::Devices::Gazebo::Joint, as: 'joint_export' do
+        name = self.name
+        driver_for CommonModels::Devices::Gazebo::Joint,
+                   'command_in' => "#{name}_joints_cmd",
+                   'status_out' => "#{name}_joints_samples"
+    end
+
     # Declare a dynamic service that provides an interface to a submodel
     #
     # It's essentially a Link with the original model joints. The joint stuff is
@@ -131,33 +139,43 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
         )
     end
 
-    def create_joint_export(model_srv)
+    def create_model_joint_export(model_srv)
+        # Find the root model and enumerate the joint names
         device = find_device_attached_to(model_srv)
+        _, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
-        # Find the root model
-        sdf_model      = device.sdf
-        sdf_root_model = sdf_model
-        while sdf_root_model&.parent.kind_of?(SDF::Model)
-            sdf_root_model = sdf_root_model.parent
-        end
-
-        # The list of joint names
-        joint_names = sdf_model.each_joint.map do |j|
+        joint_names = device.sdf.each_joint.map do |j|
             next if j.type == 'fixed'
 
             j.full_name(root: sdf_root_model.parent)
         end.compact
+
+        create_joint_export(model_srv, joint_names)
+    end
+
+    def create_joint_export(srv, joint_names)
+        device = find_device_attached_to(srv)
+        sdf_model, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
         if sdf_model != sdf_root_model
             prefix = "#{sdf_model.parent.full_name(root: sdf_root_model.parent)}::"
         end
 
         Types.rock_gazebo.JointExport.new(
-            port_name: "#{model_srv.name}_joints",
+            port_name: "#{srv.name}_joints",
             joints: joint_names,
             prefix: prefix || '',
             port_period: period_to_time(device.period)
         )
+    end
+
+    def resolve_sdf_model_and_root_from_device(device)
+        sdf_model      = device.sdf
+        sdf_root_model = sdf_model
+        while sdf_root_model&.parent.kind_of?(SDF::Model)
+            sdf_root_model = sdf_root_model.parent
+        end
+        [sdf_model, sdf_root_model]
     end
 
     def configure
@@ -174,8 +192,13 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
                     srv.as(CommonModels::Devices::Gazebo::Link)
                 )
             end
+            if srv.fullfills?(CommonModels::Devices::Gazebo::Joint)
+                joint_exports << create_joint_export(
+                    srv, srv.model.dynamic_service_options[:joint_names]
+                )
+            end
             if srv.fullfills?(CommonModels::Devices::Gazebo::Model)
-                joint_exports << create_joint_export(srv)
+                joint_exports << create_model_joint_export(srv)
             end
         end
 

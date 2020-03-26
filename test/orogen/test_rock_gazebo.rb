@@ -75,7 +75,44 @@ module OroGen
                 it 'converts the exported link export in an exact way' do
                     @test_link_dev.period(1.501)
                     task = syskit_stub_deploy_and_configure(@model_with_frames)
-                    exports = task.orocos_task.exported_links
+                    exports = task.properties.exported_links
+                    period = exports.first.port_period
+                    assert_equal 1, period.tv_sec
+                    assert_equal 501_000, period.tv_usec
+                end
+            end
+
+            describe 'joint export' do
+                before do
+                    model = ModelTask.specialize
+                    model.require_dynamic_service(
+                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                    )
+                    robot_model = Syskit::Robot::RobotDefinition.new
+                    @test_joint_dev = robot_model.device(
+                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                    )
+                end
+
+                it 'sets up the joint exports based on the instanciated '\
+                   'joint_export services' do
+                    @test_joint_dev.period(0.5)
+                    task = syskit_stub_deploy_and_configure(@test_joint_dev)
+
+                    exports = task.properties.exported_joints
+                    assert_equal 1, exports.size
+
+                    export = exports.first
+                    assert_equal 'test_joints', export.port_name
+                    assert_equal %w[j1 j2], export.joints
+                    assert_equal '', export.prefix
+                    assert_equal 0.5, export.port_period.to_f
+                end
+
+                it 'converts the exported link period in an exact way' do
+                    @test_joint_dev.period(1.501)
+                    task = syskit_stub_deploy_and_configure(@test_joint_dev)
+                    exports = task.properties.exported_joints
                     period = exports.first.port_period
                     assert_equal 1, period.tv_sec
                     assert_equal 501_000, period.tv_usec
@@ -116,7 +153,7 @@ module OroGen
                     SDF_MODEL
                     task = syskit_stub_deploy_and_configure(model)
 
-                    exports = task.orocos_task.exported_joints
+                    exports = task.properties.exported_joints
                     assert_equal 1, exports.size
                     export = exports.first
                     assert_equal 'test_joints', export.port_name
@@ -140,7 +177,7 @@ module OroGen
                     SDF_MODEL
                     task = syskit_stub_deploy_and_configure(model)
 
-                    exports = task.orocos_task.exported_joints
+                    exports = task.properties.exported_joints
                     export = exports.first
                     period = export.port_period
                     assert_equal 1, period.tv_sec
@@ -162,7 +199,7 @@ module OroGen
                     SDF_MODEL
                     task = syskit_stub_deploy_and_configure(model)
 
-                    export = task.orocos_task.exported_joints.first
+                    export = task.properties.exported_joints.first
                     assert_equal 'test_joints', export.port_name
                     assert_equal [], export.joints
                     assert_equal 'm::', export.prefix
@@ -187,7 +224,7 @@ module OroGen
                     .transformer { frames 'src_frame', 'tgt_frame' }
                 task = syskit_stub_deploy_and_configure(model_with_frames)
 
-                exports = task.orocos_task.exported_links
+                exports = task.properties.exported_links
                 assert_equal Time.at(0), exports.first.port_period
             end
         end
@@ -200,13 +237,13 @@ module OroGen
             it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(LaserScanTask)
-                refute task.orocos_task.use_sim_time
+                refute task.properties.use_sim_time
             end
 
             it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(LaserScanTask)
-                assert task.orocos_task.use_sim_time
+                assert task.properties.use_sim_time
             end
         end
 
