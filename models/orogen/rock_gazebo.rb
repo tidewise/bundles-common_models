@@ -88,9 +88,6 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
     # at the same time.
     dynamic_service CommonModels::Devices::Gazebo::Model, as: 'submodel_export' do
         name = self.name
-        OroGen::RockGazebo::ModelTask.common_dynamic_link_export(
-            self, name, options.merge!(port_name: "#{name}_pose_samples")
-        )
         driver_for CommonModels::Devices::Gazebo::Model,
                    'joints_cmd' => "#{name}_joints_cmd",
                    'joints_status' => "#{name}_joints_samples"
