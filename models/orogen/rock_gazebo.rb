@@ -7,7 +7,7 @@ require 'common_models/models/devices/gazebo'
 ## Double negation is needed to convert objects to boolean when writing to properties
 # rubocop:disable Style/DoubleNegation
 
-class OroGen::RockGazebo::WorldTask
+Syskit.extend_model OroGen.rock_gazebo.WorldTask do
     # Customizes the configuration step.
     #
     # The orocos task is available from orocos_task
@@ -30,7 +30,7 @@ end
 # service with e.g.
 #
 # @example
-#   model = OroGen::RockGazebo::ModelTask.specialize
+#   model = OroGen.rock_gazebo.ModelTask.specialize
 #   model.require_dynamic_service 'link_export, as: 'new_service_name',
 #       port_name: 'whatever_you_want_but_uses_the_service_name_by_default"
 #
@@ -46,7 +46,7 @@ end
 #
 # Note that in most cases you won't have to access this interface directly, the
 # rock_gazebo plugin does it for you through a high-level API on the profiles.
-class OroGen::RockGazebo::ModelTask
+Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/BlockLength
     driver_for CommonModels::Devices::Gazebo::RootModel, as: 'model'
 
     # @api private
@@ -56,9 +56,9 @@ class OroGen::RockGazebo::ModelTask
         port_name      = options.fetch(:port_name, port_name)
         frame_basename = options.fetch(:frame_basename, name)
         nans = [Float::NAN] * 9
-        options[:cov_position]    ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_position] ||= Types.base.Matrix3d.new(data: nans.dup)
         options[:cov_orientation] ||= Types.base.Matrix3d.new(data: nans.dup)
-        options[:cov_velocity]    ||= Types.base.Matrix3d.new(data: nans.dup)
+        options[:cov_velocity] ||= Types.base.Matrix3d.new(data: nans.dup)
         [port_name, frame_basename]
     end
 
@@ -68,8 +68,8 @@ class OroGen::RockGazebo::ModelTask
     dynamic_service CommonModels::Devices::Gazebo::Link, as: 'link_export' do
         name = self.name
         port_name, frame_basename =
-            OroGen::RockGazebo::ModelTask
-            .common_dynamic_link_export(self, name, options)
+            OroGen.rock_gazebo.ModelTask
+                  .common_dynamic_link_export(self, name, options)
         driver_for CommonModels::Devices::Gazebo::Link,
                    'link_state_samples' => port_name,
                    'wrench_samples' => "#{port_name}_wrench",
@@ -81,6 +81,14 @@ class OroGen::RockGazebo::ModelTask
         end
     end
 
+    # Declare a dynamic service that provides an interface to a set of joints
+    dynamic_service CommonModels::Devices::Gazebo::Joint, as: 'joint_export' do
+        name = self.name
+        driver_for CommonModels::Devices::Gazebo::Joint,
+                   'command_in' => "#{name}_joints_cmd",
+                   'status_out' => "#{name}_joints_samples"
+    end
+
     # Declare a dynamic service that provides an interface to a submodel
     #
     # It's essentially a Link with the original model joints. The joint stuff is
@@ -88,9 +96,6 @@ class OroGen::RockGazebo::ModelTask
     # at the same time.
     dynamic_service CommonModels::Devices::Gazebo::Model, as: 'submodel_export' do
         name = self.name
-        OroGen::RockGazebo::ModelTask.common_dynamic_link_export(
-            self, name, options.merge!(port_name: "#{name}_pose_samples")
-        )
         driver_for CommonModels::Devices::Gazebo::Model,
                    'joints_cmd' => "#{name}_joints_cmd",
                    'joints_status' => "#{name}_joints_samples"
@@ -134,33 +139,43 @@ class OroGen::RockGazebo::ModelTask
         )
     end
 
-    def create_joint_export(model_srv)
+    def create_model_joint_export(model_srv)
+        # Find the root model and enumerate the joint names
         device = find_device_attached_to(model_srv)
+        _, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
-        # Find the root model
-        sdf_model      = device.sdf
-        sdf_root_model = sdf_model
-        while sdf_root_model&.parent.kind_of?(SDF::Model)
-            sdf_root_model = sdf_root_model.parent
-        end
-
-        # The list of joint names
-        joint_names = sdf_model.each_joint.map do |j|
+        joint_names = device.sdf.each_joint.map do |j|
             next if j.type == 'fixed'
 
             j.full_name(root: sdf_root_model.parent)
         end.compact
+
+        create_joint_export(model_srv, joint_names)
+    end
+
+    def create_joint_export(srv, joint_names)
+        device = find_device_attached_to(srv)
+        sdf_model, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
         if sdf_model != sdf_root_model
             prefix = "#{sdf_model.parent.full_name(root: sdf_root_model.parent)}::"
         end
 
         Types.rock_gazebo.JointExport.new(
-            port_name: "#{model_srv.name}_joints",
+            port_name: "#{srv.name}_joints",
             joints: joint_names,
             prefix: prefix || '',
             port_period: period_to_time(device.period)
         )
+    end
+
+    def resolve_sdf_model_and_root_from_device(device)
+        sdf_model      = device.sdf
+        sdf_root_model = sdf_model
+        while sdf_root_model&.parent.kind_of?(SDF::Model)
+            sdf_root_model = sdf_root_model.parent
+        end
+        [sdf_model, sdf_root_model]
     end
 
     def configure
@@ -177,8 +192,13 @@ class OroGen::RockGazebo::ModelTask
                     srv.as(CommonModels::Devices::Gazebo::Link)
                 )
             end
+            if srv.fullfills?(CommonModels::Devices::Gazebo::Joint)
+                joint_exports << create_joint_export(
+                    srv, srv.model.dynamic_service_options[:joint_names]
+                )
+            end
             if srv.fullfills?(CommonModels::Devices::Gazebo::Model)
-                joint_exports << create_joint_export(srv)
+                joint_exports << create_model_joint_export(srv)
             end
         end
 
@@ -197,7 +217,7 @@ class OroGen::RockGazebo::ModelTask
     end
 end
 
-class OroGen::RockGazebo::LaserScanTask
+Syskit.extend_model OroGen.rock_gazebo.LaserScanTask do
     driver_for CommonModels::Devices::Gazebo::Ray, as: 'sensor'
 
     transformer do
@@ -211,7 +231,7 @@ class OroGen::RockGazebo::LaserScanTask
     end
 end
 
-class OroGen::RockGazebo::ImuTask
+Syskit.extend_model OroGen.rock_gazebo.ImuTask do
     driver_for CommonModels::Devices::Gazebo::Imu, as: 'sensor'
 
     transformer do
@@ -226,7 +246,7 @@ class OroGen::RockGazebo::ImuTask
     end
 end
 
-class OroGen::RockGazebo::ThrusterTask
+Syskit.extend_model OroGen.rock_gazebo.ThrusterTask do
     driver_for CommonModels::Devices::Gazebo::Thruster, as: 'thruster'
 
     def configure
@@ -235,7 +255,7 @@ class OroGen::RockGazebo::ThrusterTask
     end
 end
 
-class OroGen::RockGazebo::UnderwaterTask
+Syskit.extend_model OroGen.rock_gazebo.UnderwaterTask do
     driver_for CommonModels::Devices::Gazebo::Underwater, as: 'underwater'
 
     def configure
@@ -244,7 +264,7 @@ class OroGen::RockGazebo::UnderwaterTask
     end
 end
 
-class OroGen::RockGazebo::CameraTask
+Syskit.extend_model OroGen.rock_gazebo.CameraTask do
     driver_for CommonModels::Devices::Gazebo::Camera, as: 'sensor'
 
     transformer do
@@ -258,7 +278,7 @@ class OroGen::RockGazebo::CameraTask
     end
 end
 
-class OroGen::RockGazebo::GPSTask
+Syskit.extend_model OroGen.rock_gazebo.GPSTask do
     driver_for CommonModels::Devices::Gazebo::GPS, as: 'gps'
 
     transformer do

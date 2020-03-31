@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'common_models/models/devices/gazebo/entity'
 require 'common_models/models/devices/gazebo/link'
 require 'common_models/models/services/joints_control_loop'
@@ -15,8 +17,8 @@ module CommonModels
                 input_port 'joints_cmd', '/base/samples/Joints'
                 output_port 'joints_status', '/base/samples/Joints'
                 provides Services::JointsControlledSystem,
-                    'command_in' => 'joints_cmd',
-                    'status_out' => 'joints_status'
+                         'command_in' => 'joints_cmd',
+                         'status_out' => 'joints_status'
             end
         end
     end
