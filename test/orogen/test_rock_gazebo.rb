@@ -107,6 +107,26 @@ module OroGen
                     assert_equal %w[j1 j2], export.joints
                     assert_equal '', export.prefix
                     assert_equal 0.5, export.port_period.to_f
+                    assert_equal 0, export.ignore_joint_names
+                end
+
+                it 'sets up the joint exports period based on the instanciated '\
+                   'joint_export services' do
+                    model = ModelTask.specialize
+                    model.require_dynamic_service(
+                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                    )
+                    robot_model = Syskit::Robot::RobotDefinition.new
+                    test_joint_dev = robot_model.device(
+                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                    )
+                    test_joint_dev.period(0.5)
+                    task = syskit_stub_deploy_and_configure(test_joint_dev)
+
+                    exports = task.properties.exported_joints
+                    assert_equal 1, exports.size
+                    export = exports.first
+                    assert_equal 0.5, export.port_period.to_f
                 end
 
                 it 'converts the exported link period in an exact way' do
@@ -116,6 +136,27 @@ module OroGen
                     period = exports.first.port_period
                     assert_equal 1, period.tv_sec
                     assert_equal 501_000, period.tv_usec
+                end
+
+                it 'passes the ignore_joint_commands flag' do
+                    task = deploy_and_configure_dynamic_service(
+                        joint_names: %w[j1 j2], ignore_joint_names: true
+                    )
+
+                    exports = task.properties.exported_joints
+                    assert_equal 1, exports.first.ignore_joint_names
+                end
+
+                def deploy_and_configure_dynamic_service(**kw)
+                    model = ModelTask.specialize
+                    model.require_dynamic_service('joint_export', as: 'test', **kw)
+
+                    robot_model = Syskit::Robot::RobotDefinition.new
+                    dev = robot_model.device(
+                        CommonModels::Devices::Gazebo::Joint,
+                        as: 'test', using: model
+                    )
+                    syskit_stub_deploy_and_configure(dev)
                 end
             end
 

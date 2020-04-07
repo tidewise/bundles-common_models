@@ -153,7 +153,10 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
         create_joint_export(model_srv, joint_names)
     end
 
-    def create_joint_export(srv, joint_names)
+    def create_joint_export(
+        srv, joint_names,
+        ignore_joint_names: false
+    )
         device = find_device_attached_to(srv)
         sdf_model, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
@@ -162,8 +165,9 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
         end
 
         Types.rock_gazebo.JointExport.new(
-            port_name: "#{srv.name}_joints",
+            ignore_joint_names: ignore_joint_names,
             joints: joint_names,
+            port_name: "#{srv.name}_joints",
             prefix: prefix || '',
             port_period: period_to_time(device.period)
         )
@@ -194,7 +198,9 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
             end
             if srv.fullfills?(CommonModels::Devices::Gazebo::Joint)
                 joint_exports << create_joint_export(
-                    srv, srv.model.dynamic_service_options[:joint_names]
+                    srv, srv.model.dynamic_service_options[:joint_names],
+                    **srv.model.dynamic_service_options
+                         .slice(:ignore_joint_names)
                 )
             end
             if srv.fullfills?(CommonModels::Devices::Gazebo::Model)
