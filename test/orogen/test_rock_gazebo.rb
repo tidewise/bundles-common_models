@@ -94,19 +94,25 @@ module OroGen
                     )
                 end
 
-                it 'sets up the joint exports based on the instanciated '\
-                   'joint_export services' do
-                    @test_joint_dev.period(0.5)
-                    task = syskit_stub_deploy_and_configure(@test_joint_dev)
+                it 'configures a joint export based on the dynamic service info' do
+                    model = ModelTask.specialize
+                    model.require_dynamic_service(
+                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                    )
+                    robot_model = Syskit::Robot::RobotDefinition.new
+                    test_joint_dev = robot_model.device(
+                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                    )
+                    task = syskit_stub_deploy_and_configure(test_joint_dev)
 
                     exports = task.properties.exported_joints
                     assert_equal 1, exports.size
-
                     export = exports.first
+
                     assert_equal 'test_joints', export.port_name
                     assert_equal %w[j1 j2], export.joints
                     assert_equal '', export.prefix
-                    assert_equal 0.5, export.port_period.to_f
+                    assert_equal 0, export.port_period.to_f
                     assert_equal 0, export.ignore_joint_names
                 end
 
@@ -130,8 +136,16 @@ module OroGen
                 end
 
                 it 'converts the exported link period in an exact way' do
-                    @test_joint_dev.period(1.501)
-                    task = syskit_stub_deploy_and_configure(@test_joint_dev)
+                    model = ModelTask.specialize
+                    model.require_dynamic_service(
+                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                    )
+                    robot_model = Syskit::Robot::RobotDefinition.new
+                    test_joint_dev = robot_model.device(
+                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                    )
+                    test_joint_dev.period(1.501)
+                    task = syskit_stub_deploy_and_configure(test_joint_dev)
                     exports = task.properties.exported_joints
                     period = exports.first.port_period
                     assert_equal 1, period.tv_sec
@@ -145,6 +159,43 @@ module OroGen
 
                     exports = task.properties.exported_joints
                     assert_equal 1, exports.first.ignore_joint_names
+                end
+
+                it 'passes an empty position_offsets by default' do
+                    task = deploy_and_configure_dynamic_service(joint_names: %w[j1 j2])
+
+                    exports = task.properties.exported_joints
+                    assert exports.first.position_offsets.empty?
+                end
+
+                it 'forwards an empty position_offsets' do
+                    task = deploy_and_configure_dynamic_service(
+                        joint_names: %w[j1 j2],
+                        position_offsets: []
+                    )
+
+                    exports = task.properties.exported_joints
+                    assert exports.first.position_offsets.empty?
+                end
+
+                it 'forwards a position_offsets array of the same size than the joints' do
+                    task = deploy_and_configure_dynamic_service(
+                        joint_names: %w[j1 j2],
+                        position_offsets: [1, 2]
+                    )
+
+                    exports = task.properties.exported_joints
+                    assert_equal [1, 2], exports.first.position_offsets.to_a
+                end
+
+                it 'validates the size of the position_offsets argument' do
+                    model = ModelTask.specialize
+                    assert_raises(ArgumentError) do
+                        model.require_dynamic_service(
+                            'joint_export', as: 'test', joint_names: %w[j1 j2],
+                                            position_offsets: [0]
+                        )
+                    end
                 end
 
                 def deploy_and_configure_dynamic_service(**kw)

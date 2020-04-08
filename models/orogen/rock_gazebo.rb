@@ -83,6 +83,15 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
 
     # Declare a dynamic service that provides an interface to a set of joints
     dynamic_service CommonModels::Devices::Gazebo::Joint, as: 'joint_export' do
+        offsets = (options[:position_offsets] ||= [])
+        unless offsets.empty?
+            if offsets.size != options[:joint_names].size
+                raise ArgumentError,
+                      'the position_offsets array should either be empty '\
+                      'or of the same size than joint_names'
+            end
+        end
+
         name = self.name
         driver_for CommonModels::Devices::Gazebo::Joint,
                    'command_in' => "#{name}_joints_cmd",
@@ -155,7 +164,7 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
 
     def create_joint_export(
         srv, joint_names,
-        ignore_joint_names: false
+        ignore_joint_names: false, position_offsets: []
     )
         device = find_device_attached_to(srv)
         sdf_model, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
@@ -168,8 +177,9 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
             ignore_joint_names: ignore_joint_names,
             joints: joint_names,
             port_name: "#{srv.name}_joints",
-            prefix: prefix || '',
-            port_period: period_to_time(device.period)
+            port_period: period_to_time(device.period),
+            position_offsets: position_offsets,
+            prefix: prefix || ''
         )
     end
 
@@ -200,7 +210,7 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
                 joint_exports << create_joint_export(
                     srv, srv.model.dynamic_service_options[:joint_names],
                     **srv.model.dynamic_service_options
-                         .slice(:ignore_joint_names)
+                         .slice(:ignore_joint_names, :position_offsets)
                 )
             end
             if srv.fullfills?(CommonModels::Devices::Gazebo::Model)
