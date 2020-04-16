@@ -1,4 +1,6 @@
-require 'common_models/models/devices/gazebo/link'
+# frozen_string_literal: true
+
+require "common_models/models/devices/gazebo/link"
 
 module CommonModels
     module Devices

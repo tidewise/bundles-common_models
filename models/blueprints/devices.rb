@@ -1,5 +1,7 @@
-require 'common_models/models/blueprints/sensors'
-require 'common_models/models/blueprints/timestamping'
+# frozen_string_literal: true
+
+require "common_models/models/blueprints/sensors"
+require "common_models/models/blueprints/timestamping"
 
 # The module under which all device models are defined
 module Dev
@@ -9,32 +11,32 @@ module Dev
 
     # The module under which all sensors are defined
     module Sensors
-        device_type 'GPS' do
+        device_type "GPS" do
             provides Base::PositionSrv
         end
-        device_type 'Hokuyo' do
+        device_type "Hokuyo" do
             provides Base::LaserRangeFinderSrv
         end
-        device_type 'XsensAHRS' do
+        device_type "XsensAHRS" do
             provides Base::OrientationSrv
             provides Base::CalibratedIMUSensorsSrv
         end
 
         # Base namespace for all camera device models
         module Cameras
-            device_type 'Firewire' do
+            device_type "Firewire" do
                 provides Base::ImageProviderSrv
             end
-            device_type 'Prosilica' do
+            device_type "Prosilica" do
                 provides Base::ImageProviderSrv
             end
             Network = Prosilica
-            device_type 'USB' do
+            device_type "USB" do
                 provides Base::ImageProviderSrv
             end
         end
 
-        device_type 'TimestamperDev' do
+        device_type "TimestamperDev" do
             provides Base::TimestamperSrv
 
             extend_device_configuration do
@@ -56,8 +58,7 @@ module Dev
 
     # Actuators
     module Actuators
-        device_type 'PTU'
-        device_type 'Dynamixel'
+        device_type "PTU"
+        device_type "Dynamixel"
     end
 end
-

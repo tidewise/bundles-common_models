@@ -1,4 +1,6 @@
-import_types_from 'base'
+# frozen_string_literal: true
+
+import_types_from "base"
 
 module CommonModels
     module Services
@@ -6,8 +8,8 @@ module CommonModels
         #
         # This is a common provider in underwater systems, where the absolute depth
         # can easily be measured with a good accuracy
-        data_service_type 'ZProvider' do
-            output_port 'z_samples', '/base/samples/RigidBodyState'
+        data_service_type "ZProvider" do
+            output_port "z_samples", "/base/samples/RigidBodyState"
         end
     end
 end

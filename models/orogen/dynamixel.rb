@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 module Dev
     module Actuators
-        device_type 'Dynamixel'
+        device_type "Dynamixel"
     end
 end
 
 class OroGen::Dynamixel::Task
-    driver_for Dev::Actuators::Dynamixel, :as => 'driver'
-    provides Base::TransformationSrv, :as => 'transform',
-	'transformation' => 'lowerDynamixel2UpperDynamixel'
+    driver_for Dev::Actuators::Dynamixel, as: "driver"
+    provides Base::TransformationSrv, :as => "transform",
+                                      "transformation" => "lowerDynamixel2UpperDynamixel"
 
     # Add some more information for the transformer configuration
     transformer do
@@ -21,4 +23,3 @@ class OroGen::Dynamixel::Task
         end
     end
 end
-

@@ -1,12 +1,14 @@
-require 'gnuplot'
-require 'pocolog'
-require 'scripts/aggregator/plots'
+# frozen_string_literal: true
+
+require "gnuplot"
+require "pocolog"
+require "scripts/aggregator/plots"
 
 file = Pocolog::Logfiles.open(ARGV.first)
 if stream_name = ARGV[1]
     stream = file.stream(stream_name)
 else
-    stream = file.stream_from_type('/aggregator/TimestampEstimatorStatus')
+    stream = file.stream_from_type("/aggregator/TimestampEstimatorStatus")
 end
 
 def timestamp(time, base_time)
@@ -14,28 +16,28 @@ def timestamp(time, base_time)
 end
 
 latencies = Plot.new("Latencies")
-latencies.register(:latency, :with => 'lines')
-latencies.register(:est_diff, :with => 'lines')
-latencies.register(:raw_diff, :with => 'lines')
+latencies.register(:latency, with: "lines")
+latencies.register(:est_diff, with: "lines")
+latencies.register(:raw_diff, with: "lines")
 
-drops = Plot.new('Drops')
-drops.register(:total, :with => 'lines')
-drops.register(:current, :with => 'lines')
-drops.register(:rejected, :with => 'lines')
+drops = Plot.new("Drops")
+drops.register(:total, with: "lines")
+drops.register(:current, with: "lines")
+drops.register(:rejected, with: "lines")
 
-time = Plot.new('Raw Times Differences')
-time.register(:raw, :with => 'lines')
-time.register(:est, :with => 'lines')
-time.register(:reference, :with => 'lines')
-time.register(:period, :with => 'lines')
+time = Plot.new("Raw Times Differences")
+time.register(:raw, with: "lines")
+time.register(:est, with: "lines")
+time.register(:reference, with: "lines")
+time.register(:period, with: "lines")
 
-base = Plot.new('Base Time Resets')
-base.register(:resets, :with => 'lines')
+base = Plot.new("Base Time Resets")
+base.register(:resets, with: "lines")
 
 base_time = nil
 last_stats = nil
 stream.samples.each do |_, _, stats|
-    if !base_time
+    unless base_time
         if stats.time_raw.to_f != 0
             base_time = stats.time_raw
         else
@@ -76,4 +78,3 @@ latencies.show
 drops.show
 time.show
 base.show
-

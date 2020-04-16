@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module CommonModels
     module Compositions
@@ -36,12 +37,12 @@ module CommonModels
 
             # Sets the {#values} argument
             def values=(setpoint)
-                setpoint = setpoint.map_key do |port_name, _|
-                    port_name = port_name.to_s
-                    if !find_port(port_name)
-                        raise ArgumentError, "#{port_name} is not a known port of #{self}."
+                setpoint = setpoint.transform_keys(&:to_s)
+                setpoint.each_key do |port_name|
+                    unless find_port(port_name)
+                        raise ArgumentError,
+                              "#{port_name} is not a known port of #{self}."
                     end
-                    port_name
                 end
                 arguments[:values] = setpoint
             end
@@ -50,7 +51,7 @@ module CommonModels
                 @write_thread_exit = exit_event = Concurrent::Event.new
                 period = self.period
                 @write_thread = Thread.new do
-                    while !exit_event.set?
+                    until exit_event.set?
                         values.each do |port_name, value|
                             orocos_task.port(port_name).write(value)
                         end
@@ -61,14 +62,14 @@ module CommonModels
             end
 
             event :write_thread_error
-            signal :write_thread_error => :interrupt
+            signal write_thread_error: :interrupt
 
             poll do
-                if !@write_thread.alive?
+                unless @write_thread.alive?
                     begin
                         result = @write_thread.value
-                        write_thread_error_event.emit(result) if !stop_event.pending?
-                    rescue ::Exception => e
+                        write_thread_error_event.emit(result) unless stop_event.pending?
+                    rescue ::Exception => e # rubocop:disable Lint/RescueException
                         write_thread_error_event.emit(e)
                     end
                 end
@@ -78,7 +79,7 @@ module CommonModels
                 @write_thread_exit.set
                 begin
                     @write_thread.join
-                rescue ::Exception
+                rescue ::Exception # rubocop:disable Lint/RescueException,Lint/SuppressedException
                 end
                 super(context)
             end
@@ -88,9 +89,9 @@ module CommonModels
             # It dispatches based on the argument type
             def self.for(object)
                 if Syskit::Models.is_model?(object)
-                    return for_data_service(object)
+                    for_data_service(object)
                 else
-                    return for_type(object)
+                    for_type(object)
                 end
             end
 
@@ -109,8 +110,10 @@ module CommonModels
             # @return [Model<ConstantGenerator>]
             def self.for_type(type_name)
                 generator = ConstantGenerator.new_submodel
-                port = generator.output_port 'out', type_name
-                port.doc "The generated value, from the values argument to the task. Set it to a hash with a single out key and the value to generate."
+                port = generator.output_port "out", type_name
+                port.doc "The generated value, from the values argument to the task. "\
+                         "Set it to a hash with a single out key and the value to "\
+                         "generate."
                 generator
             end
 
@@ -121,7 +124,7 @@ module CommonModels
             # Given a data service, the returned value will always be identical. If
             # you want to customize the model in different ways, subclass it. For
             # instance:
-            #   
+            #
             #   ImageGenerator = ConstantGenerator.for_data_service(Base::ImageSrv)
             #   class AutoStopGenerator < ImageGenerator
             #      poll do
@@ -132,13 +135,10 @@ module CommonModels
             #   end
             #
             # @return [Model<ConstantGenerator>]
-            def self.for_data_service(service_model, options = Hash.new)
-                if service_model.const_defined_here?('Generator')
+            def self.for_data_service(service_model, as: "template")
+                if service_model.const_defined_here?("Generator")
                     return service_model.const_get(:Generator)
                 end
-
-                options = Kernel.validate_options options,
-                    as: 'template'
 
                 generator = ConstantGenerator.new_submodel
                 service_model.each_input_port do |port|
@@ -147,7 +147,7 @@ module CommonModels
                 service_model.each_output_port do |port|
                     generator.output_port port.name, port.orocos_type_name
                 end
-                generator.provides service_model, as: options[:as]
+                generator.provides service_model, as: as
                 service_model.const_set :Generator, generator
                 generator
             end

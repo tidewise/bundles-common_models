@@ -1,5 +1,7 @@
-require 'common_models/models/compositions/maintain_pose'
-require 'timecop'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/maintain_pose"
+require "timecop"
 
 module CommonModels
     module Compositions
@@ -15,7 +17,8 @@ module CommonModels
                 rbs.orientation = Eigen::Quaternion.Identity
 
                 @maintain_pose = syskit_stub_and_deploy(
-                    MaintainPose.with_arguments(pose: pose, duration: 1))
+                    MaintainPose.with_arguments(pose: pose, duration: 1)
+                )
             end
 
             def assert_pose_in_event_equal(rbs, actual)
@@ -41,8 +44,8 @@ module CommonModels
 
                 it "terminates successfully if the target pose is maintained within the expected duration" do
                     flexmock(maintain_pose).should_receive(:within_tolerance?).and_return(true)
-                    maintain_pose.pose_child.orocos_task.pose_samples.
-                        write(sample = Types.base.samples.RigidBodyState.new)
+                    maintain_pose.pose_child.orocos_task.pose_samples
+                                 .write(Types.base.samples.RigidBodyState.new)
                     # Read the sample
                     expect_execution.to { not_emit maintain_pose.success_event }
                     Timecop.freeze(@base_time + 1.01)
@@ -57,7 +60,8 @@ module CommonModels
 
             it "ignores the duration if none is provided" do
                 maintain_pose = syskit_stub_and_deploy(
-                    MaintainPose.with_arguments(pose: pose, duration: nil))
+                    MaintainPose.with_arguments(pose: pose, duration: nil)
+                )
                 maintain_pose.position_tolerance = Eigen::Vector3.new
                 maintain_pose.orientation_tolerance = Eigen::Vector3.new
                 Timecop.freeze(base_time = Time.now)

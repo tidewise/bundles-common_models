@@ -1,4 +1,6 @@
-import_types_from 'iodrivers_base'
+# frozen_string_literal: true
+
+import_types_from "iodrivers_base"
 
 module CommonModels
     module Devices
@@ -8,7 +10,7 @@ module CommonModels
             #
             # One would usually NOT directly define driver for this, but instead
             # make other com bus types provide it
-            com_bus_type 'RawIO', message_type: '/iodrivers_base/RawPacket'
+            com_bus_type "RawIO", message_type: "/iodrivers_base/RawPacket"
         end
     end
 end

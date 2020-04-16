@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 class OroGen::CorridorNavigation::ServoingTask
-    argument :initial_heading, :default => nil
+    argument :initial_heading, default: nil
 
     # Data writer connected to the heading port of the corridor servoing task
     attr_reader :direction_writer
 
     # Additional information for the transformer's automatic configuration
     transformer do
-        associate_frame_to_ports 'odometry', 'trajectory', 'debugVfhTree'
-        #transform_input 'odometry_samples', 'body' => 'odometry'
+        associate_frame_to_ports "odometry", "trajectory", "debugVfhTree"
+        # transform_input 'odometry_samples', 'body' => 'odometry'
     end
 
     on :start do |event|

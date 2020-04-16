@@ -1,9 +1,11 @@
-import_types_from 'base'
+# frozen_string_literal: true
+
+import_types_from "base"
 
 module CommonModels
     module Services
-        data_service_type 'Wrench' do
-            input_port 'wrench_samples', '/base/samples/Wrench'
+        data_service_type "Wrench" do
+            input_port "wrench_samples", "/base/samples/Wrench"
         end
     end
 end

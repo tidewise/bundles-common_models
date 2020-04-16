@@ -1,4 +1,6 @@
-require 'common_models/models/devices/gps/mb500'
+# frozen_string_literal: true
+
+require "common_models/models/devices/gps/mb500"
 
 module CommonModels
     module Devices

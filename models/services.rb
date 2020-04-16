@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "common_models/models/services/rotation"
 require "common_models/models/services/position"
 require "common_models/models/services/orientation"

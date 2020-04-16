@@ -1,4 +1,6 @@
-require 'common_models/models/services/control_loop'
+# frozen_string_literal: true
+
+require "common_models/models/services/control_loop"
 
 module CommonModels
     module Compositions
@@ -6,8 +8,8 @@ module CommonModels
         class ControlLoop < Syskit::Composition
             abstract
 
-            add Services::Controller, :as => 'controller'
-            add Services::ControlledSystem, :as => 'controlled_system'
+            add Services::Controller, as: "controller"
+            add Services::ControlledSystem, as: "controlled_system"
 
             # Avoid generating unnecessary cross-specializations
             #
@@ -17,9 +19,11 @@ module CommonModels
             add_specialization_constraint do |spec0, spec1|
                 %w{controller controlled_system}.all? do |child_name|
                     controller0 = spec0.find_specialization(
-                        child_name, Services::Controller)
+                        child_name, Services::Controller
+                    )
                     controller1 = spec1.find_specialization(
-                        child_name, Services::Controller)
+                        child_name, Services::Controller
+                    )
                     if controller0 && controller1
                         m0 = controller0.first
                         m1 = controller1.first
@@ -29,9 +33,11 @@ module CommonModels
                     end
 
                     controlled0 = spec0.find_specialization(
-                        child_name, Services::ControlledSystem)
+                        child_name, Services::ControlledSystem
+                    )
                     controlled1 = spec1.find_specialization(
-                        child_name, Services::ControlledSystem)
+                        child_name, Services::ControlledSystem
+                    )
                     if controlled0 && controlled1
                         m0 = controlled0.first
                         m1 = controlled1.first
@@ -52,10 +58,10 @@ module CommonModels
 
                 specialize controller_child => controlled_system_srv do
                     export controller_child.command_in_port
-                    provides controlled_system_srv, :as => "open_loop_#{name.snakecase}"
+                    provides controlled_system_srv, as: "open_loop_#{name.snakecase}"
                 end
                 specialize controller_child => controller_srv,
-                    controlled_system_child => controlled_system_srv do
+                           controlled_system_child => controlled_system_srv do
                     controller_child.command_out_port.connect_to controlled_system_child.command_in_port
                 end
             end
@@ -80,14 +86,13 @@ module CommonModels
                 specialize controller_child => controlled_system_srv do
                     export controller_child.command_in_port
                     export controller_child.status_out_port
-                    provides controlled_system_srv, :as => "#{name}"
+                    provides controlled_system_srv, as: name.to_s
                 end
                 specialize controller_child => controller_srv,
-                    controlled_system_child => controlled_system_srv do
+                           controlled_system_child => controlled_system_srv do
                     controlled_system_child.status_out_port.connect_to controller_child.status_in_port
                 end
             end
         end
     end
 end
-

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "common_models/models/devices/gazebo"
 require "common_models/models/devices/bus"
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ## One can require the configuration from another robot, for instance if one has
 ## a common robot class with minor modifications
 #
@@ -10,7 +12,7 @@ Robot.init do
     # Roby.app.using 'syskit'
 
     ## Change the scheduler
-    require 'roby/schedulers/temporal'
+    require "roby/schedulers/temporal"
     Roby.scheduler = Roby::Schedulers::Temporal.new
 
     ## You could also change the Roby search path
@@ -18,9 +20,9 @@ Robot.init do
 end
 
 def require_all_except(*path, except: [])
-    Dir.glob File.join(*path, '*') do |file|
-        if File.exist?(file) && File.extname(file) == '.rb'
-            if !except.include?(File.basename(file))
+    Dir.enum_for(:glob, File.join(*path, "*")).sort.each do |file|
+        if File.exist?(file) && File.extname(file) == ".rb"
+            unless except.include?(File.basename(file))
                 require file
             end
         end
@@ -31,19 +33,19 @@ end
 Robot.requires do
     Roby.app.auto_load_all_task_libraries = true
 
-    excluded_services      = []
+    excluded_services = []
     excluded_compositions = []
 
-    if !Roby.app.default_loader.has_typekit?('controldev')
-        excluded_services << 'raw_input_command.rb'
+    unless Roby.app.default_loader.has_typekit?("controldev")
+        excluded_services << "raw_input_command.rb"
     end
 
-    if !Roby.app.default_loader.has_typekit?('iodrivers_base')
-        excluded_services << 'raw_io.rb'
+    unless Roby.app.default_loader.has_typekit?("iodrivers_base")
+        excluded_services << "raw_io.rb"
     end
 
-    if !Roby.app.default_loader.has_project?('trajectory_follower')
-        excluded_compositions << 'trajectory_follower_control_loop.rb'
+    unless Roby.app.default_loader.has_project?("trajectory_follower")
+        excluded_compositions << "trajectory_follower_control_loop.rb"
     end
 
     # Load all in services/ and compositions/ except those things that have a
@@ -51,10 +53,12 @@ Robot.requires do
     #
     # Exclude joints_trajectory_open_loop_control.rb, it conflicts with
     # joints_trajectory_control_loop
-    require_all_except Roby.app.app_dir, 'models', 'services',
-        except: [*excluded_services, 'joints_trajectory_open_loop_control.rb']
-    require_all_except Roby.app.app_dir, 'models', 'compositions',
-        except: excluded_compositions
+    require_all_except(
+        Roby.app.app_dir, "models", "services",
+        except: [*excluded_services, "joints_trajectory_open_loop_control.rb"]
+    )
+    require_all_except Roby.app.app_dir, "models", "compositions",
+                       except: excluded_compositions
 end
 
 # Block evaluated to configure the system, that is set up values in Roby's Conf
@@ -79,4 +83,3 @@ end
 #
 Robot.actions do
 end
-

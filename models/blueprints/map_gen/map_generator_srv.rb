@@ -1,15 +1,17 @@
-import_types_from 'envire'
+# frozen_string_literal: true
+
+import_types_from "envire"
 
 module Rock
     module MapGen
-        data_service_type 'MapGeneratorSrv' do
-            output_port 'map', ro_ptr('std/vector</envire/BinaryEvent>')
+        data_service_type "MapGeneratorSrv" do
+            output_port "map", ro_ptr("std/vector</envire/BinaryEvent>")
         end
 
-        data_service_type 'MLSSrv' do
+        data_service_type "MLSSrv" do
             provides MapGeneratorSrv
         end
-        data_service_type 'TraversabilitySrv' do
+        data_service_type "TraversabilitySrv" do
             provides MapGeneratorSrv
         end
 
@@ -20,8 +22,8 @@ module Rock
         # take care of using subclasses of MapGen::PipelineBase to represent the
         # processing pipeline. This ensures that proper synchronization is done
         # (i.e. that the map generator is started after all the consumers)
-        data_service_type 'OneShotSrv'
-        
+        data_service_type "OneShotSrv"
+
         def OneShotSrv.included(other)
             # Called when the service gets provided by a task or another
             # service. It marks the task as non-reusable

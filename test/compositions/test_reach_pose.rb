@@ -1,5 +1,7 @@
-require 'common_models/models/compositions/reach_pose'
-require 'timecop'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/reach_pose"
+require "timecop"
 
 module CommonModels
     module Compositions
@@ -15,7 +17,8 @@ module CommonModels
                 rbs.orientation = Eigen::Quaternion.Identity
 
                 @reach_pose = syskit_stub_and_deploy(
-                    ReachPose.with_arguments(pose: pose, timeout: 10))
+                    ReachPose.with_arguments(pose: pose, timeout: 10)
+                )
             end
 
             def assert_times_out
@@ -36,8 +39,8 @@ module CommonModels
                 reach_pose.position_tolerance = Eigen::Vector3.new
                 reach_pose.orientation_tolerance = Eigen::Vector3.new
                 syskit_configure_and_start(reach_pose)
-                reach_pose.pose_child.orocos_task.pose_samples.
-                    write(sample = Types.base.samples.RigidBodyState.new)
+                reach_pose.pose_child.orocos_task.pose_samples
+                          .write(sample = Types.base.samples.RigidBodyState.new)
                 flexmock(reach_pose).should_receive(:within_tolerance?).and_return(true)
                 event = expect_execution.to { emit reach_pose.success_event }
 
@@ -80,8 +83,8 @@ module CommonModels
                 reach_pose.position_tolerance = Eigen::Vector3.new
                 reach_pose.orientation_tolerance = Eigen::Vector3.new
                 syskit_configure_and_start(reach_pose)
-                reach_pose.pose_child.orocos_task.pose_samples.
-                    write(Types.base.samples.RigidBodyState.new)
+                reach_pose.pose_child.orocos_task.pose_samples
+                          .write(Types.base.samples.RigidBodyState.new)
                 flexmock(reach_pose).should_receive(:within_tolerance?).once.and_return(false)
                 expect_execution.to { have_running reach_pose }
             end
@@ -90,8 +93,8 @@ module CommonModels
                 reach_pose.position_tolerance = Eigen::Vector3.new
                 reach_pose.orientation_tolerance = Eigen::Vector3.new
                 syskit_configure_and_start(reach_pose)
-                reach_pose.pose_child.orocos_task.pose_samples.
-                    write(sample = Types.base.samples.RigidBodyState.new)
+                reach_pose.pose_child.orocos_task.pose_samples
+                          .write(Types.base.samples.RigidBodyState.new)
                 flexmock(reach_pose).should_receive(:within_tolerance?).and_return(true)
 
                 Timecop.travel(10) do

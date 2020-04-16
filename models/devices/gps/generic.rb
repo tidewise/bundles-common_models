@@ -1,9 +1,11 @@
-require 'common_models/models/services/position'
+# frozen_string_literal: true
+
+require "common_models/models/services/position"
 
 module CommonModels
     module Devices
         module GPS
-            device_type 'Generic' do
+            device_type "Generic" do
                 provides Services::Position
             end
         end

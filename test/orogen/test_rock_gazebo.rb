@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'rock_gazebo/syskit'
-require 'test/helpers'
-using_task_library 'rock_gazebo'
+require "rock_gazebo/syskit"
+require "test/helpers"
+using_task_library "rock_gazebo"
 
 module OroGen
     module RockGazebo
@@ -25,38 +25,38 @@ module OroGen
 
             it { is_configurable }
 
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(ModelTask)
                 refute task.orocos_task.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(ModelTask)
                 assert task.orocos_task.use_sim_time
             end
 
-            describe 'link export' do
+            describe "link export" do
                 before do
                     model = ModelTask.specialize
                     model.require_dynamic_service(
-                        'link_export', as: 'test', port_name: 'src2tgt'
+                        "link_export", as: "test", port_name: "src2tgt"
                     )
                     robot_model = Syskit::Robot::RobotDefinition.new
                     @test_link_dev = robot_model
                                      .device CommonModels::Devices::Gazebo::Link,
-                                             as: 'test', using: model
+                                             as: "test", using: model
                     @model_with_frames =
                         model
-                        .use_frames('test_source' => 'src_frame',
-                                    'test_target' => 'tgt_frame')
+                        .use_frames("test_source" => "src_frame",
+                                    "test_target" => "tgt_frame")
                         .with_arguments(test_dev: @test_link_dev)
-                        .transformer { frames 'src_frame', 'tgt_frame' }
+                        .transformer { frames "src_frame", "tgt_frame" }
                 end
 
-                it 'sets up the link export based on the instanciated '\
-                   'link_export services' do
+                it "sets up the link export based on the instanciated "\
+                   "link_export services" do
                     @test_link_dev.period(0.5)
                     task = syskit_stub_deploy_and_configure(@model_with_frames)
 
@@ -64,15 +64,15 @@ module OroGen
                     assert_equal 1, exports.size
 
                     export = exports.first
-                    assert_equal 'src2tgt', export.port_name
-                    assert_equal 'src_frame', export.source_frame
-                    assert_equal 'tgt_frame', export.target_frame
-                    assert_equal 'src_frame', export.source_link
-                    assert_equal 'tgt_frame', export.target_link
+                    assert_equal "src2tgt", export.port_name
+                    assert_equal "src_frame", export.source_frame
+                    assert_equal "tgt_frame", export.target_frame
+                    assert_equal "src_frame", export.source_link
+                    assert_equal "tgt_frame", export.target_link
                     assert_equal 0.5, export.port_period.to_f
                 end
 
-                it 'converts the exported link export in an exact way' do
+                it "converts the exported link export in an exact way" do
                     @test_link_dev.period(1.501)
                     task = syskit_stub_deploy_and_configure(@model_with_frames)
                     exports = task.properties.exported_links
@@ -82,26 +82,26 @@ module OroGen
                 end
             end
 
-            describe 'joint export' do
+            describe "joint export" do
                 before do
                     model = ModelTask.specialize
                     model.require_dynamic_service(
-                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                        "joint_export", as: "test", joint_names: %w[j1 j2]
                     )
                     robot_model = Syskit::Robot::RobotDefinition.new
                     @test_joint_dev = robot_model.device(
-                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                        CommonModels::Devices::Gazebo::Joint, as: "test", using: model
                     )
                 end
 
-                it 'configures a joint export based on the dynamic service info' do
+                it "configures a joint export based on the dynamic service info" do
                     model = ModelTask.specialize
                     model.require_dynamic_service(
-                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                        "joint_export", as: "test", joint_names: %w[j1 j2]
                     )
                     robot_model = Syskit::Robot::RobotDefinition.new
                     test_joint_dev = robot_model.device(
-                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                        CommonModels::Devices::Gazebo::Joint, as: "test", using: model
                     )
                     task = syskit_stub_deploy_and_configure(test_joint_dev)
 
@@ -109,22 +109,22 @@ module OroGen
                     assert_equal 1, exports.size
                     export = exports.first
 
-                    assert_equal 'test_joints', export.port_name
+                    assert_equal "test_joints", export.port_name
                     assert_equal %w[j1 j2], export.joints
-                    assert_equal '', export.prefix
+                    assert_equal "", export.prefix
                     assert_equal 0, export.port_period.to_f
                     assert_equal 0, export.ignore_joint_names
                 end
 
-                it 'sets up the joint exports period based on the instanciated '\
-                   'joint_export services' do
+                it "sets up the joint exports period based on the instanciated "\
+                   "joint_export services" do
                     model = ModelTask.specialize
                     model.require_dynamic_service(
-                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                        "joint_export", as: "test", joint_names: %w[j1 j2]
                     )
                     robot_model = Syskit::Robot::RobotDefinition.new
                     test_joint_dev = robot_model.device(
-                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                        CommonModels::Devices::Gazebo::Joint, as: "test", using: model
                     )
                     test_joint_dev.period(0.5)
                     task = syskit_stub_deploy_and_configure(test_joint_dev)
@@ -135,14 +135,14 @@ module OroGen
                     assert_equal 0.5, export.port_period.to_f
                 end
 
-                it 'converts the exported link period in an exact way' do
+                it "converts the exported link period in an exact way" do
                     model = ModelTask.specialize
                     model.require_dynamic_service(
-                        'joint_export', as: 'test', joint_names: %w[j1 j2]
+                        "joint_export", as: "test", joint_names: %w[j1 j2]
                     )
                     robot_model = Syskit::Robot::RobotDefinition.new
                     test_joint_dev = robot_model.device(
-                        CommonModels::Devices::Gazebo::Joint, as: 'test', using: model
+                        CommonModels::Devices::Gazebo::Joint, as: "test", using: model
                     )
                     test_joint_dev.period(1.501)
                     task = syskit_stub_deploy_and_configure(test_joint_dev)
@@ -152,7 +152,7 @@ module OroGen
                     assert_equal 501_000, period.tv_usec
                 end
 
-                it 'passes the ignore_joint_commands flag' do
+                it "passes the ignore_joint_commands flag" do
                     task = deploy_and_configure_dynamic_service(
                         joint_names: %w[j1 j2], ignore_joint_names: true
                     )
@@ -161,14 +161,14 @@ module OroGen
                     assert_equal 1, exports.first.ignore_joint_names
                 end
 
-                it 'passes an empty position_offsets by default' do
+                it "passes an empty position_offsets by default" do
                     task = deploy_and_configure_dynamic_service(joint_names: %w[j1 j2])
 
                     exports = task.properties.exported_joints
                     assert exports.first.position_offsets.empty?
                 end
 
-                it 'forwards an empty position_offsets' do
+                it "forwards an empty position_offsets" do
                     task = deploy_and_configure_dynamic_service(
                         joint_names: %w[j1 j2],
                         position_offsets: []
@@ -178,7 +178,7 @@ module OroGen
                     assert exports.first.position_offsets.empty?
                 end
 
-                it 'forwards a position_offsets array of the same size than the joints' do
+                it "forwards a position_offsets array of the same size than the joints" do
                     task = deploy_and_configure_dynamic_service(
                         joint_names: %w[j1 j2],
                         position_offsets: [1, 2]
@@ -188,11 +188,11 @@ module OroGen
                     assert_equal [1, 2], exports.first.position_offsets.to_a
                 end
 
-                it 'validates the size of the position_offsets argument' do
+                it "validates the size of the position_offsets argument" do
                     model = ModelTask.specialize
                     assert_raises(ArgumentError) do
                         model.require_dynamic_service(
-                            'joint_export', as: 'test', joint_names: %w[j1 j2],
+                            "joint_export", as: "test", joint_names: %w[j1 j2],
                                             position_offsets: [0]
                         )
                     end
@@ -200,37 +200,37 @@ module OroGen
 
                 def deploy_and_configure_dynamic_service(**kw)
                     model = ModelTask.specialize
-                    model.require_dynamic_service('joint_export', as: 'test', **kw)
+                    model.require_dynamic_service("joint_export", as: "test", **kw)
 
                     robot_model = Syskit::Robot::RobotDefinition.new
                     dev = robot_model.device(
                         CommonModels::Devices::Gazebo::Joint,
-                        as: 'test', using: model
+                        as: "test", using: model
                     )
                     syskit_stub_deploy_and_configure(dev)
                 end
             end
 
-            describe 'submodel export' do
+            describe "submodel export" do
                 def make_nested_model(sdf, period: 0.5)
                     model = ModelTask.specialize
-                    model.require_dynamic_service 'submodel_export', as: 'test'
+                    model.require_dynamic_service "submodel_export", as: "test"
                     robot_model = Syskit::Robot::RobotDefinition.new
                     root_model = SDF::Model.from_string(sdf)
                     test_submodel_dev =
                         robot_model
                         .device(CommonModels::Devices::Gazebo::Model,
-                                as: 'test', using: model.test_srv)
+                                as: "test", using: model.test_srv)
                         .period(period)
                         .sdf(root_model.each_model.first)
 
-                    model.use_frames('test_source' => 'src_frame',
-                                     'test_target' => 'tgt_frame')
+                    model.use_frames("test_source" => "src_frame",
+                                     "test_target" => "tgt_frame")
                          .with_arguments(test_dev: test_submodel_dev)
-                         .transformer { frames 'src_frame', 'tgt_frame' }
+                         .transformer { frames "src_frame", "tgt_frame" }
                 end
 
-                it 'sets up the joint export' do
+                it "sets up the joint export" do
                     model = make_nested_model(<<-SDF_MODEL)
                         <model name="m">
                             <model name="nested">
@@ -248,13 +248,13 @@ module OroGen
                     exports = task.properties.exported_joints
                     assert_equal 1, exports.size
                     export = exports.first
-                    assert_equal 'test_joints', export.port_name
-                    assert_equal ['m::nested::root2child'], export.joints
-                    assert_equal 'm::', export.prefix
+                    assert_equal "test_joints", export.port_name
+                    assert_equal ["m::nested::root2child"], export.joints
+                    assert_equal "m::", export.prefix
                     assert_equal 0.5, export.port_period.to_f
                 end
 
-                it 'converts the period to the closest integer sec/usec pair' do
+                it "converts the period to the closest integer sec/usec pair" do
                     model = make_nested_model(<<-SDF_MODEL, period: 1.501)
                         <model name="m">
                             <model name="nested">
@@ -276,7 +276,7 @@ module OroGen
                     assert_equal 501_000, period.tv_usec
                 end
 
-                it 'ignores fixed joints' do
+                it "ignores fixed joints" do
                     model = make_nested_model(<<-SDF_MODEL)
                         <model name="m">
                             <model name="nested">
@@ -292,28 +292,28 @@ module OroGen
                     task = syskit_stub_deploy_and_configure(model)
 
                     export = task.properties.exported_joints.first
-                    assert_equal 'test_joints', export.port_name
+                    assert_equal "test_joints", export.port_name
                     assert_equal [], export.joints
-                    assert_equal 'm::', export.prefix
+                    assert_equal "m::", export.prefix
                     assert_equal 0.5, export.port_period.to_f
                 end
             end
 
-            it 'uses a default period of zero' do
+            it "uses a default period of zero" do
                 model = ModelTask.specialize
                 model.require_dynamic_service(
-                    'link_export', as: 'test', port_name: 'src2tgt'
+                    "link_export", as: "test", port_name: "src2tgt"
                 )
                 robot_model = Syskit::Robot::RobotDefinition.new
                 test_link_dev = robot_model.device CommonModels::Devices::Gazebo::Link,
-                                                   as: 'test', using: model
+                                                   as: "test", using: model
 
                 model_with_frames =
                     model
-                    .use_frames('test_source' => 'src_frame',
-                                'test_target' => 'tgt_frame')
+                    .use_frames("test_source" => "src_frame",
+                                "test_target" => "tgt_frame")
                     .with_arguments(test_dev: test_link_dev)
-                    .transformer { frames 'src_frame', 'tgt_frame' }
+                    .transformer { frames "src_frame", "tgt_frame" }
                 task = syskit_stub_deploy_and_configure(model_with_frames)
 
                 exports = task.properties.exported_links
@@ -326,13 +326,13 @@ module OroGen
                 Conf.gazebo.use_sim_time = false
             end
 
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(LaserScanTask)
                 refute task.properties.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(LaserScanTask)
                 assert task.properties.use_sim_time
@@ -344,13 +344,13 @@ module OroGen
                 Conf.gazebo.use_sim_time = false
             end
 
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(ImuTask)
                 refute task.orocos_task.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(ImuTask)
                 assert task.orocos_task.use_sim_time
@@ -358,13 +358,13 @@ module OroGen
         end
 
         describe UnderwaterTask do
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(UnderwaterTask)
                 refute task.orocos_task.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(UnderwaterTask)
                 assert task.orocos_task.use_sim_time
@@ -372,13 +372,13 @@ module OroGen
         end
 
         describe CameraTask do
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(CameraTask)
                 refute task.orocos_task.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(CameraTask)
                 assert task.orocos_task.use_sim_time
@@ -400,20 +400,20 @@ module OroGen
                 Conf.gazebo.use_sim_time = false
             end
 
-            it 'sets use_sim_time to false if Conf.gazebo.use_sim_time is false' do
+            it "sets use_sim_time to false if Conf.gazebo.use_sim_time is false" do
                 Conf.gazebo.use_sim_time = false
                 task = syskit_stub_deploy_and_configure(GPSTask)
                 refute task.orocos_task.use_sim_time
             end
 
-            it 'sets use_sim_time to true if Conf.gazebo.use_sim_time is true' do
+            it "sets use_sim_time to true if Conf.gazebo.use_sim_time is true" do
                 Conf.gazebo.use_sim_time = true
                 task = syskit_stub_deploy_and_configure(GPSTask)
                 assert task.orocos_task.use_sim_time
             end
 
-            it 'sets up the GPSTask latitude_origin and longitude_origin from '\
-               'the spherical coordinates info in the SDF' do
+            it "sets up the GPSTask latitude_origin and longitude_origin from "\
+               "the spherical coordinates info in the SDF" do
                 task = syskit_stub_deploy_and_configure GPSTask
                 assert_in_delta 48.8580 * Math::PI / 180,
                                 task.orocos_task.latitude_origin.rad, 1e-6
@@ -421,15 +421,15 @@ module OroGen
                                 task.orocos_task.longitude_origin.rad, 1e-6
             end
 
-            it 'sets up the GPSTask origin property using the SDF global_origin' do
+            it "sets up the GPSTask origin property using the SDF global_origin" do
                 task = syskit_stub_deploy_and_configure GPSTask
                 assert((Eigen::Vector3.new(5_411_910.38, 1_000_000 - 448_258.92, 42) -
                        task.orocos_task.nwu_origin).norm < 1,
-                       'invalid nwu_origin set on task: '\
+                       "invalid nwu_origin set on task: "\
                        "#{task.orocos_task.nwu_origin.to_a}")
             end
 
-            it 'sets up the GPSTask UTM properties using the SDF UTM coordinates' do
+            it "sets up the GPSTask UTM properties using the SDF UTM coordinates" do
                 task = syskit_stub_deploy_and_configure GPSTask
                 assert_equal 31, task.orocos_task.utm_zone
                 assert_equal true, task.orocos_task.utm_north

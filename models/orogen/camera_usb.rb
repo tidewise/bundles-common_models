@@ -1,8 +1,10 @@
-require 'common_models/models/blueprints/devices'
+# frozen_string_literal: true
+
+require "common_models/models/blueprints/devices"
 
 class OroGen::CameraUsb::Task
-    driver_for Dev::Sensors::Cameras::USB, :as => 'driver'
-    
+    driver_for Dev::Sensors::Cameras::USB, as: "driver"
+
     def configure
         super
         if p = robot_device.period
@@ -10,5 +12,3 @@ class OroGen::CameraUsb::Task
         end
     end
 end
-
-

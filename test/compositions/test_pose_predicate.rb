@@ -1,4 +1,6 @@
-require 'common_models/models/compositions/pose_predicate'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/pose_predicate"
 
 module CommonModels
     module Compositions
@@ -8,12 +10,14 @@ module CommonModels
                 before do
                     @pose = Types.base.Pose.new(
                         position: Eigen::Vector3.Zero,
-                        orientation: Eigen::Quaternion.Identity)
+                        orientation: Eigen::Quaternion.Identity
+                    )
                     @sample = Types.base.Pose.new(
                         position: Eigen::Vector3.new(1, 2, -3),
                         orientation: Eigen::Quaternion.from_angle_axis(0.1, Eigen::Vector3.UnitZ) *
                             Eigen::Quaternion.from_angle_axis(0.1, Eigen::Vector3.UnitY) *
-                            Eigen::Quaternion.from_angle_axis(0.1, Eigen::Vector3.UnitX))
+                            Eigen::Quaternion.from_angle_axis(0.1, Eigen::Vector3.UnitX)
+                    )
                     @reach_pose = ReachPose.new(pose: pose)
                 end
                 it "returns true if each position's axis is within the specified tolerance" do

@@ -1,4 +1,6 @@
-require 'common_models/models/compositions/pose_predicate'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/pose_predicate"
 
 module CommonModels
     module Compositions
@@ -8,9 +10,9 @@ module CommonModels
             argument :duration
 
             event :exceeds_tolerance
-            forward :exceeds_tolerance => :failed
+            forward exceeds_tolerance: :failed
             event :no_samples
-            forward :no_samples => :failed
+            forward no_samples: :failed
 
             script do
                 pose_r = pose_child.pose_samples_port.reader
@@ -27,11 +29,13 @@ module CommonModels
                     if sample = pose_r.read_new
                         @last_pose = Types.base.Pose.new(
                             position: sample.position,
-                            orientation: sample.orientation)
-                        if !within_tolerance?(sample)
+                            orientation: sample.orientation
+                        )
+                        unless within_tolerance?(sample)
                             exceeds_tolerance_event.emit(
                                 Hash[expected: rbs_to_hash(self.pose),
-                                     actual: rbs_to_hash(@last_pose)])
+                                     actual: rbs_to_hash(@last_pose)]
+                            )
                         end
                     end
                 end

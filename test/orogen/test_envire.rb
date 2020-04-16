@@ -1,5 +1,7 @@
-using_task_library 'envire'
-require 'fakefs/safe'
+# frozen_string_literal: true
+
+using_task_library "envire"
+require "fakefs/safe"
 
 module Envire
     describe SynchronizationTransmitter do
@@ -12,7 +14,7 @@ module Envire
         end
 
         it "should fail to configure if the provided initial map does not exist" do
-            envire = syskit_deploy(SynchronizationTransmitter.with_arguments(initial_map:'bogus_path'))
+            envire = syskit_deploy(SynchronizationTransmitter.with_arguments(initial_map: "bogus_path"))
             assert_raises(ArgumentError) do
                 syskit_configure(envire)
             end
@@ -20,9 +22,9 @@ module Envire
 
         it "should load the provided environment on the task" do
             FileUtils.mkdir_p "/environment"
-            envire = syskit_deploy(SynchronizationTransmitter.with_arguments(initial_map: 'bogus_path'))
-            flexmock(envire).should_receive_operation(:loadEnvironment).once.
-                with('/environment')
+            envire = syskit_deploy(SynchronizationTransmitter.with_arguments(initial_map: "bogus_path"))
+            flexmock(envire).should_receive_operation(:loadEnvironment).once
+                            .with("/environment")
             syskit_configure(envire)
         end
     end
