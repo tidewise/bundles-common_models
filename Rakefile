@@ -28,6 +28,10 @@ Roby::App::Rake::TestTask.new do |t|
     end
 end
 
+if Roby::App::Rake.define_rubocop_if_enabled
+    task "test" => "rubocop"
+end
+
 YARD::Rake::YardocTask.new do |yard|
     yard.files = ["models/**/*.rb", "lib/**/*.rb"]
 end

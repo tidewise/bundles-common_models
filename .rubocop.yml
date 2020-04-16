@@ -26,16 +26,6 @@ Naming/PredicateName:
 Lint/NestedMethodDefinition:
   Enabled: false
 
-Metrics/ModuleLength:
-  Exclude:
-    - '**/test/**/test_*.rb'
-    - '**/test/**/*_test.rb'
-
-Metrics/BlockLength:
-  ExcludedMethods:
-      - describe
-      - it
-
 Style/AccessModifierDeclarations:
   Enabled: false
 
