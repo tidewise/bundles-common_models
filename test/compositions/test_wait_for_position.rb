@@ -1,4 +1,6 @@
-require 'common_models/models/compositions/wait_for_position'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/wait_for_position"
 
 module CommonModels
     module Compositions

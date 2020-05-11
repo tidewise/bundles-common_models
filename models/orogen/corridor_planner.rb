@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Integration of the corridor planner task
 #
 # The task can take its start and end point by two means:
@@ -5,8 +7,8 @@
 #  * or by reading it from its planned task (if the task is used as a planning
 #    task)
 class OroGen::CorridorPlanner::Task
-    argument :start_point, :default => from(:planned_task).start_point.of_type(Eigen::Vector3)
-    argument :target_point, :default => from(:planned_task).target_point.of_type(Eigen::Vector3)
+    argument :start_point, default: from(:planned_task).start_point.of_type(Eigen::Vector3)
+    argument :target_point, default: from(:planned_task).target_point.of_type(Eigen::Vector3)
 
     def configure
         super
@@ -40,4 +42,3 @@ class OroGen::CorridorPlanner::Task
         end
     end
 end
-

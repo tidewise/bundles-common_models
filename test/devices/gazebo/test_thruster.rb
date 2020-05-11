@@ -1,4 +1,6 @@
-require 'models/devices/gazebo/thruster'
+# frozen_string_literal: true
+
+require "models/devices/gazebo/thruster"
 
 module CommonModels
     module Devices

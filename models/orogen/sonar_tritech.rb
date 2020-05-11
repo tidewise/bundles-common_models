@@ -1,6 +1,7 @@
-require 'common_models/models/devices/sonar/tritech/micron'
+# frozen_string_literal: true
+
+require "common_models/models/devices/sonar/tritech/micron"
 
 class OroGen::SonarTritech::Micron
-    driver_for CommonModels::Devices::Sonar::Tritech::Micron , as: 'driver' 
+    driver_for CommonModels::Devices::Sonar::Tritech::Micron, as: "driver"
 end
-

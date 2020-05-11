@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'common_models/models/services/joints_control_loop'
-require 'common_models/models/services/transformation'
-require 'common_models/models/devices/gazebo'
+require "common_models/models/services/joints_control_loop"
+require "common_models/models/services/transformation"
+require "common_models/models/devices/gazebo"
 
 ## Double negation is needed to convert objects to boolean when writing to properties
 # rubocop:disable Style/DoubleNegation
@@ -47,7 +47,7 @@ end
 # Note that in most cases you won't have to access this interface directly, the
 # rock_gazebo plugin does it for you through a high-level API on the profiles.
 Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/BlockLength
-    driver_for CommonModels::Devices::Gazebo::RootModel, as: 'model'
+    driver_for CommonModels::Devices::Gazebo::RootModel, as: "model"
 
     # @api private
     #
@@ -65,15 +65,15 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
     # Declare a dynamic service for the link export feature
     #
     # One uses it by first require'ing
-    dynamic_service CommonModels::Devices::Gazebo::Link, as: 'link_export' do
+    dynamic_service CommonModels::Devices::Gazebo::Link, as: "link_export" do
         name = self.name
         port_name, frame_basename =
             OroGen.rock_gazebo.ModelTask
                   .common_dynamic_link_export(self, name, options)
         driver_for CommonModels::Devices::Gazebo::Link,
-                   'link_state_samples' => port_name,
-                   'wrench_samples' => "#{port_name}_wrench",
-                   'acceleration_samples' => "#{port_name}_acceleration"
+                   "link_state_samples" => port_name,
+                   "wrench_samples" => "#{port_name}_wrench",
+                   "acceleration_samples" => "#{port_name}_acceleration"
         component_model.transformer do
             transform_output(
                 port_name, "#{frame_basename}_source" => "#{frame_basename}_target"
@@ -82,20 +82,20 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
     end
 
     # Declare a dynamic service that provides an interface to a set of joints
-    dynamic_service CommonModels::Devices::Gazebo::Joint, as: 'joint_export' do
+    dynamic_service CommonModels::Devices::Gazebo::Joint, as: "joint_export" do
         offsets = (options[:position_offsets] ||= [])
         unless offsets.empty?
             if offsets.size != options[:joint_names].size
                 raise ArgumentError,
-                      'the position_offsets array should either be empty '\
-                      'or of the same size than joint_names'
+                      "the position_offsets array should either be empty "\
+                      "or of the same size than joint_names"
             end
         end
 
         name = self.name
         driver_for CommonModels::Devices::Gazebo::Joint,
-                   'command_in' => "#{name}_joints_cmd",
-                   'status_out' => "#{name}_joints_samples"
+                   "command_in" => "#{name}_joints_cmd",
+                   "status_out" => "#{name}_joints_samples"
     end
 
     # Declare a dynamic service that provides an interface to a submodel
@@ -103,15 +103,15 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
     # It's essentially a Link with the original model joints. The joint stuff is
     # either-or, that is it is currently impossible to use two model/submodels
     # at the same time.
-    dynamic_service CommonModels::Devices::Gazebo::Model, as: 'submodel_export' do
+    dynamic_service CommonModels::Devices::Gazebo::Model, as: "submodel_export" do
         name = self.name
         driver_for CommonModels::Devices::Gazebo::Model,
-                   'joints_cmd' => "#{name}_joints_cmd",
-                   'joints_status' => "#{name}_joints_samples"
+                   "joints_cmd" => "#{name}_joints_cmd",
+                   "joints_status" => "#{name}_joints_samples"
     end
 
     transformer do
-        transform_output 'pose_samples', 'model' => 'world'
+        transform_output "pose_samples", "model" => "world"
     end
 
     def period_to_time(period)
@@ -129,7 +129,7 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
 
         if !transform.from || !transform.to
             model_transform = self.class.find_transform_of_port(task_port)
-            raise ArgumentError, 'you did not select the frames for '\
+            raise ArgumentError, "you did not select the frames for "\
                                     "#{model_transform.from} or #{model_transform.to}, "\
                                     "needed for #{link_srv.name}"
         end
@@ -154,7 +154,7 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
         _, sdf_root_model = resolve_sdf_model_and_root_from_device(device)
 
         joint_names = device.sdf.each_joint.map do |j|
-            next if j.type == 'fixed'
+            next if j.type == "fixed"
 
             j.full_name(root: sdf_root_model.parent)
         end.compact
@@ -179,7 +179,7 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
             port_name: "#{srv.name}_joints",
             port_period: period_to_time(device.period),
             position_offsets: position_offsets,
-            prefix: prefix || ''
+            prefix: prefix || ""
         )
     end
 
@@ -234,11 +234,11 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
 end
 
 Syskit.extend_model OroGen.rock_gazebo.LaserScanTask do
-    driver_for CommonModels::Devices::Gazebo::Ray, as: 'sensor'
+    driver_for CommonModels::Devices::Gazebo::Ray, as: "sensor"
 
     transformer do
-        frames 'sensor'
-        associate_ports_to_frame 'laser_scan_samples', 'sensor'
+        frames "sensor"
+        associate_ports_to_frame "laser_scan_samples", "sensor"
     end
 
     def configure
@@ -248,12 +248,12 @@ Syskit.extend_model OroGen.rock_gazebo.LaserScanTask do
 end
 
 Syskit.extend_model OroGen.rock_gazebo.ImuTask do
-    driver_for CommonModels::Devices::Gazebo::Imu, as: 'sensor'
+    driver_for CommonModels::Devices::Gazebo::Imu, as: "sensor"
 
     transformer do
-        frames 'sensor', 'inertial'
-        associate_ports_to_transform 'orientation_samples', 'sensor' => 'inertial'
-        associate_ports_to_frame 'imu_samples', 'sensor'
+        frames "sensor", "inertial"
+        associate_ports_to_transform "orientation_samples", "sensor" => "inertial"
+        associate_ports_to_frame "imu_samples", "sensor"
     end
 
     def configure
@@ -263,7 +263,7 @@ Syskit.extend_model OroGen.rock_gazebo.ImuTask do
 end
 
 Syskit.extend_model OroGen.rock_gazebo.ThrusterTask do
-    driver_for CommonModels::Devices::Gazebo::Thruster, as: 'thruster'
+    driver_for CommonModels::Devices::Gazebo::Thruster, as: "thruster"
 
     def configure
         super
@@ -272,7 +272,7 @@ Syskit.extend_model OroGen.rock_gazebo.ThrusterTask do
 end
 
 Syskit.extend_model OroGen.rock_gazebo.UnderwaterTask do
-    driver_for CommonModels::Devices::Gazebo::Underwater, as: 'underwater'
+    driver_for CommonModels::Devices::Gazebo::Underwater, as: "underwater"
 
     def configure
         super
@@ -281,11 +281,11 @@ Syskit.extend_model OroGen.rock_gazebo.UnderwaterTask do
 end
 
 Syskit.extend_model OroGen.rock_gazebo.CameraTask do
-    driver_for CommonModels::Devices::Gazebo::Camera, as: 'sensor'
+    driver_for CommonModels::Devices::Gazebo::Camera, as: "sensor"
 
     transformer do
-        frames 'sensor'
-        associate_ports_to_frame 'frame', 'sensor'
+        frames "sensor"
+        associate_ports_to_frame "frame", "sensor"
     end
 
     def configure
@@ -295,12 +295,12 @@ Syskit.extend_model OroGen.rock_gazebo.CameraTask do
 end
 
 Syskit.extend_model OroGen.rock_gazebo.GPSTask do
-    driver_for CommonModels::Devices::Gazebo::GPS, as: 'gps'
+    driver_for CommonModels::Devices::Gazebo::GPS, as: "gps"
 
     transformer do
-        frames 'gps', 'nwu', 'utm'
-        associate_ports_to_transform 'position_samples', 'gps' => 'nwu'
-        associate_ports_to_transform 'utm_samples', 'gps' => 'utm'
+        frames "gps", "nwu", "utm"
+        associate_ports_to_transform "position_samples", "gps" => "nwu"
+        associate_ports_to_transform "utm_samples", "gps" => "utm"
     end
 
     def configure

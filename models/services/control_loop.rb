@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "common_models/models/services/controller.rb"
 require "common_models/models/services/controlled_system.rb"
 
@@ -23,7 +25,6 @@ module CommonModels
                     end
                 end
             end
-
 
             # Declares standard services, parts of open-loop control systems.
             # The following services are defined, each time prefixed with
@@ -63,7 +64,7 @@ module CommonModels
                 open_loop_controlled_system.definition_location.delete_if { |file, _| file == this_file }
                 open_loop_controller.definition_location.delete_if { |file, _| file == this_file }
 
-                return open_loop_controller, open_loop_controlled_system
+                [open_loop_controller, open_loop_controlled_system]
             end
 
             # Declares standard services, parts of closed-loop control systems.
@@ -163,6 +164,3 @@ module CommonModels
         end
     end
 end
-
-
-

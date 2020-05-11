@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 class OroGen::PoseEstimator::Task
-    argument :initial_pose, :default => nil
+    argument :initial_pose, default: nil
     provides Srv::Pose
 
-    find_output_port('pose_samples').
-        triggered_on('odometry_delta_samples')
+    find_output_port("pose_samples")
+        .triggered_on("odometry_delta_samples")
 
     transformer do
         # The IMU is NOT imu => world. The pose estimator is meant to correct a
@@ -25,14 +27,16 @@ class OroGen::PoseEstimator::Task
     end
 
     on :start do |event|
-        return if !initial_pose
+        return unless initial_pose
 
         yaw_bias = 0
         position_variance = Eigen::Vector3.new(0.09, 0.09, 0.09)
-        yaw_variance  = (15 * Math::PI / 180) ** 2
+        yaw_variance = (15 * Math::PI / 180)**2
 
         if initial_pose.respond_to?(:cov_position)
-            vx, vy, vz = initial_pose.cov_position.data[0], initial_pose.cov_position.data[4], initial_pose.cov_position.data[8]
+            vx = initial_pose.cov_position.data[0]
+            vy = initial_pose.cov_position.data[4]
+            vz = initial_pose.cov_position.data[8]
             position_variance = Eigen::Vector3.new(vx, vy, vz)
         end
         if initial_pose.respond_to?(:yaw_bias)
@@ -44,4 +48,3 @@ class OroGen::PoseEstimator::Task
         orogen_task.set_position(initial_pose.position, position_variance, yaw_bias, yaw_variance)
     end
 end
-

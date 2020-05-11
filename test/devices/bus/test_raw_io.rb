@@ -1,4 +1,6 @@
-require 'common_models/models/devices/bus/raw_io'
+# frozen_string_literal: true
+
+require "common_models/models/devices/bus/raw_io"
 
 module CommonModels
     module Devices

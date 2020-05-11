@@ -1,7 +1,9 @@
-require 'common_models/models/blueprints/sensors'
+# frozen_string_literal: true
 
-Parport.com_bus_type 'GPIOReader', :message_type => '/parport/StateChange', :override_policy => false
-Dev::Bus.com_bus_type 'Parport' do
+require "common_models/models/blueprints/sensors"
+
+Parport.com_bus_type "GPIOReader", message_type: "/parport/StateChange", override_policy: false
+Dev::Bus.com_bus_type "Parport" do
     provides Parport::GPIOReader
 
     extend_attached_device_configuration do
@@ -12,7 +14,7 @@ Dev::Bus.com_bus_type 'Parport' do
 end
 
 class OroGen::Parport::Task
-    driver_for Dev::Bus::Parport, :as => 'driver'
+    driver_for Dev::Bus::Parport, as: "driver"
 
     def configure
         super
@@ -25,4 +27,3 @@ class OroGen::Parport::Task
         end
     end
 end
-

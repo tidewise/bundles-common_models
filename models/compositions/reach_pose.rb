@@ -1,4 +1,6 @@
-require 'common_models/models/compositions/pose_predicate'
+# frozen_string_literal: true
+
+require "common_models/models/compositions/pose_predicate"
 
 module CommonModels
     module Compositions
@@ -22,12 +24,14 @@ module CommonModels
                     if sample && within_tolerance?(sample)
                         @matching_pose = Types.base.Pose.new(
                             position: sample.position,
-                            orientation: sample.orientation)
+                            orientation: sample.orientation
+                        )
                         success_event.emit(matching_pose)
                     elsif timeout && (lifetime > timeout)
                         timed_out_event.emit(
                             Hash[expected: rbs_to_hash(self.pose),
-                                 last_pose: (rbs_to_hash(last_pose) if last_pose)])
+                                 last_pose: (rbs_to_hash(last_pose) if last_pose)]
+                        )
                     end
                 end
             end

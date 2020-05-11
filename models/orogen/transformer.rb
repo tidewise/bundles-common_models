@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OroGen::Transformer::Task
     attr_reader :last_update
 
@@ -9,4 +11,3 @@ class OroGen::Transformer::Task
         end
     end
 end
-

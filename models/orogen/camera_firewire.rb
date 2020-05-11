@@ -1,10 +1,12 @@
-require 'common_models/models/blueprints/devices'
-require 'common_models/models/blueprints/timestamping'
+# frozen_string_literal: true
+
+require "common_models/models/blueprints/devices"
+require "common_models/models/blueprints/timestamping"
 
 class OroGen::CameraFirewire::CameraTask
-    driver_for Dev::Sensors::Cameras::Firewire, :as => 'driver'
-    provides Base::TimestampInputSrv, :as => 'timestamps'
-    
+    driver_for Dev::Sensors::Cameras::Firewire, as: "driver"
+    provides Base::TimestampInputSrv, as: "timestamps"
+
     def configure
         super
         if p = robot_device.period
@@ -12,4 +14,3 @@ class OroGen::CameraFirewire::CameraTask
         end
     end
 end
-

@@ -1,8 +1,10 @@
-require 'common_models/models/blueprints/devices'
-class OroGen::ServoDynamixel::Task
-    driver_for Dev::Actuators::Dynamixel, :as => 'driver'
+# frozen_string_literal: true
 
-    orogen_model.find_port('command').multiplexes
+require "common_models/models/blueprints/devices"
+class OroGen::ServoDynamixel::Task
+    driver_for Dev::Actuators::Dynamixel, as: "driver"
+
+    orogen_model.find_port("command").multiplexes
 
     transformer do
         frames "lower", "upper"

@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class OroGen::Taskmon::Task
     attr_reader :query_tasks
     attr_reader :query_deployments
 
-    def initialize(options = Hash.new)
+    def initialize(options = {})
         super
 
         @watched_deployments = Set.new
@@ -10,10 +12,10 @@ class OroGen::Taskmon::Task
     end
 
     on :start do |event|
-        @query_tasks = plan.find_tasks(Syskit::TaskContext).
-            running
-        @query_deployments = plan.find_tasks(Syskit::Deployment).
-            running
+        @query_tasks = plan.find_tasks(Syskit::TaskContext)
+            .running
+        @query_deployments = plan.find_tasks(Syskit::Deployment)
+            .running
     end
 
     poll do
@@ -26,10 +28,10 @@ class OroGen::Taskmon::Task
         new_deployments = (deployments - @watched_deployments)
 
         return if new_deployments.empty? && new_tasks.empty?
+
         orocos_task.add_watches(new_deployments.map(&:pid),
                                 new_tasks.map(&:orocos_task))
         @watched_deployments = deployments
         @watched_tasks = tasks
     end
 end
-

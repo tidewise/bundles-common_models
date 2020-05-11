@@ -1,5 +1,7 @@
-import_types_from 'base'
-require 'common_models/models/services/pose'
+# frozen_string_literal: true
+
+import_types_from "base"
+require "common_models/models/services/pose"
 
 module CommonModels
     module Services
@@ -9,7 +11,7 @@ module CommonModels
         # consistency constraint
         #
         # It is typically an odometry on ground-based systems
-        data_service_type 'RelativePose' do
+        data_service_type "RelativePose" do
             provides Pose
         end
     end

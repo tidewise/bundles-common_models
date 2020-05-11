@@ -1,4 +1,6 @@
-using_task_library 'iodrivers_base'
+# frozen_string_literal: true
+
+using_task_library "iodrivers_base"
 
 module OroGen
     module IodriversBase

@@ -1,5 +1,7 @@
-require 'common_models/models/devices/gps/mb500'
-require 'common_models/models/devices/gps/generic'
+# frozen_string_literal: true
+
+require "common_models/models/devices/gps/mb500"
+require "common_models/models/devices/gps/generic"
 
 class OroGen::Gps::BaseTask
     def configure
@@ -12,9 +14,9 @@ class OroGen::Gps::BaseTask
 end
 
 class OroGen::Gps::MB500Task
-    driver_for CommonModels::Devices::GPS::MB500, as: 'driver'
+    driver_for CommonModels::Devices::GPS::MB500, as: "driver"
 end
 
 class OroGen::Gps::GPSDTask
-    driver_for CommonModels::Devices::GPS::Generic, as: 'driver'
+    driver_for CommonModels::Devices::GPS::Generic, as: "driver"
 end

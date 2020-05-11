@@ -1,4 +1,6 @@
-require 'common_models/models/services/position'
+# frozen_string_literal: true
+
+require "common_models/models/services/position"
 
 module CommonModels
     module Services
@@ -7,7 +9,7 @@ module CommonModels
         # jump
         #
         # It is typically a GPS
-        data_service_type 'GlobalPosition' do
+        data_service_type "GlobalPosition" do
             provides Position
         end
     end

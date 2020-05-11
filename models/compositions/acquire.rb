@@ -19,7 +19,7 @@ module CommonModels
         #
         def self.Acquire(service) # rubocop:disable Naming/MethodName
             cmp_m = Syskit::Composition.new_submodel
-            cmp_m.add service, as: 'data_source'
+            cmp_m.add service, as: "data_source"
             cmp_m.script do
                 ports = {}
                 result = {}

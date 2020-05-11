@@ -1,4 +1,6 @@
-require 'common_models/models/services/position'
+# frozen_string_literal: true
+
+require "common_models/models/services/position"
 
 module CommonModels
     module Compositions
@@ -14,15 +16,15 @@ module CommonModels
             argument :tolerance
 
             # The position stream
-            add CommonModels::Services::Position, as: 'position'
+            add CommonModels::Services::Position, as: "position"
 
             # Tests whether the cov_position of a rbs is acceptable w.r.t. {#tolerance}
             #
             # @param [Array<Float>] cov_position the flattened 3x3 covariance matrix
             def acceptable?(cov_position)
-                (!(x = tolerance[:x]) || cov_position[0] < x ** 2) &&
-                    (!(y = tolerance[:y]) || cov_position[4] < y ** 2) &&
-                    (!(z = tolerance[:z]) || cov_position[8] < z ** 2)
+                (!(x = tolerance[:x]) || cov_position[0] < x**2) &&
+                    (!(y = tolerance[:y]) || cov_position[4] < y**2) &&
+                    (!(z = tolerance[:z]) || cov_position[8] < z**2)
             end
 
             script do

@@ -1,5 +1,7 @@
-import_types_from 'base'
-require 'common_models/models/services/control_loop'
+# frozen_string_literal: true
+
+import_types_from "base"
+require "common_models/models/services/control_loop"
 
 CommonModels::Services::ControlLoop.declare \
-    'JointsTrajectory', '/base/JointsTrajectory', '/base/samples/Joints'
+    "JointsTrajectory", "/base/JointsTrajectory", "/base/samples/Joints"

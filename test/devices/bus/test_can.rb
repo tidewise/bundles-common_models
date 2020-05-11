@@ -1,5 +1,7 @@
-require 'common_models/models/devices/bus/can'
-using_task_library 'canbus'
+# frozen_string_literal: true
+
+require "common_models/models/devices/bus/can"
+using_task_library "canbus"
 module CommonModels
     module Devices
         module Bus
@@ -20,4 +22,3 @@ module CommonModels
         end
     end
 end
-

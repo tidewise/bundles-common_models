@@ -1,5 +1,7 @@
-require 'base/float'
-require 'common_models/models/services/pose'
+# frozen_string_literal: true
+
+require "base/float"
+require "common_models/models/services/pose"
 
 module CommonModels
     module Compositions
@@ -21,8 +23,8 @@ module CommonModels
             argument :orientation_tolerance
 
             # The pose source
-            add CommonModels::Services::Pose, as: 'pose'
-            
+            add CommonModels::Services::Pose, as: "pose"
+
             # The last received pose as a Types.base.samples.RigidBodyState
             # object
             attr_reader :last_pose
@@ -36,7 +38,7 @@ module CommonModels
                     return false if diff_position[i].abs > position_tolerance[i]
                 end
 
-                diff_orientation = pose.orientation.inverse() * sample.orientation;
+                diff_orientation = pose.orientation.inverse * sample.orientation;
                 diff_ypr = diff_orientation.to_euler
                 3.times do |i|
                     next if Base.unset?(orientation_tolerance[i])
@@ -47,13 +49,13 @@ module CommonModels
             end
 
             def rbs_to_hash(rbs)
-                position    = Hash[[:x, :y, :z].zip(rbs.position.to_a)]
-                orientation = Hash[[:yaw, :pitch, :roll].zip(rbs.orientation.to_euler.to_a)]
+                position    = Hash[%i[x y z].zip(rbs.position.to_a)]
+                orientation = Hash[%i[yaw pitch roll].zip(rbs.orientation.to_euler.to_a)]
                 position.merge(orientation)
             end
 
             event :timed_out
-            forward :timed_out => :failed
+            forward timed_out: :failed
         end
     end
 end

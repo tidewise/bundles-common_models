@@ -1,9 +1,11 @@
-require 'common_models/models/blueprints/map_gen/map_generator_srv'
+# frozen_string_literal: true
+
+require "common_models/models/blueprints/map_gen/map_generator_srv"
 
 class OroGen::Envire::SynchronizationTransmitter
     argument :initial_map
 
-    provides CommonModels::MapGen::OneShotSrv, :as => 'one_shot'
+    provides CommonModels::MapGen::OneShotSrv, as: "one_shot"
 
     on :start do |event|
         if !File.directory?(initial_map)
@@ -14,5 +16,5 @@ class OroGen::Envire::SynchronizationTransmitter
         end
     end
 
-    provides CommonModels::MapGen::MLSSrv, :as => 'mls'
+    provides CommonModels::MapGen::MLSSrv, as: "mls"
 end

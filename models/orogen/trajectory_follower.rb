@@ -1,5 +1,7 @@
-require 'common_models/models/services/motion2d_control_loop'
-require 'common_models/models/compositions/motion2d_control_loop'
+# frozen_string_literal: true
+
+require "common_models/models/services/motion2d_control_loop"
+require "common_models/models/compositions/motion2d_control_loop"
 
 # Integration of the trajectory follower component
 #
@@ -23,7 +25,7 @@ require 'common_models/models/compositions/motion2d_control_loop'
 # Moreover, if the Conf.reverse_trajectory flag is set, the trajectory follower
 # will follow the static trajectory in the reverse direction
 class OroGen::TrajectoryFollower::Task
-    provides CommonModels::Services::Motion2DOpenLoopController, as: 'controller'
+    provides CommonModels::Services::Motion2DOpenLoopController, as: "controller"
 
     argument :trajectory, default: nil
 
@@ -43,4 +45,3 @@ class OroGen::TrajectoryFollower::Task
         end
     end
 end
-

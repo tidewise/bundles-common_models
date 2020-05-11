@@ -1,4 +1,6 @@
-import_types_from 'base'
+# frozen_string_literal: true
+
+import_types_from "base"
 
 module Base
     module TimestamperManagement
@@ -6,7 +8,7 @@ module Base
         # provider definition
         #
         # See Timestamper.timestamp_provider
-        attribute(:providers) { Hash.new }
+        attribute(:providers) { {} }
 
         # Declares that +provider+ should be used to provide timestamps for the
         # given devices
@@ -17,17 +19,17 @@ module Base
         end
     end
 
-    data_service_type 'TimestamperSrv' do
-        output_port 'timestamps', '/base/Time'
+    data_service_type "TimestamperSrv" do
+        output_port "timestamps", "/base/Time"
     end
     TimestamperSrv.extend TimestamperManagement
 
-    data_service_type 'TimestampInputSrv' do
-        input_port 'timestamps', '/base/Time'
+    data_service_type "TimestampInputSrv" do
+        input_port "timestamps", "/base/Time"
     end
 
     Syskit::NetworkGeneration::Engine.register_instanciation_postprocessing do |engine, plan|
-        providers_to_input = Hash.new { |h, k| h[k] = Array.new }
+        providers_to_input = Hash.new { |h, k| h[k] = [] }
 
         # Avoid instanciating too many things by grouping providers together if they
         # provide timestamps for multiple outputs
@@ -49,4 +51,3 @@ module Base
         end
     end
 end
-

@@ -1,4 +1,6 @@
-import_types_from 'base'
+# frozen_string_literal: true
+
+import_types_from "base"
 
 module CommonModels
     module Services
@@ -8,8 +10,8 @@ module CommonModels
         #
         # @see IMUCompensatedSensors
         # @see IMUCalibratedSensors
-        data_service_type 'IMURawSensors' do
-            output_port 'raw_sensors', '/base/samples/IMUSensors'
+        data_service_type "IMURawSensors" do
+            output_port "raw_sensors", "/base/samples/IMUSensors"
         end
     end
 end
