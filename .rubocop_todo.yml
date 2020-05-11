@@ -377,6 +377,7 @@ Style/IfUnlessModifier:
     - 'models/orogen/canbus.rb'
     - 'models/orogen/corridor_planner.rb'
     - 'models/orogen/gps.rb'
+    - 'models/orogen/joint_dispatcher.rb'
     - 'models/orogen/mars.rb'
     - 'models/orogen/pose_estimator.rb'
     - 'models/orogen/simulation.rb'
