@@ -226,6 +226,9 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
     stub do
         def configure(*)
             super
+            model.each_input_port do |p|
+                create_input_port(p.name, p.type) unless has_port?(p.name)
+            end
             model.each_output_port do |p|
                 create_output_port(p.name, p.type) unless has_port?(p.name)
             end
