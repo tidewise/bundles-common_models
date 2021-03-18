@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class OroGen::Transformer::Task
+Syskit.extend_model OroGen.transformer.Task do
     attr_reader :last_update
 
     poll do
