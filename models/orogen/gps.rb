@@ -3,7 +3,7 @@
 require "common_models/models/devices/gps/mb500"
 require "common_models/models/devices/gps/generic"
 
-class OroGen::Gps::BaseTask
+OroGen.extend_model OroGen.gps.BaseTask do
     def configure
         super
 
@@ -13,10 +13,10 @@ class OroGen::Gps::BaseTask
     end
 end
 
-class OroGen::Gps::MB500Task
+OroGen.extend_model OroGen.gps.MB500Task do
     driver_for CommonModels::Devices::GPS::MB500, as: "driver"
 end
 
-class OroGen::Gps::GPSDTask
+OroGen.extend_model OroGen.gps.GPSDTask do
     driver_for CommonModels::Devices::GPS::Generic, as: "driver"
 end

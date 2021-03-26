@@ -2,7 +2,7 @@
 
 require "common_models/models/devices/bus/can"
 
-class OroGen::Canbus::Task
+Syskit.extend_model OroGen.canbus.Task do
     driver_for CommonModels::Devices::Bus::CAN, as: "driver"
 
     # This declares that all devices attached to this bus should use the 'in'
