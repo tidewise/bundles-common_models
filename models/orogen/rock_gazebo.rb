@@ -189,15 +189,18 @@ Syskit.extend_model OroGen.rock_gazebo.ModelTask do # rubocop:disable Metrics/Bl
             prefix = "#{sdf_model.parent.full_name(root: sdf_root_model.parent)}::"
         end
 
-        Types.rock_gazebo.JointExport.new(
+        joint_export = Types.rock_gazebo.JointExport.new(
             ignore_joint_names: ignore_joint_names,
             joints: joint_names,
             port_name: "#{srv.name}_joints",
             port_period: period_to_time(device.period),
             position_offsets: position_offsets,
-            control_modes: control_modes,
             prefix: prefix || ""
         )
+        if joint_export.respond_to?(:control_modes)
+            joint_export.control_modes = control_modes
+        end
+        joint_export
     end
 
     def resolve_sdf_model_and_root_from_device(device)
